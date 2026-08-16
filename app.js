@@ -1,14 +1,21 @@
 const CFG_DEFAULT={
  frost:[
   "https://froststream.cloutteam.com/manifest.json",
-  "https://watchhub.strem.io/manifest.json"
+  "https://watchhub.strem.io/manifest.json",
+  "https://fenixflix.fenixhub.online/manifest.json",
+  "https://comet.elfhosted.com/manifest.json",
+  "https://94c8cb9f702d-brazuca-torrents.baby-beamup.club/manifest.json",
+  "https://mediafusion.elfhosted.com/manifest.json",
+  "https://animes-br-self.vercel.app/manifest.json",
+  "https://anima-o-pt-pt-addon-stremio-6dzv.vercel.app/manifest.json"
  ].join("\n"),
  meta:"https://v3-cinemeta.strem.io/manifest.json",
  catalogs:[
   "https://v3-cinemeta.strem.io/manifest.json",
-  "https://7a82163c306e-stremio-netflix-catalog-addon.baby-beamup.club/manifest.json"
+  "https://7a82163c306e-stremio-netflix-catalog-addon.baby-beamup.club/manifest.json",
+  "https://mediafusion.elfhosted.com/manifest.json"
  ].join("\n"),
- subtitleAddon:"https://opensubtitles-v3.strem.io/manifest.json",
+ subtitleAddon:"https://subsense.nepiraw.com/manifest.json",
  audioPref:"jpn",
  subtitlePref:"pob",
  mangaRepos:[
@@ -21,6 +28,16 @@ let savedStreams=localStorage.getItem("cf2_frost")||CFG_DEFAULT.frost;
 if(!localStorage.getItem("cf5_watchhub_migrated")){
  if(!savedStreams.includes("watchhub.strem.io"))savedStreams=savedStreams.trim()+"\nhttps://watchhub.strem.io/manifest.json";
  localStorage.setItem("cf2_frost",savedStreams);localStorage.setItem("cf5_watchhub_migrated","1");
+}
+if(!localStorage.getItem("rf35_sources_migrated")){
+ const newFrost=["https://fenixflix.fenixhub.online/manifest.json","https://comet.elfhosted.com/manifest.json","https://94c8cb9f702d-brazuca-torrents.baby-beamup.club/manifest.json","https://mediafusion.elfhosted.com/manifest.json","https://animes-br-self.vercel.app/manifest.json","https://anima-o-pt-pt-addon-stremio-6dzv.vercel.app/manifest.json"];
+ for(const u of newFrost)if(!savedStreams.includes(u))savedStreams=savedStreams.trim()+"\n"+u;
+ localStorage.setItem("cf2_frost",savedStreams);
+ let savedCatalogs=localStorage.getItem("cf4_catalogs")||CFG_DEFAULT.catalogs;
+ if(!savedCatalogs.includes("mediafusion.elfhosted.com"))savedCatalogs=savedCatalogs.trim()+"\nhttps://mediafusion.elfhosted.com/manifest.json";
+ localStorage.setItem("cf4_catalogs",savedCatalogs);
+ localStorage.setItem("cf5_subtitle_addon","https://subsense.nepiraw.com/manifest.json");
+ localStorage.setItem("rf35_sources_migrated","1");
 }
 const cfg={
  frost:savedStreams,
@@ -42,6 +59,18 @@ const S={hero:null,current:null,currentShow:null,currentEpisode:null,nextEpisode
 const $=s=>document.querySelector(s);
 const $$=s=>document.querySelectorAll(s);
 const esc=x=>String(x??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+const SITE_DEFAULT_VOLUME=0.3,SITE_DEFAULT_VOLUME_PCT=30;
+function attachYouTubePreviewVolume(iframe,pct){
+ let ready=false;
+ const send=(func,args=[])=>{try{iframe.contentWindow.postMessage(JSON.stringify({event:"command",func,args}),"*")}catch{}};
+ const onMsg=e=>{
+  if(!iframe.isConnected||e.source!==iframe.contentWindow)return;
+  let data;try{data=typeof e.data==="string"?JSON.parse(e.data):e.data}catch{return}
+  if(data&&data.event==="onReady"){ready=true;send("unMute");send("setVolume",[pct]);window.removeEventListener("message",onMsg)}
+ };
+ window.addEventListener("message",onMsg);
+ setTimeout(()=>{if(!ready){send("unMute");send("setVolume",[pct])}window.removeEventListener("message",onMsg)},1200);
+}
 
 S.globalVideoResults=[];
 S.globalVideosExpanded=false;
@@ -530,7 +559,9 @@ async function fetchPreviewMeta(type,id,token){
   renderCardPreviewContent(m);
   const trailer=(m.trailers||[]).find(t=>t&&t.source);
   if(trailer){
-   $("#cardPreviewVideoWrap").innerHTML=`<iframe src="https://www.youtube.com/embed/${esc(trailer.source)}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&playsinline=1&loop=1&playlist=${esc(trailer.source)}&hl=pt-BR&cc_lang_pref=pt&cc_load_policy=1" allow="autoplay; encrypted-media" frameborder="0" title="Trailer"></iframe>`;
+   $("#cardPreviewVideoWrap").innerHTML=`<iframe src="https://www.youtube.com/embed/${esc(trailer.source)}?autoplay=1&mute=0&controls=0&modestbranding=1&rel=0&playsinline=1&loop=1&playlist=${esc(trailer.source)}&hl=pt-BR&cc_lang_pref=pt&cc_load_policy=1&enablejsapi=1&origin=${encodeURIComponent(location.origin)}" allow="autoplay; encrypted-media" frameborder="0" title="Trailer"></iframe>`;
+   const frame=$("#cardPreviewVideoWrap iframe");
+   if(frame)attachYouTubePreviewVolume(frame,SITE_DEFAULT_VOLUME_PCT);
   }
  }catch{}
 }
@@ -1007,8 +1038,8 @@ function configuredManifestPriority(manifest){
 function sortStreamManifests(manifests){
  const pref=preferredManifestForEpisode(),primary=S.primaryManifest;
  return manifests.slice().sort((a,b)=>{
-  const sa=(a===primary?190:0)+(a===pref?110:0)+configuredManifestPriority(a)+(a.includes("froststream")?45:0)-(a.includes("watchhub")?10:0);
-  const sb=(b===primary?190:0)+(b===pref?110:0)+configuredManifestPriority(b)+(b.includes("froststream")?45:0)-(b.includes("watchhub")?10:0);
+  const sa=(a===primary?190:0)+(a===pref?110:0)+configuredManifestPriority(a);
+  const sb=(b===primary?190:0)+(b===pref?110:0)+configuredManifestPriority(b);
   return sb-sa;
  });
 }
@@ -1681,7 +1712,7 @@ function resetVideo(){
  const v=$("#video");v.pause();if(v._hls){v._hls.destroy();v._hls=null}v.removeAttribute("src");
  [...v.querySelectorAll("track[data-casaflix]")].forEach(t=>t.remove());
  if(S.externalSubtitleBlob){URL.revokeObjectURL(S.externalSubtitleBlob);S.externalSubtitleBlob=null}
- v.load();S.resumeEntry=null;S.resumeApplied=false;applyAspectMode(S.aspectMode,false);$("#seek").value=0;$("#seek").style.setProperty("--seek-fill","0%");$("#timeText").textContent="0:00 / 0:00";$("#bigPlay").classList.remove("hidden");$("#playPause").textContent="▶";$("#centerPlay").textContent="▶";$("#trackStatus").textContent="Áudio: auto • Legenda: auto";$("#playerMenu").classList.remove("open");$("#playerMenuBackdrop").classList.remove("open");S.playerMenuKind=null;
+ v.load();v.volume=SITE_DEFAULT_VOLUME;v.muted=false;$("#volume").value=SITE_DEFAULT_VOLUME;$("#muteBtn").textContent="🔊";S.resumeEntry=null;S.resumeApplied=false;applyAspectMode(S.aspectMode,false);$("#seek").value=0;$("#seek").style.setProperty("--seek-fill","0%");$("#timeText").textContent="0:00 / 0:00";$("#bigPlay").classList.remove("hidden");$("#playPause").textContent="▶";$("#centerPlay").textContent="▶";$("#trackStatus").textContent="Áudio: auto • Legenda: auto";$("#playerMenu").classList.remove("open");$("#playerMenuBackdrop").classList.remove("open");S.playerMenuKind=null;
 }
 let hlsLibraryPromise=null;
 function ensureHlsLibrary(){
@@ -3019,7 +3050,7 @@ async function playSoundCloudItem(x,queue=null,index=-1){
   widget.bind(SC.Widget.Events.READY,()=>{
    S.soundcloudWidgetReady=true;S.soundcloudPaused=false;
    widget.getDuration(ms=>{S.soundcloudDuration=Number(ms||0)/1000;updateSpotifyPlayer()});
-   widget.setVolume(Math.round(Number($("#musicVolume")?.value||.9)*100));widget.play()
+   widget.setVolume(Math.round(Number($("#musicVolume")?.value||SITE_DEFAULT_VOLUME)*100));widget.play()
   });
   widget.bind(SC.Widget.Events.PLAY_PROGRESS,e=>{S.soundcloudPosition=Number(e?.currentPosition||0)/1000;S.soundcloudDuration=Math.max(S.soundcloudDuration,S.soundcloudPosition/(Number(e?.relativePosition)||1));updateSpotifyPlayer()});
   widget.bind(SC.Widget.Events.PLAY,()=>{S.soundcloudPaused=false;updateSpotifyPlayer()});
@@ -3111,7 +3142,7 @@ function playMusicItem(x,queue=null,index=-1){
  const url=safeHttpUrl(x?.streamUrl||x?.previewUrl||"");if(!url)return toast("Essa faixa não possui áudio reproduzível.");
  if(queue){S.musicQueue=queue;S.musicQueueIndex=index}
  S.musicCurrentItem=x;S.musicBackend="audio";pauseOtherMusicBackend("audio");
- const a=$("#musicPreviewAudio");a.pause();a.src=url;a.load();a.volume=Number($("#musicVolume")?.value||.9);
+ const a=$("#musicPreviewAudio");a.pause();a.src=url;a.load();a.volume=Number($("#musicVolume")?.value||SITE_DEFAULT_VOLUME);
  $("#musicMiniCover").style.backgroundImage=`url('${x.image||""}')`;$("#musicMiniTitle").textContent=x.title||"Música";
  $("#musicMiniArtist").textContent=`${x.artist||""}${x.fullTrack?" • Audius":" • Prévia"}`;
  $("#musicMiniStore").style.display=x.source==="SoundCloud"?"none":(x.externalUrl?"":"none");$("#musicMiniStore").onclick=x.source==="SoundCloud"?null:(()=>{if(x.externalUrl)window.open(x.externalUrl,"_blank","noopener,noreferrer")});
@@ -3866,7 +3897,7 @@ $("#installAppBtn").onclick=async()=>{
 };
 window.addEventListener("appinstalled",()=>{deferredInstallPrompt=null;$("#installAppBtn").style.display="none";toast("ResenhaFlix instalado como aplicativo.")});
 if("serviceWorker" in navigator){
- window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js?v=35",{updateViaCache:"none"}).catch(e=>console.warn("Service Worker",e)));
+ window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js?v=36",{updateViaCache:"none"}).catch(e=>console.warn("Service Worker",e)));
 }
 window.addEventListener("scroll",()=>hideCardPreview(),{passive:true,capture:true});
 window.addEventListener("resize",()=>hideCardPreview());

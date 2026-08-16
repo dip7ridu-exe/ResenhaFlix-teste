@@ -1,5 +1,5 @@
-const CACHE="resenhaflix-shell-v35";
-const SHELL=["./","./index.html","./styles.css?v=35","./app.js?v=35","./manifest.webmanifest","./manga-hakuneko.css?v=34","./manga-hakuneko.js?v=34","./icons/resenhaflix-logo.png","./icons/icon-192.png","./icons/icon-512.png","./icons/icon-maskable-512.png"];
+const CACHE="resenhaflix-shell-v36";
+const SHELL=["./","./index.html","./styles.css?v=36","./app.js?v=36","./manifest.webmanifest","./manga-hakuneko.css?v=34","./manga-hakuneko.js?v=34","./icons/resenhaflix-logo.png","./icons/icon-192.png","./icons/icon-512.png","./icons/icon-maskable-512.png"];
 self.addEventListener("install",e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(SHELL)).then(()=>self.skipWaiting())));
 self.addEventListener("activate",e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith("resenhaflix-shell-")&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
 self.addEventListener("fetch",e=>{

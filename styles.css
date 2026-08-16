@@ -26,7 +26,7 @@ main{position:relative;z-index:2;margin-top:-25px;padding:0 3vw 60px}.section{ma
 .card:hover{transform:scale(1.045);z-index:5;box-shadow:0 15px 35px #000}.poster{aspect-ratio:2/3;background:#222 center/cover no-repeat}.cardInfo{padding:8px 9px 10px}.title{font-size:13px;font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sub{font-size:11px;color:#8f8f95;margin-top:3px}.rating{position:absolute;top:7px;left:7px;padding:3px 6px;border-radius:5px;background:#000c;font-size:10px;font-weight:800}.plus{position:absolute;right:7px;top:7px;width:27px;height:27px;border:0;border-radius:50%;background:#000b;color:#fff;font-size:18px;opacity:0;transition:.15s}.card:hover .plus{opacity:1}.bar{height:3px;margin:0 9px 8px;background:#36363a;border-radius:9px;overflow:hidden}.bar i{display:block;height:100%;background:var(--accent)}
 .skeleton{height:235px;background:linear-gradient(90deg,#151515,#242424,#151515);background-size:200% 100%;animation:sk 1.2s infinite;border-radius:9px}@keyframes sk{to{background-position:-200% 0}}
 
-/* ResenhaFlix v35 — preview dos cards ao passar o mouse (hover) / segurar (long-press) */
+/* ResenhaFlix v36 — preview dos cards ao passar o mouse (hover) / segurar (long-press) */
 .cardPreview{position:fixed;z-index:85;width:340px;border-radius:12px;overflow:hidden;background:#15161b;box-shadow:0 22px 60px #000c,0 0 0 1px #2c2f37;opacity:0;transform:translateY(6px) scale(.96);pointer-events:none;transition:opacity .16s ease,transform .16s ease;}
 .cardPreview.show{opacity:1;transform:translateY(0) scale(1)}
 .cardPreviewMedia{position:relative;aspect-ratio:16/9;background:#0b0b0d;overflow:hidden}
@@ -1866,7 +1866,7 @@ body.mangaWebOpen .mobileBottomNav{display:none!important}
  .playerControls{bottom:0!important;padding-bottom:8px!important}.primeNextFloat{bottom:12px}
 }
 
-/* ResenhaFlix v35 — abas Fontes/Episódios e botão EP dentro do player */
+/* ResenhaFlix v36 — abas Fontes/Episódios e botão EP dentro do player */
 .playerSideTabs{display:flex;flex:none;gap:6px;padding:12px 14px 0}
 .playerSideTab{flex:1;min-height:38px;border:1px solid #2c2f37;background:#15161b;color:#aab0bd;border-radius:8px;font-size:12px;font-weight:800;letter-spacing:.2px;cursor:pointer}
 .playerSideTab.active{background:#fff;color:#111;border-color:#fff}
