@@ -1,0 +1,604 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ResenhaFlix — sua biblioteca</title>
+<meta name="theme-color" content="#6d28d9">
+<meta name="color-scheme" content="dark">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ResenhaFlix">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icons/resenhaflix-logo.png" type="image/png">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
+<link rel="stylesheet" href="./styles.css?v=35">
+<link rel="stylesheet" href="./manga-hakuneko.css?v=34">
+</head>
+<body>
+<header class="top" id="top">
+ <button type="button" class="logo" id="logoHome" aria-label="Ir para o início"><img src="./icons/resenhaflix-logo.png" alt=""><span>RESENHA<b>FLIX</b></span></button>
+ <nav class="nav">
+  <button type="button" class="categoriesNavBtn" id="categoriesNavBtn">Categorias <span>⌄</span></button>
+  <button class="active" data-page="home">Início</button>
+  <button data-page="trending">Em alta</button>
+  <button data-page="movies">Filmes</button>
+  <button data-page="series">Séries</button>
+  <button data-page="anime">Animes</button>
+  <button data-page="manga">Mangás</button>
+  <button data-page="music">Música</button>
+  <button data-page="books">Livros</button>
+  <button data-page="list">Minha lista</button>
+ </nav>
+ <div class="right">
+  <label class="search" id="topSearch">⌕ <input id="search" placeholder="Buscar em todo o ResenhaFlix..." autocomplete="off"></label>
+  <button class="iconbtn mobileSearchBtn" id="mobileSearchBtn" aria-label="Buscar">⌕</button>
+  <button class="iconbtn" id="settingsBtn" aria-label="Configurações">⚙</button>
+ </div>
+</header>
+
+<div class="categoryMega" id="categoryMega" aria-hidden="true">
+ <div class="categoryMegaInner">
+  <aside class="categoryMegaExplore">
+   <div class="categoryMegaTitle">Explorar</div>
+   <button type="button" data-category-page="anime">Explorar tudo (A–Z)</button>
+   <button type="button" data-category-page="trending">Em alta agora</button>
+   <button type="button" data-category-page="movies">Filmes</button>
+   <button type="button" data-category-page="series">Séries</button>
+   <button type="button" data-category-page="anime">Animes</button>
+   <button type="button" data-category-page="manga">Mangás</button>
+   <button type="button" data-category-page="music">Música</button>
+   <button type="button" data-category-page="books">Livros</button>
+   <button type="button" data-category-page="list">Minha lista</button>
+  </aside>
+  <section class="categoryMegaGenres">
+   <div class="categoryMegaTitle">Gêneros</div>
+   <div class="categoryMegaGrid" id="categoryMegaGrid"></div>
+  </section>
+ </div>
+</div>
+
+<div class="categoryMegaBackdrop" id="categoryMegaBackdrop"></div>
+
+<div class="mobileSearchPanel" id="mobileSearchPanel">
+ <div class="mobileSearchInner">
+  <span class="mobileSearchIcon">⌕</span>
+  <input id="mobileSearchInput" placeholder="Buscar em todo o ResenhaFlix..." autocomplete="off">
+  <button type="button" id="mobileSearchClose" aria-label="Fechar busca">✕</button>
+ </div>
+</div>
+
+<section class="hero" id="hero">
+ <div class="heroContent">
+  <div class="tag">SUA BIBLIOTECA FAMILIAR</div>
+  <h1 id="heroTitle">ResenhaFlix</h1>
+  <div class="heroMeta" id="heroMeta"></div>
+  <p class="heroDesc" id="heroDesc">Carregando filmes e séries...</p>
+  <div class="actions"><button class="btn primary" id="heroWatch">▶ Assistir</button><button class="btn secondary" id="heroDetails">ⓘ Detalhes</button></div>
+ </div>
+</section>
+
+<main id="main"></main>
+<section class="page hidden" id="page"><h2 id="pageTitle"></h2><div id="pageBody"></div></section>
+
+<div class="modal" id="detailModal">
+ <div class="dialog netflixDetailDialog">
+  <button class="close netflixDetailClose" id="closeDetail" aria-label="Fechar">×</button>
+  <div class="detailHero netflixDetailHero" id="detailHero">
+   <div class="netflixDetailGradient"></div>
+   <button type="button" class="detailMuteVisual" id="detailMuteVisual" title="Imagem de destaque">⌁</button>
+   <div class="detailContent netflixDetailContent">
+    <div class="netflixBrand" id="detailType">RESENHAFLIX</div>
+    <h2 id="detailTitle"></h2>
+    <div class="netflixHeroMeta" id="detailMeta"></div>
+    <div class="netflixHeroActions">
+     <button class="netflixPlayBtn" id="detailWatch">▶ <span>Assistir</span></button>
+     <button class="netflixRoundBtn" id="detailList" title="Minha lista">＋</button>
+     <button class="netflixRoundBtn" id="detailLike" title="Gostei">♡</button>
+    </div>
+   </div>
+  </div>
+  <div class="netflixDetailBody">
+   <div class="netflixInfoGrid">
+    <div class="netflixInfoMain">
+     <div class="netflixFacts" id="detailFacts"></div>
+     <h3 id="detailTagline"></h3>
+     <p id="detailDesc"></p>
+    </div>
+    <aside class="netflixInfoAside">
+     <div><span>Elenco:</span> <b id="detailCast">Não informado</b></div>
+     <div><span>Gêneros:</span> <b id="detailGenres">—</b></div>
+     <div><span>Este título é:</span> <b id="detailTraits">Filme ou série para assistir</b></div>
+    </aside>
+   </div>
+   <div class="episodes" id="episodes"></div>
+   <section class="detailSimilarSection">
+    <div class="detailSimilarHead"><h3>Títulos semelhantes</h3><small id="detailSimilarMeta"></small></div>
+    <div class="detailSimilarGrid" id="detailSimilar"><div class="loading">Carregando recomendações…</div></div>
+   </section>
+  </div>
+ </div>
+</div>
+
+<div class="modal" id="playerModal">
+ <div class="playerWrap">
+  <div class="playerLayout">
+   <section class="playerStage">
+    <div class="playerTop">
+     <div class="primePlayerTitleWrap">
+      <div class="playerTitle" id="playerTitle">Reprodução</div>
+      <div class="primePlayerSubtitle" id="playerSubtitle"></div>
+     </div>
+     <div class="primeTopActions">
+      <button type="button" class="primeTopBtn primeSourceOnly" id="primeSourceBtn" title="Trocar fonte" aria-label="Trocar fonte">▣</button>
+      <button class="close primeClose" id="closePlayer" aria-label="Fechar player">×</button>
+     </div>
+    </div>
+    <div class="videoShell" id="videoShell">
+     <video id="video" playsinline preload="metadata"></video>
+     <div class="buffering" id="buffering"></div>
+     <button class="bigPlay" id="bigPlay" aria-label="Reproduzir">▶</button>
+     <div class="primeCenterControls" id="primeCenterControls">
+      <button type="button" class="primeJump" id="centerBack10" aria-label="Voltar 10 segundos">
+       <svg class="jumpSvg" viewBox="0 0 64 64" aria-hidden="true">
+        <path class="jumpArc" d="M18 13A24 24 0 1 1 9.5 39"/>
+        <path class="jumpArrow" d="M19 4 10 13l9 9"/>
+        <text x="32" y="39">10</text>
+       </svg>
+      </button>
+      <button type="button" class="primePlay" id="centerPlay" aria-label="Reproduzir ou pausar">▶</button>
+      <button type="button" class="primeJump" id="centerForward10" aria-label="Avançar 10 segundos">
+       <svg class="jumpSvg" viewBox="0 0 64 64" aria-hidden="true">
+        <g transform="translate(64 0) scale(-1 1)">
+         <path class="jumpArc" d="M18 13A24 24 0 1 1 9.5 39"/>
+         <path class="jumpArrow" d="M19 4 10 13l9 9"/>
+        </g>
+        <text x="32" y="39">10</text>
+       </svg>
+      </button>
+     </div>
+     <button type="button" class="skipIntroBtn" id="skipIntroBtn">Pular abertura ⏭</button>
+     <div class="playerControls" id="playerControls">
+      <input class="seek" id="seek" type="range" min="0" max="1000" value="0" aria-label="Progresso">
+      <div class="controlRow">
+       <button class="ctl" id="playPause" title="Reproduzir/Pausar">▶</button>
+       <button class="ctl" id="back10" title="Voltar 10 segundos">↶ 10</button>
+       <button class="ctl" id="forward10" title="Avançar 10 segundos">10 ↷</button>
+       <button class="ctl" id="muteBtn" title="Som">🔊</button>
+       <input class="volume" id="volume" type="range" min="0" max="1" step="0.05" value="1" aria-label="Volume">
+       <span class="time" id="timeText">0:00 / 0:00</span>
+       <span class="spacer"></span>
+       <span class="trackStatus" id="trackStatus">Áudio: auto • Legenda: auto</span>
+       <button class="ctl" id="nextBtn" title="Próximo episódio" style="display:none">Próx. ⏭</button>
+       <button class="ctl" id="episodesBtn" title="Episódios" aria-label="Ver episódios" style="display:none">EP</button>
+       <button class="ctl" id="audioBtn" title="Áudio">🎧</button>
+       <button class="ctl" id="subsBtn" title="Legendas">CC</button>
+       <button class="ctl aspectCtl" id="aspectBtn" title="Proporção da imagem" aria-label="Proporção da imagem">▭</button>
+       <select class="speed" id="speed" title="Velocidade">
+        <option value=".75">0.75x</option><option value="1" selected>1x</option><option value="1.25">1.25x</option><option value="1.5">1.5x</option><option value="2">2x</option>
+       </select>
+       <button class="ctl" id="pipBtn" data-hide-mobile="1" title="Picture-in-Picture">▣</button>
+       <button class="ctl" id="downloadCurrent" title="Baixar fonte selecionada">⇩</button>
+       <button class="ctl" id="fullBtn" title="Tela cheia">⛶</button>
+      </div>
+     </div>
+     <button type="button" class="primeNextFloat" id="primeNextFloat">Próximo episódio <span>›</span></button>
+     <div class="playerMenuBackdrop" id="playerMenuBackdrop"></div>
+     <div class="playerMenu" id="playerMenu"></div>
+    </div>
+   </section>
+   <button type="button" class="sourcePanelBackdrop" id="sourcePanelBackdrop" aria-label="Fechar fontes"></button>
+   <aside class="playerSide" id="playerSide">
+    <button type="button" class="sourceDrawerHandle" id="sourceDrawerHandle" aria-label="Abrir fontes">
+     <span class="sourceDrawerGrip"></span>
+     <span class="sourceDrawerLabel" id="sourceDrawerLabel">Fontes</span>
+     <span class="sourceDrawerChevron">⌃</span>
+    </button>
+
+    <div class="playerSideTabs" id="playerSideTabs">
+     <button type="button" class="playerSideTab active" data-side-tab="fontes">Fontes</button>
+     <button type="button" class="playerSideTab" data-side-tab="episodios">Episódios</button>
+    </div>
+
+    <div class="playerSidePanel" id="playerSidePanelFontes" data-side-panel="fontes">
+     <div class="sourceHead">
+      <div class="sourceHeadTop">
+       <div>
+        <div class="sourceEyebrow">REPRODUÇÃO</div>
+        <h3>Fontes disponíveis</h3>
+       </div>
+       <button type="button" class="sourceToolsToggle" id="sourceToolsToggle" aria-label="Mais opções">⚙</button>
+      </div>
+      <p id="sourceCountText">Procurando a melhor opção…</p>
+      <div class="sourceQuickBar">
+       <label class="preferredSourceField">
+        <span>Fonte principal</span>
+        <select id="preferredSourceSelect"><option value="">Automática</option></select>
+       </label>
+       <button type="button" class="autoFallbackCompact" id="autoFallbackBtn">⚡ Auto ON</button>
+      </div>
+      <div class="playerUtilities sourceTools" id="sourceTools">
+       <button type="button" id="otherPlayerBtn">↗ Outro player</button>
+       <button type="button" id="introSetupBtn">⏭ Abertura</button>
+      </div>
+     </div>
+
+     <div class="sourceFilters">
+      <div class="addonTabs" id="addonTabs"></div>
+      <div class="filterChips" id="qualityFilters"></div>
+     </div>
+     <div class="sourceRecommend" id="sourceRecommend"></div>
+     <div class="sourceList" id="sources"></div>
+     <div class="sourceSelectedBar" id="sourceSelectedBar"></div>
+    </div>
+
+    <div class="playerSidePanel" id="playerSidePanelEpisodes" data-side-panel="episodios" hidden>
+     <div class="sourceHead">
+      <div class="sourceHeadTop">
+       <div>
+        <div class="sourceEyebrow">REPRODUÇÃO</div>
+        <h3>Episódios</h3>
+       </div>
+      </div>
+      <p id="playerEpisodesSub"></p>
+     </div>
+     <div class="playerEpisodesList" id="playerEpisodesList"></div>
+    </div>
+   </aside>
+  </div>
+ </div>
+</div>
+
+<div class="modal" id="mangaReaderModal">
+ <div class="nativeMangaReader">
+  <div class="nativeReaderTop" id="nativeReaderTop">
+   <button type="button" class="nativeReaderIcon" id="closeMangaReader" aria-label="Voltar">‹</button>
+   <div class="nativeReaderHeading">
+    <div class="nativeReaderTitle" id="mangaReaderTitle">Mangá</div>
+    <div class="nativeReaderChapter" id="mangaReaderChapterTitle">Capítulo</div>
+   </div>
+   <button type="button" class="nativeReaderIcon" id="mangaReaderSettingsBtn" aria-label="Configurações">⚙</button>
+  </div>
+
+  <div class="nativeReaderProgress"><i id="mangaReaderProgressBar"></i></div>
+
+  <div class="nativeReaderCanvas vertical" id="mangaReaderCanvas">
+   <div class="nativeReaderLoading" id="mangaReaderLoading">Carregando páginas…</div>
+   <div class="nativeReaderPages" id="mangaReaderPages"></div>
+  </div>
+
+  <div class="nativeReaderHud" id="mangaReaderHud">
+   <button type="button" id="mangaPrevPage">‹</button>
+   <span id="mangaPageCounter">0 / 0</span>
+   <button type="button" id="mangaNextPage">›</button>
+  </div>
+
+  <div class="nativeReaderBottom" id="nativeReaderBottom">
+   <button type="button" id="mangaPrevChapter">‹ Capítulo</button>
+   <select id="mangaChapterSelect" title="Capítulo"></select>
+   <button type="button" id="mangaNextChapter">Capítulo ›</button>
+  </div>
+
+  <div class="nativeReaderSettings" id="nativeReaderSettings">
+   <div class="nativeReaderSettingsHead"><b>Leitor</b><button type="button" id="closeMangaReaderSettings">×</button></div>
+   <label>Modo de leitura
+    <select id="mangaReaderMode">
+     <option value="vertical">Vertical / Webtoon</option>
+     <option value="paged-ltr">Página — esquerda → direita</option>
+     <option value="paged-rtl">Página — direita → esquerda</option>
+    </select>
+   </label>
+   <label>Ajuste da imagem
+    <select id="mangaReaderFit">
+     <option value="width">Ajustar à largura</option>
+     <option value="contain">Página inteira</option>
+     <option value="original">Tamanho original</option>
+    </select>
+   </label>
+   <label>Espaço entre páginas
+    <select id="mangaReaderGap">
+     <option value="0">Sem espaço</option>
+     <option value="8">8 px</option>
+     <option value="16">16 px</option>
+    </select>
+   </label>
+   <label>Brilho <span id="mangaBrightnessLabel">100%</span>
+    <input type="range" id="mangaReaderBrightness" min="35" max="120" value="100">
+   </label>
+   <button type="button" class="nativeReaderSecondary" id="mangaReaderRestart">↺ Voltar ao início do capítulo</button>
+  </div>
+ </div>
+</div>
+
+<div class="modal" id="mangaMatchModal">
+ <div class="mangaMatchModal">
+  <div class="mangaMatchTop">
+   <div>
+    <div class="mangaSourcePickerEyebrow">Buscar nas fontes de mangá</div>
+    <h3 id="mangaMatchTitle">Mangá</h3>
+   </div>
+   <button type="button" class="close" id="closeMangaMatch">×</button>
+  </div>
+  <div class="mangaMatchStatus" id="mangaMatchStatus">Preparando busca…</div>
+  <div class="mangaSourceProgress" id="mangaMatchProgress"></div>
+  <div class="mangaMatchList" id="mangaMatchList"></div>
+ </div>
+</div>
+
+<div class="modal" id="mangaDetailModal">
+ <div class="mangaNativeDetail">
+  <button type="button" class="close" id="closeMangaDetail">×</button>
+  <div class="mangaNativeDetailHero" id="mangaNativeDetailHero">
+   <div class="mangaNativeDetailCover" id="mangaNativeDetailCover"></div>
+   <div class="mangaNativeDetailInfo">
+    <div class="mangaNativeDetailSource" id="mangaNativeDetailSource">Fonte</div>
+    <h2 id="mangaNativeDetailTitle">Mangá</h2>
+    <div class="mangaDetailBadges" id="mangaDetailBadges"></div>
+    <p id="mangaNativeDetailDesc"></p>
+    <div class="mangaNativeDetailActions">
+     <button type="button" class="btn primary" id="mangaContinueRead">▶ Começar a ler</button>
+     <button type="button" class="btn secondary" id="mangaSaveNative">☆ Seguir</button>
+     <button type="button" class="btn secondary mangaMarketBtn" id="mangaWhereBuy">🛒 Onde comprar</button>
+     <button type="button" class="btn secondary mangaFreeBtn" id="mangaWhereFree">◉ Ler grátis legalmente</button>
+    </div>
+   </div>
+  </div>
+  <div class="mangaChapterTabs">
+   <button type="button" class="active">Capítulos</button>
+   <span id="mangaChapterLanguage">🇧🇷 Português (BR)</span>
+  </div>
+  <div class="mangaChapterToolbar">
+   <input id="mangaChapterFilter" placeholder="Buscar número ou nome do capítulo…" autocomplete="off">
+   <button type="button" id="mangaChapterOrder">↓ Mais novos</button>
+  </div>
+  <div class="mangaChapterList" id="mangaChapterList"></div>
+ </div>
+</div>
+
+<div class="modal" id="mangaMarketModal">
+ <div class="mangaMarketPanel">
+  <div class="mangaMarketHead">
+   <div><small>ONDE ENCONTRAR</small><h3 id="mangaMarketTitle">Mangá</h3></div>
+   <button type="button" class="close" id="closeMangaMarket">×</button>
+  </div>
+  <div class="mangaMarketTabs">
+   <button type="button" class="active" data-market-tab="buy">Comprar</button>
+   <button type="button" data-market-tab="free">Ler grátis legalmente</button>
+  </div>
+  <div class="mangaMarketBody" id="mangaMarketBody"></div>
+ </div>
+</div>
+
+<div class="modal" id="mangaSourceModal">
+ <div class="mangaSourcePicker">
+  <div class="mangaSourcePickerTop">
+   <div>
+    <div class="mangaSourcePickerEyebrow">Ler mangá</div>
+    <h3 id="mangaSourcePickerTitle">Escolha uma fonte</h3>
+   </div>
+   <button type="button" class="close" id="closeMangaSourcePicker">×</button>
+  </div>
+  <div class="mangaSourcePickerMedia" id="mangaSourcePickerMedia"></div>
+  <div class="mangaSourcePickerNote">Fontes em Português aparecem primeiro. O ResenhaFlix tenta abrir a busca dessa obra na fonte instalada.</div>
+  <div class="mangaSourcePickerList" id="mangaSourcePickerList"></div>
+ </div>
+</div>
+
+<div class="modal" id="mangaWebModal">
+ <div class="mangaWebView">
+  <div class="mangaWebTop">
+   <button type="button" class="mangaWebIcon" id="closeMangaWeb" aria-label="Voltar">‹</button>
+   <div class="mangaWebHeading">
+    <div class="mangaWebTitle" id="mangaWebTitle">Fonte de mangá</div>
+    <div class="mangaWebSubtitle" id="mangaWebSubtitle">Modo site</div>
+   </div>
+   <button type="button" class="mangaWebAction" id="mangaWebHome">⌂ Início</button>
+   <button type="button" class="mangaWebAction" id="mangaWebNextSearch">↻ Outra busca</button>
+   <button type="button" class="mangaWebAction" id="mangaWebExternal">↗ Abrir fora</button>
+  </div>
+  <div class="mangaWebNotice" id="mangaWebNotice">A fonte está aberta dentro do ResenhaFlix. Se o site bloquear incorporação, use “Abrir fora”.</div>
+  <iframe id="mangaWebFrame" title="Fonte de mangá" referrerpolicy="no-referrer-when-downgrade"
+   sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe>
+ </div>
+</div>
+
+
+<div class="modal" id="mediaSourcesModal">
+ <div class="mediaSourcesPanel">
+  <div class="mediaSourcesHead">
+   <div>
+    <small>FONTES GRATUITAS</small>
+    <h3>APIs, URLs e arquivos JSON</h3>
+   </div>
+   <button type="button" class="close" id="closeMediaSources">×</button>
+  </div>
+  <div class="mediaSourcesTabs">
+   <button type="button" class="active" data-media-source-tab="music">Música</button>
+   <button type="button" data-media-source-tab="books">Livros</button>
+  </div>
+  <div class="mediaSourcesBody">
+   <section class="mediaSourcePane active" data-media-source-pane="music">
+    <div class="mediaSourceInfo"><b>Faixas completas:</b> o ResenhaFlix usa Audius quando possível. A iTunes continua como catálogo complementar e prévia. A chave de API do Audius é gratuita e pode ser usada no frontend.</div>
+    <label class="mediaField"><span>Audius API Key — recomendado para músicas completas</span><input id="audiusApiKey" spellcheck="false" placeholder="Cole sua API Key do Audius"></label>
+    <label class="mediaField"><span>Base Audius</span><input id="audiusApiUrl" spellcheck="false"></label>
+    <div class="mediaSourceInfo"><b>SoundCloud:</b> para pesquisar dentro do ResenhaFlix sem expor seu Client Secret, configure o Worker incluído no ZIP. Sem Worker, links diretos do SoundCloud ainda podem ser tocados pelo player oficial e a busca externa continua disponível.</div>
+    <label class="mediaField"><span>SoundCloud Worker URL — opcional</span><input id="soundcloudProxyUrl" spellcheck="false" placeholder="https://resenhaflix-soundcloud.seu-worker.workers.dev"></label>
+    <label class="mediaField"><span>iTunes API — catálogo complementar</span><input id="musicApiUrl" spellcheck="false"></label>
+    <label class="mediaField"><span>URLs JSON adicionais — uma por linha</span><textarea id="musicJsonUrls" rows="5" spellcheck="false" placeholder="https://exemplo.com/musicas.json&#10;https://api.exemplo.com/search?q={query}"></textarea></label>
+    <label class="jsonFileDrop" for="musicJsonFile"><b>＋ Importar músicas.json</b><small>Array JSON ou objeto com results/items. Máx. 1,5 MB.</small><input type="file" id="musicJsonFile" accept=".json,application/json"></label>
+    <div class="mediaImportStatus" id="musicImportStatus"></div>
+   </section>
+   <section class="mediaSourcePane" data-media-source-pane="books">
+    <div class="mediaSourceInfo">A busca geral usa Open Library. Livros gratuitos usam Gutendex/Project Gutenberg. Downloads só aparecem para itens marcados como domínio público ou explicitamente liberados.</div>
+    <label class="mediaField"><span>Open Library — busca geral</span><input id="booksOpenLibraryUrl" spellcheck="false"></label>
+    <label class="mediaField"><span>Gutendex — livros gratuitos</span><input id="booksGutendexUrl" spellcheck="false"></label>
+    <label class="mediaField"><span>URLs JSON adicionais — uma por linha</span><textarea id="booksJsonUrls" rows="5" spellcheck="false" placeholder="https://exemplo.com/livros.json&#10;https://api.exemplo.com/search?q={query}"></textarea></label>
+    <label class="jsonFileDrop" for="booksJsonFile"><b>＋ Importar livros.json</b><small>Array JSON ou objeto com results/items. Máx. 1,5 MB.</small><input type="file" id="booksJsonFile" accept=".json,application/json"></label>
+    <div class="mediaImportStatus" id="booksImportStatus"></div>
+   </section>
+  </div>
+  <div class="mediaSourcesFooter">
+   <button type="button" class="btn secondary" id="resetMediaSources">Restaurar padrão</button>
+   <button type="button" class="btn primary" id="saveMediaSources">Salvar fontes</button>
+  </div>
+ </div>
+</div>
+
+<div class="modal" id="bookReaderModal">
+ <div class="bookReader">
+  <div class="bookReaderTop">
+   <button type="button" class="bookReaderIcon" id="closeBookReader">‹</button>
+   <div class="bookReaderHeading">
+    <div id="bookReaderTitle">Livro</div>
+    <small id="bookReaderMeta">Leitor ResenhaFlix</small>
+   </div>
+   <button type="button" class="bookReaderAction" id="bookReaderExternal">↗ Abrir original</button>
+   <button type="button" class="bookReaderIcon" id="bookReaderCloseX">×</button>
+  </div>
+  <div class="bookReaderViewport" id="bookReaderViewport">
+   <div class="bookReaderLoading" id="bookReaderLoading">Preparando livro…</div>
+   <div class="bookEpubArea" id="bookEpubArea"></div>
+   <iframe id="bookHtmlFrame" title="Leitor de livro"></iframe>
+   <pre id="bookTextReader"></pre>
+  </div>
+  <div class="bookReaderBottom">
+   <button type="button" id="bookPrevPage">‹ Anterior</button>
+   <span id="bookReaderStatus">Leitura</span>
+   <button type="button" id="bookNextPage">Próxima ›</button>
+  </div>
+ </div>
+</div>
+
+<div class="musicMiniPlayer spotifyBar" id="musicMiniPlayer">
+ <div class="spotifyLeft">
+  <div class="musicMiniCover" id="musicMiniCover"></div>
+  <div class="musicMiniInfo">
+   <b id="musicMiniTitle">Nenhuma música</b>
+   <small id="musicMiniArtist">ResenhaFlix Music</small>
+  </div>
+  <span class="spotifyVerified" id="musicFullBadge" title="Faixa completa">✓</span>
+ </div>
+ <div class="spotifyCenter">
+  <div class="spotifyButtons">
+   <button type="button" id="musicShuffle" title="Aleatório">⤨</button>
+   <button type="button" id="musicPrev" title="Anterior">|◀</button>
+   <button type="button" class="spotifyMainPlay" id="musicMainPlay" title="Reproduzir">▶</button>
+   <button type="button" id="musicNext" title="Próxima">▶|</button>
+   <button type="button" id="musicRepeat" title="Repetir">↻</button>
+  </div>
+  <div class="spotifyTimeline">
+   <span id="musicCurrentTime">0:00</span>
+   <input type="range" id="musicSeek" min="0" max="1000" value="0">
+   <span id="musicDuration">0:00</span>
+  </div>
+ </div>
+ <div class="spotifyRight">
+  <button type="button" id="musicMiniStore" title="Abrir na origem">↗</button>
+  <button type="button" id="musicQueueBtn" title="Fila">☷</button>
+  <span class="spotifyVolumeIcon">🔊</span>
+  <input type="range" id="musicVolume" min="0" max="1" step="0.01" value="0.9">
+  <button type="button" id="musicMiniClose" title="Fechar">×</button>
+ </div>
+ <audio id="musicPreviewAudio" preload="metadata"></audio>
+ <iframe id="soundcloudWidgetFrame" class="soundcloudWidgetFrame" title="SoundCloud player" allow="autoplay"></iframe>
+</div>
+
+<div class="modal" id="settingsModal">
+ <div class="settings settingsV16">
+  <div class="settingsHeader">
+   <div>
+    <small>ResenhaFlix</small>
+    <h2>Configurações</h2>
+   </div>
+   <button class="close settingsClose" id="closeSettings">×</button>
+  </div>
+
+  <div class="settingsTabs" id="settingsTabs">
+   <button type="button" class="active" data-settings-tab="geral">Geral</button>
+   <button type="button" data-settings-tab="player">Player</button>
+   <button type="button" data-settings-tab="manga">Mangás</button>
+   <button type="button" data-settings-tab="advanced">Avançado</button>
+  </div>
+
+  <div class="settingsBody" id="settingsBody">
+   <section class="settingsPane active" data-settings-pane="geral">
+    <div class="settingsSectionTitle">Aplicativo</div>
+    <div class="field"><label>Idioma da interface / catálogo</label><select id="lang"><option value="pt-BR">Português (Brasil)</option><option value="pt">Português</option><option value="en">Inglês</option></select></div>
+    <div class="settingsInfo">As alterações ficam salvas neste dispositivo. Histórico, Minha Lista e progresso continuam compatíveis com as versões anteriores.</div>
+   </section>
+
+   <section class="settingsPane" data-settings-pane="player">
+    <div class="settingsSectionTitle">Áudio e legendas</div>
+    <div class="field"><label>Addon de legendas</label><input id="subtitleAddon"></div>
+    <div class="field"><label>Áudio preferido no player</label><select id="audioPref"><option value="auto">Automático</option><option value="jpn">Japonês</option><option value="por">Português</option><option value="eng">Inglês</option></select></div>
+    <div class="field"><label>Legenda preferida</label><select id="subtitlePref"><option value="pob">Português (Brasil)</option><option value="por">Português</option><option value="eng">Inglês</option><option value="off">Desativada</option><option value="auto">Automática</option></select></div>
+    <div class="settingsInfo">O ResenhaFlix mantém suas preferências de áudio, legenda e fonte entre episódios quando a mídia oferece essas faixas.</div>
+   </section>
+
+   <section class="settingsPane" data-settings-pane="manga">
+    <div class="settingsSectionTitle">Mangás</div>
+    <div class="field"><label>Repositórios de extensões (um por linha)</label><textarea id="mangaRepoUrls" rows="5" spellcheck="false"></textarea></div>
+    <div class="field"><label>Ponte de mangá — URL do servidor</label><input id="mangaBridgeUrl" placeholder="https://seu-manga-bridge.onrender.com"></div>
+    <div class="settingsInfo">
+     <b>Português e inglês:</b> a busca permite PT, EN ou os dois. Fontes PT-BR/PT recebem prioridade.
+     A Ponte incluída no ZIP ajuda com fontes que bloqueiam requisições do navegador.
+    </div>
+   </section>
+
+   <section class="settingsPane" data-settings-pane="advanced">
+    <div class="settingsSectionTitle">Vídeo — avançado</div>
+    <div class="field"><label>Fontes de vídeo (uma por linha — as primeiras têm prioridade)</label><textarea id="frostUrl" rows="6"></textarea></div>
+    <div class="field"><label>Metadados principais</label><input id="metaUrl"></div>
+    <div class="field"><label>Fontes de catálogo e busca (um manifest por linha)</label><textarea id="catalogUrls" rows="5"></textarea></div>
+    <div class="settingsInfo"><b>Prioridade:</b> a ordem das fontes agora importa. A primeira linha recebe mais prioridade, depois a segunda e assim por diante. O ResenhaFlix continua aprendendo quais fontes realmente funcionam.</div>
+   </section>
+  </div>
+
+  <div class="settingsFooter">
+   <button class="btn secondary" id="resetSettings">Restaurar padrão</button>
+   <button class="btn secondary" id="installAppBtn" style="display:none">⬇ Instalar</button>
+   <button class="btn primary" id="saveSettings">Salvar</button>
+  </div>
+ </div>
+</div>
+
+<nav class="mobileBottomNav" id="mobileBottomNav" aria-label="Navegação principal"></nav>
+
+<div class="mobileNavMenu" id="mobileNavMenu" aria-hidden="true">
+ <button type="button" class="mobileNavMenuBackdrop" id="mobileNavMenuBackdrop" aria-label="Fechar menu"></button>
+ <section class="mobileNavMenuPanel" id="mobileNavMenuPanel" role="dialog" aria-modal="true" aria-labelledby="mobileNavMenuTitle" tabindex="-1">
+  <header class="mobileNavMenuHead">
+   <div><small>NAVEGAÇÃO</small><h2 id="mobileNavMenuTitle">Mais opções</h2></div>
+   <button type="button" class="mobileNavMenuClose" id="mobileNavMenuClose" aria-label="Fechar">×</button>
+  </header>
+  <div class="mobileNavDestinations" id="mobileNavDestinations"></div>
+  <button type="button" class="mobileNavEditToggle" id="mobileNavEditToggle" aria-expanded="false" aria-controls="mobileNavEditor">Editar atalhos da barra</button>
+  <div class="mobileNavEditor" id="mobileNavEditor" hidden>
+   <p>Escolha até quatro destinos. Use as setas para mudar a ordem.</p>
+   <div id="mobileNavEditorList"></div>
+  </div>
+ </section>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="cardPreview" id="cardPreview" aria-hidden="true">
+ <div class="cardPreviewMedia">
+  <img class="cardPreviewImg" id="cardPreviewImg" alt="" loading="lazy">
+  <div class="cardPreviewVideoWrap" id="cardPreviewVideoWrap"></div>
+ </div>
+ <div class="cardPreviewInfo">
+  <div class="cardPreviewTitle" id="cardPreviewTitle"></div>
+  <div class="cardPreviewMeta" id="cardPreviewMeta"></div>
+  <div class="cardPreviewDesc" id="cardPreviewDesc"></div>
+ </div>
+</div>
+
+<script src="./app.js?v=35"></script>
+<!-- ResenhaFlix v12 — fontes progressivas/cache + tela Mangás/Keiyoushi -->
+<!-- ResenhaFlix v28 — manga exato/rápido, livros PT-BR e detalhes estilo Netflix -->
+<!-- ResenhaFlix v34 — Manga Bridge automática, conectores HakuNeko e leitor mobile -->
+  <script src="./manga-hakuneko.js?v=34"></script>
+</body>
+</html>

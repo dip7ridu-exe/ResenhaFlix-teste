@@ -1,0 +1,19 @@
+[
+  {
+    "type": "track",
+    "title": "Minha Música",
+    "artist": "Meu Artista",
+    "album": "Meu Álbum",
+    "image": "https://exemplo.com/capa.jpg",
+    "previewUrl": "https://exemplo.com/preview.mp3",
+    "url": "https://exemplo.com/musica",
+    "source": "Minha API"
+  },
+  {
+    "type": "album",
+    "title": "Meu Álbum",
+    "artist": "Meu Artista",
+    "image": "https://exemplo.com/album.jpg",
+    "url": "https://exemplo.com/album"
+  }
+]

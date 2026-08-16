@@ -1,0 +1,41 @@
+CasaFlix V10 — Relatório de validação mobile
+
+Método
+- Chromium headless com emulação mobile/touch (equivalente ao Device Mode do DevTools/F12).
+- Eventos de toque enviados via Chrome DevTools Protocol (Input.dispatchTouchEvent).
+- A rede externa foi desconsiderada nos testes de layout; catálogo/lista foram preenchidos com dados simulados.
+
+Viewports testados
+- 360 x 800
+- 390 x 844
+- 430 x 932
+
+Minha Lista
+- 60 títulos simulados.
+- 390x844: documento 10079px de altura, 60 cards, overflow vertical = auto.
+- 360x800: documento 9404px de altura, 60 cards, overflow vertical = auto.
+- 430x932: documento 10979px de altura, 60 cards, overflow vertical = auto.
+- Swipe real de toque rolou a lista.
+- Teste prolongado em 390x844 alcançou scrollY 9235 / máximo 9235 (fim da lista).
+- Barra inferior continuou clicável depois do scroll até o fim.
+- Sem overflow horizontal.
+- Sem erros JavaScript durante esses testes.
+
+Tela inicial
+- 10 fileiras simuladas com 12 cards cada.
+- Swipe vertical iniciado sobre a área dos cards rolou a página para scrollY 2898.
+- Confirma que carrosséis não bloqueiam o gesto vertical da tela inicial.
+
+Próximo episódio / fonte
+- Estado da fonte anterior inclui addon, manifest, qualidade e índice da fonte.
+- No teste, a fonte de índice 2 / 1080p foi reencontrada como índice 2 no episódio seguinte.
+- O carry do próximo episódio usa currentTime=0, portanto o episódio seguinte inicia do começo e com autoplay.
+
+Pular abertura
+- Botão existe apenas para reprodução de série/anime.
+- Janela de exibição: primeiros 150 segundos.
+- Salto padrão: +90 segundos.
+- Teste: posição 00:20 -> 01:50 (110s), botão ocultado após uso.
+
+Sintaxe
+- JavaScript validado com `node --check` sem erros.

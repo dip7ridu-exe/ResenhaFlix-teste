@@ -1,0 +1,14 @@
+[
+  {
+    "title": "Livro de domínio público",
+    "authors": [
+      "Autor Exemplo"
+    ],
+    "image": "https://exemplo.com/capa.jpg",
+    "url": "https://exemplo.com/livro",
+    "readUrl": "https://exemplo.com/livro.epub",
+    "downloadUrl": "https://exemplo.com/livro.epub",
+    "publicDomain": true,
+    "source": "Minha Biblioteca"
+  }
+]

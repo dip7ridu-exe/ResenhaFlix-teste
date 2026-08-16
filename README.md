@@ -1,1 +1,2 @@
-# ResenhaFlix-teste
+# ResenhaFlix
+
