@@ -7,13 +7,22 @@ const CFG_DEFAULT={
   "https://94c8cb9f702d-brazuca-torrents.baby-beamup.club/manifest.json",
   "https://mediafusion.elfhosted.com/manifest.json",
   "https://animes-br-self.vercel.app/manifest.json",
-  "https://anima-o-pt-pt-addon-stremio-6dzv.vercel.app/manifest.json"
+  "https://anima-o-pt-pt-addon-stremio-6dzv.vercel.app/manifest.json",
+  "https://torrentio.strem.fun/manifest.json",
+  "https://top-streaming.stream/username=temporary_username/manifest.json",
+  "https://stremio-archive-org-addon.fly.dev/manifest.json",
+  "https://stremio.github.io/stremio-static-addon-example/manifest.json",
+  "https://v3-channels.strem.io/manifest.json"
  ].join("\n"),
  meta:"https://v3-cinemeta.strem.io/manifest.json",
  catalogs:[
   "https://v3-cinemeta.strem.io/manifest.json",
   "https://7a82163c306e-stremio-netflix-catalog-addon.baby-beamup.club/manifest.json",
-  "https://mediafusion.elfhosted.com/manifest.json"
+  "https://mediafusion.elfhosted.com/manifest.json",
+  "https://v3-channels.strem.io/manifest.json",
+  "https://stremio-archive-org-addon.fly.dev/manifest.json",
+  "https://torrentio.strem.fun/manifest.json",
+  "https://comet.elfhosted.com/manifest.json"
  ].join("\n"),
  subtitleAddon:"https://subsense.nepiraw.com/manifest.json",
  audioPref:"jpn",
@@ -38,6 +47,16 @@ if(!localStorage.getItem("rf35_sources_migrated")){
  localStorage.setItem("cf4_catalogs",savedCatalogs);
  localStorage.setItem("cf5_subtitle_addon","https://subsense.nepiraw.com/manifest.json");
  localStorage.setItem("rf35_sources_migrated","1");
+}
+if(!localStorage.getItem("rf40_sources_migrated")){
+ const extraStreams=["https://torrentio.strem.fun/manifest.json", "https://top-streaming.stream/username=temporary_username/manifest.json", "https://stremio-archive-org-addon.fly.dev/manifest.json", "https://stremio.github.io/stremio-static-addon-example/manifest.json", "https://v3-channels.strem.io/manifest.json"];
+ const extraCatalogs=["https://v3-channels.strem.io/manifest.json", "https://stremio-archive-org-addon.fly.dev/manifest.json", "https://torrentio.strem.fun/manifest.json", "https://comet.elfhosted.com/manifest.json"];
+ for(const u of extraStreams)if(!savedStreams.includes(u))savedStreams=savedStreams.trim()+"\n"+u;
+ localStorage.setItem("cf2_frost",savedStreams);
+ let savedCatalogs40=localStorage.getItem("cf4_catalogs")||CFG_DEFAULT.catalogs;
+ for(const u of extraCatalogs)if(!savedCatalogs40.includes(u))savedCatalogs40=savedCatalogs40.trim()+"\n"+u;
+ localStorage.setItem("cf4_catalogs",savedCatalogs40);
+ localStorage.setItem("rf40_sources_migrated","1");
 }
 const cfg={
  frost:savedStreams,
@@ -173,6 +192,16 @@ renderMobileBottomNav();
 renderMobileNavMenu();
 const base=u=>u.replace(/\/manifest\.json.*$/,"").replace(/\/$/,"");
 const api=(b,p)=>base(b)+"/"+p.replace(/^\/+/,"");
+// Aceita variações de URL de addon: stremio://, sem https, sem /manifest.json, com barra final.
+function normalizeManifestUrl(u){
+ let x=String(u||"").trim().replace(/\s+/g,"");
+ if(!x)return "";
+ x=x.replace(/^stremio:\/\//i,"https://");
+ if(!/^https?:\/\//i.test(x))x="https://"+x;
+ if(!/\/manifest\.json(\?.*)?$/i.test(x))x=x.replace(/\/+$/,"")+"/manifest.json";
+ try{const p=new URL(x);return /^https?:$/.test(p.protocol)?p.toString():""}catch{return ""}
+}
+function uniqueManifests(list){return [...new Set(list.map(normalizeManifestUrl).filter(Boolean))]}
 
 
 const MEDIA_DEFAULT={
@@ -227,8 +256,8 @@ function catalogURLFor(manifest,type,id="top",params=""){
 }
 function catalogURL(type,id="top",params=""){return catalogURLFor(cfg.meta,type,id,params)}
 function streamURLFor(manifest,type,id){return api(manifest,`stream/${type}/${encodeURIComponent(id)}.json`)}
-function configuredStreamManifests(){return String(cfg.frost||"").split(/[\n,]+/).map(x=>x.trim()).filter(Boolean)}
-function configuredCatalogManifests(){return [...new Set(String(cfg.catalogs||CFG_DEFAULT.catalogs).split(/[\n,]+/).map(x=>x.trim()).filter(Boolean))]}
+function configuredStreamManifests(){return uniqueManifests(String(cfg.frost||CFG_DEFAULT.frost).split(/[\n,\s]+/).map(x=>x.trim()).filter(Boolean))}
+function configuredCatalogManifests(){return uniqueManifests(String(cfg.catalogs||CFG_DEFAULT.catalogs).split(/[\n,\s]+/).map(x=>x.trim()).filter(Boolean))}
 function subtitleURLFor(manifest,type,id){return api(manifest,`subtitles/${type}/${encodeURIComponent(id)}.json`)}
 function normLang(x){return String(x||"").toLowerCase().replace("_","-")}
 function langFamily(x){
@@ -244,15 +273,68 @@ function langLabel(x){
  return ({jpn:"Japonês",pob:"Português (Brasil)",por:"Português",eng:"Inglês",und:"Desconhecido"})[l]||x||"Desconhecido";
 }
 
+const MANIFEST_DATA=new Map();
+// Proxies usados apenas como plano B quando o addon bloqueia CORS ou fica instável.
+const CORS_PROXY_TEMPLATES=["https://api.allorigins.win/raw?url={url}","https://corsproxy.io/?url={url}"];
+function corsProxyUrls(url){
+ const custom=String(localStorage.getItem("rf40_cors_proxy")||"").trim();
+ const templates=[...(custom?[custom.includes("{url}")?custom:custom.replace(/\/+$/,"")+"/{url}"]:[]),...CORS_PROXY_TEMPLATES];
+ return templates.map(t=>t.replace("{url}",encodeURIComponent(url)));
+}
+async function getJSONRetry(url,timeoutMs=9000,retries=1,{proxy=true}={}){
+ let lastError=null;
+ for(let attempt=0;attempt<=retries;attempt++){
+  try{return await getJSONTimeout(url,timeoutMs+attempt*4000)}catch(e){lastError=e}
+ }
+ if(proxy){
+  for(const alt of corsProxyUrls(url)){
+   try{
+    const data=await getJSONTimeout(alt,timeoutMs+4000);
+    if(data&&typeof data==="object")return data;
+   }catch(e){lastError=e}
+  }
+ }
+ throw lastError||Error("Falha ao consultar "+url);
+}
 async function getManifest(manifestUrl){
- if(S.manifestCache.has(manifestUrl))return S.manifestCache.get(manifestUrl);
- const p=getJSON(manifestUrl).catch(e=>{S.manifestCache.delete(manifestUrl);throw e});
- S.manifestCache.set(manifestUrl,p);return p;
+ const url=normalizeManifestUrl(manifestUrl)||manifestUrl;
+ if(S.manifestCache.has(url))return S.manifestCache.get(url);
+ const p=getJSONRetry(url,9000,1).then(m=>{MANIFEST_DATA.set(url,m);return m}).catch(e=>{S.manifestCache.delete(url);throw e});
+ S.manifestCache.set(url,p);return p;
+}
+// Respeita o manifesto do addon (resources/types/idPrefixes) para não fazer chamadas inúteis.
+function addonSupports(manifestUrl,resource,type,id){
+ const m=MANIFEST_DATA.get(normalizeManifestUrl(manifestUrl)||manifestUrl);
+ if(!m)return true;
+ const resources=(m.resources||[]).map(r=>typeof r==="string"?{name:r}:(r||{}));
+ if(!resources.length)return true;
+ const entry=resources.find(r=>r.name===resource);
+ if(!entry)return false;
+ const types=Array.isArray(entry.types)&&entry.types.length?entry.types:(Array.isArray(m.types)?m.types:[]);
+ if(type&&types.length&&!types.includes(type))return false;
+ const prefixes=Array.isArray(entry.idPrefixes)&&entry.idPrefixes.length?entry.idPrefixes:(Array.isArray(m.idPrefixes)?m.idPrefixes:[]);
+ if(id&&prefixes.length&&!prefixes.some(p=>String(id).startsWith(p)))return false;
+ return true;
+}
+// Converte fontes de torrent (infoHash) em magnet aberto em player externo.
+function magnetFromStream(s){
+ if(!s?.infoHash)return "";
+ const trackers=(Array.isArray(s.sources)?s.sources:[]).filter(x=>typeof x==="string"&&x.startsWith("tracker:")).map(x=>"&tr="+encodeURIComponent(x.slice(8)));
+ const dht=(Array.isArray(s.sources)?s.sources:[]).filter(x=>typeof x==="string"&&x.startsWith("dht:")).length?"":"";
+ const dn=encodeURIComponent(String(s.title||s.name||s.behaviorHints?.filename||s.infoHash).split("\n")[0]);
+ return `magnet:?xt=urn:btih:${String(s.infoHash).toLowerCase()}&dn=${dn}${trackers.slice(0,12).join("")}${dht}`;
+}
+function openExternalSource(url){
+ if(!url)return;
+ try{
+  const a=document.createElement("a");a.href=url;a.target="_blank";a.rel="noopener noreferrer";
+  document.body.appendChild(a);a.click();a.remove();
+ }catch{window.open(url,"_blank","noopener,noreferrer")}
 }
 async function getCatalog(manifest,type,id,params=""){
  const key=[manifest,type,id,normalizeExtra(params)].join("|");
  if(S.catalogCache.has(key))return S.catalogCache.get(key);
- const p=getJSON(catalogURLFor(manifest,type,id,params)).then(x=>x.metas||[]).catch(e=>{S.catalogCache.delete(key);throw e});
+ const p=getJSONRetry(catalogURLFor(manifest,type,id,params),9000,1).then(x=>x.metas||[]).catch(e=>{S.catalogCache.delete(key);throw e});
  S.catalogCache.set(key,p);return p;
 }
 
@@ -1046,9 +1128,15 @@ function sortStreamManifests(manifests){
 async function fetchStreamBatch(manifest,type,id,index,{fresh=false}={}){
  if(!fresh){const cached=getCachedStreamBatch(manifest,type,id);if(cached)return cached}
  const name=quickAddonName(manifest,index);
- const data=await getJSONTimeout(streamURLFor(manifest,type,id),6500);
+ await getManifest(manifest).catch(()=>null);
+ if(!addonSupports(manifest,"stream",type,id)){saveStreamBatch(manifest,type,id,[]);return []}
+ const data=await getJSONRetry(streamURLFor(manifest,type,id),9000,1);
  const officialLegal=/watchhub\.strem\.io/i.test(manifest);
- const streams=(data.streams||[]).filter(x=>x.url||x.externalUrl).map((s,i)=>{
+ const streams=(data.streams||[]).map(s=>{
+  if(s&&!s.url&&!s.externalUrl&&s.infoHash){const magnet=magnetFromStream(s);return magnet?{...s,externalUrl:magnet,_torrent:true}:null}
+  if(s&&!s.url&&!s.externalUrl&&s.ytId)return {...s,externalUrl:`https://www.youtube.com/watch?v=${encodeURIComponent(s.ytId)}`};
+  return s;
+ }).filter(x=>x&&(x.url||x.externalUrl)).map((s,i)=>{
   const x={...s,_addon:name,_manifest:manifest,_idx:i,_quality:getQuality(s),_external:!s.url&&!!s.externalUrl,_officialLegal:officialLegal};
   x._provider=detectProvider(x);return x;
  });
@@ -1119,7 +1207,7 @@ function renderSourceSelectedBar(){
    <button type="button" class="selectedSecondary" data-selected-download ${(!external&&isDirectDownloadable(s.url))?"":"disabled"}>⇩</button>
    <button type="button" class="selectedPlay" data-selected-play>${external?"Abrir provedor":"▶ Assistir"}</button>
   </div>`;
- bar.querySelector("[data-selected-play]").onclick=()=>external?window.open(s.externalUrl,"_blank","noopener,noreferrer"):selectStream(s,true);
+ bar.querySelector("[data-selected-play]").onclick=()=>external?openExternalSource(s.externalUrl):selectStream(s,true);
  const other=bar.querySelector("[data-selected-other]");if(other)other.onclick=()=>openOtherPlayerMenu(s);
  const dl=bar.querySelector("[data-selected-download]");if(dl)dl.onclick=()=>{if(!external)browserDownload(s)};
 }
@@ -1147,7 +1235,7 @@ function renderSourceUI(){
  const recommend=$("#sourceRecommend");
  if(recommend){
   recommend.innerHTML=rec?`<button type="button" class="recommendCard"><span class="recommendIcon">★</span><span class="recommendText"><small>RECOMENDADA AGORA</small><b>${esc(detectProvider(rec))}</b><span>${esc(rec._addon)} • ${esc(rec._quality)}</span></span><span class="recommendUse">Usar</span></button>`:"";
-  if(rec)recommend.querySelector("button").onclick=()=>{S.selectedStream=rec;renderSourceUI();if(rec._external)window.open(rec.externalUrl,"_blank","noopener,noreferrer");else selectStream(rec,true);if(innerWidth<=900)$("#playerSide")?.classList.remove("drawerOpen")};
+  if(rec)recommend.querySelector("button").onclick=()=>{S.selectedStream=rec;renderSourceUI();if(rec._external)openExternalSource(rec.externalUrl);else selectStream(rec,true);if(innerWidth<=900)$("#playerSide")?.classList.remove("drawerOpen")};
  }
  if(!filtered.length){$("#sources").innerHTML='<div class="sourceEmpty">Nenhuma fonte corresponde aos filtros escolhidos.</div>';renderSourceSelectedBar();return}
 
@@ -1167,7 +1255,7 @@ function renderSourceUI(){
  $("#sources").querySelectorAll(".sourceCard").forEach(card=>{
   const s=filtered.find(x=>`${x._manifest}|${x._idx}`===card.dataset.sourceKey);if(!s)return;
   card.onclick=e=>{if(e.target.closest("[data-play]"))return;S.selectedStream=s;renderSourceUI()};
-  card.querySelector("[data-play]").onclick=e=>{e.stopPropagation();S.selectedStream=s;renderSourceSelectedBar();if(s._external)window.open(s.externalUrl,"_blank","noopener,noreferrer");else selectStream(s,true)};
+  card.querySelector("[data-play]").onclick=e=>{e.stopPropagation();S.selectedStream=s;renderSourceSelectedBar();if(s._external)openExternalSource(s.externalUrl);else selectStream(s,true)};
  });
  renderSourceSelectedBar();
 }
@@ -1258,7 +1346,7 @@ async function autoChooseWorkingSource(resumeEntry=null,autoplay=true){
 }
 async function selectStream(stream,autoplay=true,resumeEntry=null){
  if(!stream)return;
- if(stream._external){window.open(stream.externalUrl,"_blank","noopener,noreferrer");return}
+ if(stream._external){openExternalSource(stream.externalUrl);return}
  const v=$("#video");
  const liveResume=resumeEntry||((v.currentTime||0)>3?{currentTime:v.currentTime,duration:v.duration||0,stream:streamIdentity(stream)}:null);
  if((v.currentTime||0)>1)persistPlaybackProgress(true);
@@ -3853,16 +3941,16 @@ document.addEventListener("keydown",e=>{if(!$("#playerModal").classList.contains
 });
 $("#detailModal").onclick=e=>{if(e.target.id==="detailModal"){$("#detailModal").classList.remove("open");document.body.classList.remove("detailOpen")}};
 $("#playerModal").onclick=e=>{if(e.target.id==="playerModal")$("#closePlayer").click()};
-$("#settingsBtn").onclick=()=>{$("#frostUrl").value=cfg.frost;$("#metaUrl").value=cfg.meta;$("#catalogUrls").value=cfg.catalogs;$("#subtitleAddon").value=cfg.subtitleAddon;$("#audioPref").value=cfg.audioPref;$("#subtitlePref").value=cfg.subtitlePref;$("#mangaRepoUrls").value=cfg.mangaRepos;$("#mangaBridgeUrl").value=cfg.mangaBridge;$("#lang").value=cfg.lang;$("#settingsModal").classList.add("open");document.body.classList.add("settingsOpen");openSettingsTab("geral")};
+$("#settingsBtn").onclick=()=>{$("#frostUrl").value=cfg.frost;$("#metaUrl").value=cfg.meta;$("#catalogUrls").value=cfg.catalogs;$("#subtitleAddon").value=cfg.subtitleAddon;$("#audioPref").value=cfg.audioPref;$("#subtitlePref").value=cfg.subtitlePref;$("#mangaRepoUrls").value=cfg.mangaRepos;$("#mangaBridgeUrl").value=cfg.mangaBridge;$("#corsProxyUrl").value=localStorage.getItem("rf40_cors_proxy")||"";$("#lang").value=cfg.lang;$("#settingsModal").classList.add("open");document.body.classList.add("settingsOpen");openSettingsTab("geral")};
 $("#closeSettings").onclick=()=>{$("#settingsModal").classList.remove("open");document.body.classList.remove("settingsOpen");unlockMobileDocument()};
-$("#saveSettings").onclick=()=>{cfg.frost=$("#frostUrl").value.trim()||CFG_DEFAULT.frost;cfg.meta=$("#metaUrl").value.trim()||CFG_DEFAULT.meta;cfg.catalogs=$("#catalogUrls").value.trim()||CFG_DEFAULT.catalogs;cfg.subtitleAddon=$("#subtitleAddon").value.trim()||CFG_DEFAULT.subtitleAddon;cfg.audioPref=$("#audioPref").value;cfg.subtitlePref=$("#subtitlePref").value;cfg.mangaRepos=$("#mangaRepoUrls").value.trim()||CFG_DEFAULT.mangaRepos;cfg.mangaBridge=$("#mangaBridgeUrl").value.trim();cfg.lang=$("#lang").value;localStorage.setItem("cf2_frost",cfg.frost);localStorage.setItem("cf2_meta",cfg.meta);localStorage.setItem("cf4_catalogs",cfg.catalogs);localStorage.setItem("cf5_subtitle_addon",cfg.subtitleAddon);localStorage.setItem("cf5_audio_pref",cfg.audioPref);localStorage.setItem("cf5_subtitle_pref",cfg.subtitlePref);localStorage.setItem("rf15_manga_repos",cfg.mangaRepos);localStorage.setItem("rf14_manga_bridge",cfg.mangaBridge);localStorage.setItem("cf2_lang",cfg.lang);S.manifestCache.clear();S.catalogCache.clear();$("#settingsModal").classList.remove("open");document.body.classList.remove("settingsOpen");toast("Configurações salvas.");home()};
+$("#saveSettings").onclick=()=>{cfg.frost=$("#frostUrl").value.trim()||CFG_DEFAULT.frost;cfg.meta=$("#metaUrl").value.trim()||CFG_DEFAULT.meta;cfg.catalogs=$("#catalogUrls").value.trim()||CFG_DEFAULT.catalogs;cfg.subtitleAddon=$("#subtitleAddon").value.trim()||CFG_DEFAULT.subtitleAddon;cfg.audioPref=$("#audioPref").value;cfg.subtitlePref=$("#subtitlePref").value;cfg.mangaRepos=$("#mangaRepoUrls").value.trim()||CFG_DEFAULT.mangaRepos;cfg.mangaBridge=$("#mangaBridgeUrl").value.trim();cfg.lang=$("#lang").value;localStorage.setItem("cf2_frost",cfg.frost);localStorage.setItem("cf2_meta",cfg.meta);localStorage.setItem("cf4_catalogs",cfg.catalogs);localStorage.setItem("cf5_subtitle_addon",cfg.subtitleAddon);localStorage.setItem("cf5_audio_pref",cfg.audioPref);localStorage.setItem("cf5_subtitle_pref",cfg.subtitlePref);localStorage.setItem("rf15_manga_repos",cfg.mangaRepos);localStorage.setItem("rf14_manga_bridge",cfg.mangaBridge);localStorage.setItem("rf40_cors_proxy",($("#corsProxyUrl")?.value||"").trim());localStorage.setItem("cf2_lang",cfg.lang);S.manifestCache.clear();S.catalogCache.clear();$("#settingsModal").classList.remove("open");document.body.classList.remove("settingsOpen");toast("Configurações salvas.");home()};
 function openSettingsTab(name="geral"){
  $$("#settingsTabs [data-settings-tab]").forEach(b=>b.classList.toggle("active",b.dataset.settingsTab===name));
  $$("#settingsBody [data-settings-pane]").forEach(p=>p.classList.toggle("active",p.dataset.settingsPane===name));
  $("#settingsBody").scrollTop=0;
 }
 $$("[data-settings-tab]").forEach(b=>b.onclick=()=>openSettingsTab(b.dataset.settingsTab));
-$("#resetSettings").onclick=()=>{$("#frostUrl").value=CFG_DEFAULT.frost;$("#metaUrl").value=CFG_DEFAULT.meta;$("#catalogUrls").value=CFG_DEFAULT.catalogs;$("#subtitleAddon").value=CFG_DEFAULT.subtitleAddon;$("#audioPref").value=CFG_DEFAULT.audioPref;$("#subtitlePref").value=CFG_DEFAULT.subtitlePref;$("#mangaRepoUrls").value=CFG_DEFAULT.mangaRepos;$("#mangaBridgeUrl").value=CFG_DEFAULT.mangaBridge;$("#lang").value=CFG_DEFAULT.lang};
+$("#resetSettings").onclick=()=>{$("#frostUrl").value=CFG_DEFAULT.frost;$("#metaUrl").value=CFG_DEFAULT.meta;$("#catalogUrls").value=CFG_DEFAULT.catalogs;$("#subtitleAddon").value=CFG_DEFAULT.subtitleAddon;$("#audioPref").value=CFG_DEFAULT.audioPref;$("#subtitlePref").value=CFG_DEFAULT.subtitlePref;$("#mangaRepoUrls").value=CFG_DEFAULT.mangaRepos;$("#mangaBridgeUrl").value=CFG_DEFAULT.mangaBridge;if($("#corsProxyUrl"))$("#corsProxyUrl").value="";$("#lang").value=CFG_DEFAULT.lang};
 let scrollRAF=0,scrollEndTimer=0;
 window.addEventListener("scroll",()=>{
  document.body.classList.add("fastScrolling");
