@@ -1,47 +1,71 @@
-/* ResenhaFlix v41 — microinterações
+/* ResenhaFlix v42 — microinterações (leves)
    Somente efeitos visuais progressivos: nada aqui altera dados, rotas ou
-   o funcionamento do app. Se algo falhar, o site continua normal. */
+   o funcionamento do app. Tudo é desligado no celular e durante a reprodução. */
 (function(){
  if(window.__rfPolish)return; window.__rfPolish=true;
- var reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+ var mm=window.matchMedia||function(){return{matches:false,addEventListener:function(){}}};
+ var reduce=mm("(prefers-reduced-motion: reduce)").matches;
+ var fine=mm("(hover:hover) and (pointer:fine)").matches;
+ var small=mm("(max-width:900px)").matches;
+ var weak=(navigator.hardwareConcurrency||8)<=4||(navigator.deviceMemory||8)<=4;
  if(reduce)return;
 
- /* 1) Revelação suave das seções ao rolar */
+ var idle=window.requestIdleCallback||function(fn){return setTimeout(fn,1)};
+
+ /* 1) Revelação suave das seções ao rolar (barata: só opacidade) */
  var io=null;
  if("IntersectionObserver" in window){
   io=new IntersectionObserver(function(entries){
-   entries.forEach(function(e){
+   for(var i=0;i<entries.length;i++){
+    var e=entries[i];
     if(e.isIntersecting){e.target.classList.add("rf-in");io.unobserve(e.target)}
-   });
-  },{rootMargin:"0px 0px -8% 0px",threshold:.05});
+   }
+  },{rootMargin:"200px 0px",threshold:.01});
  }
  function observe(el){
   if(!io||!el||el.classList.contains("rf-reveal"))return;
   el.classList.add("rf-reveal");
   io.observe(el);
-  // segurança: nunca deixar conteúdo invisível
-  setTimeout(function(){el.classList.add("rf-in")},2200);
+  setTimeout(function(){el.classList.add("rf-in")},2000);
  }
+ var scanQueued=false;
  function scan(){
-  document.querySelectorAll(".section, .detailSimilarSection").forEach(observe);
+  scanQueued=false;
+  if(document.body.classList.contains("playerOpen"))return;
+  var nodes=document.querySelectorAll(".section:not(.rf-reveal), .detailSimilarSection:not(.rf-reveal)");
+  for(var i=0;i<nodes.length;i++)observe(nodes[i]);
+ }
+ function queueScan(){
+  if(scanQueued)return;scanQueued=true;idle(scan,{timeout:400});
  }
  function ready(fn){document.readyState!=="loading"?fn():document.addEventListener("DOMContentLoaded",fn)}
+
  ready(function(){
-  scan();
+  queueScan();
   var main=document.getElementById("main")||document.body;
   try{
-   new MutationObserver(function(){clearTimeout(window.__rfScanT);window.__rfScanT=setTimeout(scan,120)})
+   var t=null;
+   new MutationObserver(function(){clearTimeout(t);t=setTimeout(queueScan,300)})
     .observe(main,{childList:true,subtree:true});
   }catch(_){}
 
-  /* 2) Brilho que segue o cursor nos cards (apenas ponteiro fino) */
-  if(window.matchMedia("(hover:hover) and (pointer:fine)").matches){
+  /* 2) Brilho que segue o cursor — apenas desktop com ponteiro fino e máquina folgada */
+  if(fine&&!small&&!weak){
+   var pending=null,frame=0;
    document.addEventListener("pointermove",function(ev){
+    if(document.body.classList.contains("playerOpen"))return;
     var card=ev.target&&ev.target.closest&&ev.target.closest(".card");
     if(!card)return;
-    var r=card.getBoundingClientRect();
-    card.style.setProperty("--rf-mx",((ev.clientX-r.left)/r.width*100).toFixed(1)+"%");
-    card.style.setProperty("--rf-my",((ev.clientY-r.top)/r.height*100).toFixed(1)+"%");
+    pending={card:card,x:ev.clientX,y:ev.clientY};
+    if(frame)return;
+    frame=requestAnimationFrame(function(){
+     frame=0;
+     if(!pending)return;
+     var r=pending.card.getBoundingClientRect();
+     pending.card.style.setProperty("--rf-mx",((pending.x-r.left)/r.width*100).toFixed(1)+"%");
+     pending.card.style.setProperty("--rf-my",((pending.y-r.top)/r.height*100).toFixed(1)+"%");
+     pending=null;
+    });
    },{passive:true});
   }
  });

@@ -29,17 +29,19 @@ body{
     radial-gradient(900px 560px at 92% 4%, rgba(192,132,252,.13), transparent 60%),
     radial-gradient(760px 520px at 50% 108%, rgba(91,33,182,.20), transparent 65%),
     var(--bg);
-  background-attachment:fixed;
   -webkit-font-smoothing:antialiased;
   text-rendering:optimizeLegibility;
 }
-body::before{
-  content:"";position:fixed;inset:-20vmax;z-index:-2;pointer-events:none;
-  background:
-    radial-gradient(38vmax 38vmax at 20% 30%, rgba(139,92,246,.16), transparent 60%),
-    radial-gradient(32vmax 32vmax at 78% 65%, rgba(236,72,153,.09), transparent 60%);
-  filter:blur(20px);
-  animation:rfAurora 26s ease-in-out infinite alternate;
+body::before{content:none}
+@media (min-width:1024px) and (hover:hover) and (pointer:fine){
+  body::before{
+    content:"";position:fixed;inset:-10vmax;z-index:-2;pointer-events:none;
+    background:
+      radial-gradient(38vmax 38vmax at 20% 30%, rgba(139,92,246,.14), transparent 60%),
+      radial-gradient(32vmax 32vmax at 78% 65%, rgba(236,72,153,.08), transparent 60%);
+    will-change:transform;
+    animation:rfAurora 40s ease-in-out infinite alternate;
+  }
 }
 @keyframes rfAurora{
   0%{transform:translate3d(-2%,-1%,0) scale(1)}
@@ -56,12 +58,10 @@ body::before{
 
 /* ---------- topo em vidro ---------- */
 .top{
-  backdrop-filter:blur(2px);
   transition:background .35s var(--rf-ease), box-shadow .35s var(--rf-ease), height .3s var(--rf-ease);
 }
 .top.solid{
-  background:linear-gradient(180deg, rgba(13,9,22,.92), rgba(9,6,16,.88))!important;
-  backdrop-filter:blur(18px) saturate(150%);
+  background:linear-gradient(180deg, rgba(13,9,22,.97), rgba(9,6,16,.95))!important;
   box-shadow:0 1px 0 var(--rf-line), 0 18px 40px -28px rgba(0,0,0,.9);
 }
 .logo{display:flex;align-items:center;gap:10px;transition:transform .25s var(--rf-ease),filter .25s}
@@ -113,12 +113,12 @@ body::before{
 }
 .btn:hover::before{transform:translateX(120%)}
 .primary{background:linear-gradient(180deg,#fff,#e8e4f5);color:#120c1e;box-shadow:0 12px 30px -14px rgba(255,255,255,.5)}
-.secondary{background:rgba(255,255,255,.09);color:#fff;border:1px solid var(--rf-line);backdrop-filter:blur(8px)}
+.secondary{background:rgba(255,255,255,.09);color:#fff;border:1px solid var(--rf-line)}
 .secondary:hover{background:rgba(139,92,246,.18);border-color:rgba(167,139,250,.5)}
 
 /* ---------- cards ---------- */
 .card{
-  border-radius:13px;background:var(--card);
+  border-radius:13px;background:var(--card);contain:layout paint style;
   box-shadow:0 6px 18px -12px rgba(0,0,0,.9);
   transition:transform .3s var(--rf-ease),box-shadow .3s var(--rf-ease);
 }
@@ -127,11 +127,13 @@ body::before{
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.05);
   transition:box-shadow .3s var(--rf-ease);
 }
-.card:hover{transform:translateY(-6px) scale(1.05);box-shadow:0 26px 55px -20px rgba(0,0,0,.95),0 0 0 1px rgba(167,139,250,.35)}
-.card:hover::after{box-shadow:inset 0 0 0 1px rgba(167,139,250,.45),inset 0 -60px 60px -40px rgba(139,92,246,.4)}
-.poster{transition:transform .5s var(--rf-ease),filter .4s}
-.card:hover .poster{transform:scale(1.04);filter:saturate(1.12)}
-.plus{backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.18);transform:scale(.85);transition:opacity .2s,transform .25s var(--rf-ease)}
+@media (hover:hover) and (pointer:fine){
+  .card:hover{transform:translateY(-6px) scale(1.04);box-shadow:0 26px 55px -20px rgba(0,0,0,.95),0 0 0 1px rgba(167,139,250,.35)}
+  .card:hover::after{box-shadow:inset 0 0 0 1px rgba(167,139,250,.45),inset 0 -60px 60px -40px rgba(139,92,246,.4)}
+  .poster{transition:transform .45s var(--rf-ease)}
+  .card:hover .poster{transform:scale(1.03)}
+}
+.plus{border:1px solid rgba(255,255,255,.18);transform:scale(.85);transition:opacity .2s,transform .25s var(--rf-ease)}
 .card:hover .plus{transform:scale(1)}
 .rating{background:linear-gradient(135deg,rgba(139,92,246,.92),rgba(76,29,149,.92));box-shadow:0 6px 16px -8px #000}
 .bar i{background:linear-gradient(90deg,var(--rf-violet),var(--rf-amber))}
@@ -159,7 +161,7 @@ body::before{
 }
 
 /* ---------- modais ---------- */
-.modal{background:rgba(4,2,9,.78);backdrop-filter:blur(10px)}
+.modal{background:rgba(4,2,9,.9)}
 .modal.open>*{animation:rfModalIn .35s var(--rf-ease) both}
 @keyframes rfModalIn{from{opacity:0;transform:translateY(16px) scale(.985)}to{opacity:1;transform:none}}
 .settings,.settingsV16{
@@ -212,4 +214,23 @@ button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{
     opacity:0;transition:opacity .3s var(--rf-ease);
   }
   .card:hover::before{opacity:1}
+}
+
+
+/* ---------- modo desempenho: player aberto ---------- */
+body.playerOpen::before{animation:none!important;display:none!important}
+body.playerOpen #main{content-visibility:hidden}
+body.playerOpen *,body.playerOpen *::before,body.playerOpen *::after{
+  animation-play-state:paused!important;
+}
+#playerModal,#playerModal *{backdrop-filter:none!important}
+
+/* ---------- economia em telas pequenas / dispositivos fracos ---------- */
+@media (max-width:900px){
+  *{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+  .card,.detailSimilarCard{transition:none}
+  .btn::before{content:none}
+  .cardPreview{display:none!important}
+  .rf-reveal{transition:opacity .35s ease}
+  .rf-reveal{transform:none}
 }

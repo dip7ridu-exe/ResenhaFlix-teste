@@ -9,9 +9,7 @@ const STREAM_SOURCES_V41=[
  "https://94c8cb9f702d-brazuca-torrents.baby-beamup.club/manifest.json",
  "https://torrentio.strem.fun/manifest.json",
  "https://watchhub.strem.io/manifest.json",
- "https://top-streaming.stream/username=temporary_username/manifest.json",
- "https://youtubio.elfhosted.com/%7B%7D/manifest.json",
- "https://v3-channels.strem.io/manifest.json"
+ "https://youtubio.elfhosted.com/%7B%7D/manifest.json"
 ];
 const DEAD_SOURCES_V41=[
  "fenixflix.fenixhub.online",
@@ -75,6 +73,17 @@ if(!localStorage.getItem("rf41_sources_migrated")){
  localStorage.setItem("cf4_catalogs",mergeList(localStorage.getItem("cf4_catalogs")||CFG_DEFAULT.catalogs,CATALOG_SOURCES_V41));
  if(!localStorage.getItem("cf5_subtitle_addon"))localStorage.setItem("cf5_subtitle_addon",CFG_DEFAULT.subtitleAddon);
  localStorage.setItem("rf41_sources_migrated","1");
+}
+const BROKEN_STREAM_SOURCES_V42=[
+ "top-streaming.stream",
+ "v3-channels.strem.io"
+];
+if(!localStorage.getItem("rf42_sources_migrated")){
+ const clean42=txt=>String(txt||"").split(/\s*\n\s*/).map(x=>x.trim()).filter(Boolean)
+  .filter(u=>!BROKEN_STREAM_SOURCES_V42.some(d=>u.includes(d)));
+ savedStreams=clean42(savedStreams).join("\n");
+ localStorage.setItem("cf2_frost",savedStreams);
+ localStorage.setItem("rf42_sources_migrated","1");
 }
 const cfg={
  frost:savedStreams,
@@ -498,6 +507,52 @@ function recentSourceInstability(s){
  if(st.lastStall&&now-Number(st.lastStall)>7*864e5)penalty=Math.round(penalty*.25);
  return penalty;
 }
+
+/* ---- v42: garante que os addons recebam o ID IMDb correto ---- */
+const RF_ID_CACHE=new Map();
+function isImdbId(x){return /^tt\d+/i.test(String(x||""))}
+async function resolveStreamId(type,id,meta){
+ const raw=String(id||"");
+ if(!raw)return raw;
+ const parts=raw.split(":");
+ const base=parts[0],suffix=parts.slice(1).join(":");
+ if(isImdbId(base))return raw;
+ if(RF_ID_CACHE.has(base))return [RF_ID_CACHE.get(base),suffix].filter(Boolean).join(":");
+ let out=base;
+ const direct=meta&&(meta.imdb_id||meta.imdbId);
+ if(isImdbId(direct))out=direct;
+ else{
+  try{
+   const d=await getJSONTimeout(metaURL(type,base),7000);
+   const m=(d&&(d.meta||d))||{};
+   if(isImdbId(m.imdb_id))out=m.imdb_id;
+  }catch(_){}
+ }
+ RF_ID_CACHE.set(base,out);
+ return [out,suffix].filter(Boolean).join(":");
+}
+function normTitleText(t){
+ return String(t||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g," ").trim();
+}
+/* Conservador: só marca quando o texto traz um ANO claramente diferente
+   e nenhuma palavra relevante do título bate. Evita falso positivo com
+   títulos traduzidos (ex.: Interstellar -> Interestelar). */
+function streamLooksMismatched(s,meta,type){
+ try{
+  if(!meta||type==="series")return false;
+  const want=normTitleText(meta.name);if(!want)return false;
+  const txt=normTitleText([s.name,s.title,s.description].filter(Boolean).join(" "));
+  if(!txt)return false;
+  const year=Number(String(meta.year||"").slice(0,4));
+  if(!year)return false;
+  const years=[...txt.matchAll(/\b(?:19|20)\d{2}\b/g)].map(m=>Number(m[0]));
+  if(!years.length||years.some(y=>Math.abs(y-year)<=1))return false;
+  const words=want.split(" ").filter(w=>w.length>3);
+  if(!words.length)return false;
+  const hit=words.filter(w=>txt.includes(w)).length/words.length;
+  return hit<0.5;
+ }catch(_){return false}
+}
 function sourceReliabilityScore(s,resumeEntry=null){
  let score=qualityScore(s._quality)*12;
  const provider=detectProvider(s);
@@ -527,10 +582,11 @@ function sourceReliabilityScore(s,resumeEntry=null){
  if(S.primaryManifest&&s._manifest===S.primaryManifest)score+=190;
  score+=configuredManifestPriority(s._manifest);
  if(s._external)score-=500;
+ if(s._mismatch)score-=900;
  return score;
 }
 function rankedPlayableStreams(streams,resumeEntry=null){
- return streams.filter(s=>!s._external&&s.url).slice().sort((a,b)=>sourceReliabilityScore(b,resumeEntry)-sourceReliabilityScore(a,resumeEntry));
+ return streams.filter(s=>!s._external&&s.url&&!s._mismatch).slice().sort((a,b)=>sourceReliabilityScore(b,resumeEntry)-sourceReliabilityScore(a,resumeEntry));
 }
 
 
@@ -1156,7 +1212,7 @@ async function fetchStreamBatch(manifest,type,id,index,{fresh=false}={}){
   return s;
  }).filter(x=>x&&(x.url||x.externalUrl)).map((s,i)=>{
   const x={...s,_addon:name,_manifest:manifest,_idx:i,_quality:getQuality(s),_external:!s.url&&!!s.externalUrl,_officialLegal:officialLegal};
-  x._provider=detectProvider(x);return x;
+  x._provider=detectProvider(x);x._mismatch=streamLooksMismatched(x,S.streamMeta,type);return x;
  });
  saveStreamBatch(manifest,type,id,streams);return streams;
 }
@@ -1791,13 +1847,15 @@ async function playStream(type,id,title,meta,resumeEntry=null){
  $("#addonTabs").innerHTML="";$("#qualityFilters").innerHTML="";$("#sources").innerHTML="<div class='sourceEmpty'>Buscando fontes disponíveis...</div>";
  try{
   const loadToken=++S.streamLoadToken;let autoStarted=false,autoPromise=null,receivedAny=false;
-  const allPromise=loadStreamsFromAddons(type,id,(batch)=>{
+  const streamId=await resolveStreamId(type,id,meta);
+  if(loadToken!==S.streamLoadToken)return;
+  const allPromise=loadStreamsFromAddons(type,streamId,(batch)=>{
    if(loadToken!==S.streamLoadToken||!batch?.length)return;
    receivedAny=true;S.streams=mergeStreamBatches(S.streams,batch);renderSourceUI();
    if(!autoStarted&&rankedPlayableStreams(S.streams,resumeEntry).length){
     autoStarted=true;
     if(resumeEntry?.stream?.provider)toast(`Procurando novamente ${resumeEntry.stream.provider}…`);
-    autoPromise=autoChooseWorkingSource(resumeEntry,!!resumeEntry).then(async found=>{if(found)await fetchExternalSubtitles(type,id,found);return found});
+    autoPromise=autoChooseWorkingSource(resumeEntry,!!resumeEntry).then(async found=>{if(found)await fetchExternalSubtitles(type,streamId,found);return found});
    }
   });
   const streams=await allPromise;if(loadToken!==S.streamLoadToken)return;
@@ -1807,7 +1865,7 @@ async function playStream(type,id,title,meta,resumeEntry=null){
   // tenta novamente após os addons mais lentos terminarem de chegar.
   if(!found&&rankedPlayableStreams(S.streams,resumeEntry).length){
    found=await autoChooseWorkingSource(resumeEntry,!!resumeEntry);
-   if(found)await fetchExternalSubtitles(type,id,found);
+   if(found)await fetchExternalSubtitles(type,streamId,found);
   }
   if(!receivedAny&&!S.streams.length){$("#sources").innerHTML="<div class='sourceEmpty'>Nenhuma fonte foi retornada pelos addons configurados.</div>";return}
   if(!rankedPlayableStreams(S.streams,resumeEntry).length&&S.streams.length)$("#sources").insertAdjacentHTML("afterbegin","<div class='sourceEmpty'>As opções disponíveis abrem provedores externos; escolha uma delas na lista.</div>");

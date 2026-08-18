@@ -1,5 +1,5 @@
-const CACHE="resenhaflix-shell-v41";
-const SHELL=["./","./index.html","./styles.css?v=41","./app.js?v=41","./manifest.webmanifest","./manga-hakuneko.css?v=34","./manga-hakuneko.js?v=34","./ui-polish.css?v=41","./ui-polish.js?v=41","./icons/resenhaflix-logo.png","./icons/icon-192.png","./icons/icon-512.png","./icons/icon-maskable-512.png"];
+const CACHE="resenhaflix-shell-v42";
+const SHELL=["./","./index.html","./styles.css?v=42","./app.js?v=42","./manifest.webmanifest","./manga-hakuneko.css?v=34","./manga-hakuneko.js?v=34","./ui-polish.css?v=42","./ui-polish.js?v=42","./icons/resenhaflix-logo.png","./icons/icon-192.png","./icons/icon-512.png","./icons/icon-maskable-512.png"];
 self.addEventListener("install",e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(SHELL)).then(()=>self.skipWaiting())));
 self.addEventListener("activate",e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith("resenhaflix-shell-")&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
 self.addEventListener("fetch",e=>{
