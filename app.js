@@ -1,29 +1,37 @@
+// ResenhaFlix v41 — fontes revisadas (somente addons online e com foco PT-BR).
+// Addons removidos por estarem offline: fenixflix, animes-br(vercel), anima-o-pt-pt,
+// stremio-archive-org(fly.dev) e o exemplo estático da Stremio.
+const STREAM_SOURCES_V41=[
+ "https://flixnest.app/flix-streams/manifest.json",
+ "https://froststream.cloutteam.com/manifest.json",
+ "https://comet.elfhosted.com/manifest.json",
+ "https://mediafusion.elfhosted.com/manifest.json",
+ "https://94c8cb9f702d-brazuca-torrents.baby-beamup.club/manifest.json",
+ "https://torrentio.strem.fun/manifest.json",
+ "https://watchhub.strem.io/manifest.json",
+ "https://top-streaming.stream/username=temporary_username/manifest.json",
+ "https://youtubio.elfhosted.com/%7B%7D/manifest.json",
+ "https://v3-channels.strem.io/manifest.json"
+];
+const DEAD_SOURCES_V41=[
+ "fenixflix.fenixhub.online",
+ "animes-br-self.vercel.app",
+ "anima-o-pt-pt-addon-stremio-6dzv.vercel.app",
+ "stremio-archive-org-addon.fly.dev",
+ "stremio.github.io/stremio-static-addon-example"
+];
+const CATALOG_SOURCES_V41=[
+ "https://v3-cinemeta.strem.io/manifest.json",
+ "https://7a82163c306e-stremio-netflix-catalog-addon.baby-beamup.club/manifest.json",
+ "https://mediafusion.elfhosted.com/manifest.json",
+ "https://comet.elfhosted.com/manifest.json",
+ "https://youtubio.elfhosted.com/%7B%7D/manifest.json",
+ "https://v3-channels.strem.io/manifest.json"
+];
 const CFG_DEFAULT={
- frost:[
-  "https://froststream.cloutteam.com/manifest.json",
-  "https://watchhub.strem.io/manifest.json",
-  "https://fenixflix.fenixhub.online/manifest.json",
-  "https://comet.elfhosted.com/manifest.json",
-  "https://94c8cb9f702d-brazuca-torrents.baby-beamup.club/manifest.json",
-  "https://mediafusion.elfhosted.com/manifest.json",
-  "https://animes-br-self.vercel.app/manifest.json",
-  "https://anima-o-pt-pt-addon-stremio-6dzv.vercel.app/manifest.json",
-  "https://torrentio.strem.fun/manifest.json",
-  "https://top-streaming.stream/username=temporary_username/manifest.json",
-  "https://stremio-archive-org-addon.fly.dev/manifest.json",
-  "https://stremio.github.io/stremio-static-addon-example/manifest.json",
-  "https://v3-channels.strem.io/manifest.json"
- ].join("\n"),
+ frost:STREAM_SOURCES_V41.join("\n"),
  meta:"https://v3-cinemeta.strem.io/manifest.json",
- catalogs:[
-  "https://v3-cinemeta.strem.io/manifest.json",
-  "https://7a82163c306e-stremio-netflix-catalog-addon.baby-beamup.club/manifest.json",
-  "https://mediafusion.elfhosted.com/manifest.json",
-  "https://v3-channels.strem.io/manifest.json",
-  "https://stremio-archive-org-addon.fly.dev/manifest.json",
-  "https://torrentio.strem.fun/manifest.json",
-  "https://comet.elfhosted.com/manifest.json"
- ].join("\n"),
+ catalogs:CATALOG_SOURCES_V41.join("\n"),
  subtitleAddon:"https://subsense.nepiraw.com/manifest.json",
  audioPref:"jpn",
  subtitlePref:"pob",
@@ -57,6 +65,16 @@ if(!localStorage.getItem("rf40_sources_migrated")){
  for(const u of extraCatalogs)if(!savedCatalogs40.includes(u))savedCatalogs40=savedCatalogs40.trim()+"\n"+u;
  localStorage.setItem("cf4_catalogs",savedCatalogs40);
  localStorage.setItem("rf40_sources_migrated","1");
+}
+if(!localStorage.getItem("rf41_sources_migrated")){
+ const cleanList=txt=>String(txt||"").split(/\s*\n\s*/).map(s=>s.trim()).filter(Boolean)
+  .filter(u=>!DEAD_SOURCES_V41.some(d=>u.includes(d)));
+ const mergeList=(txt,add)=>{const list=cleanList(txt);for(const u of add)if(!list.includes(u))list.push(u);return list.join("\n")};
+ savedStreams=mergeList(savedStreams,STREAM_SOURCES_V41);
+ localStorage.setItem("cf2_frost",savedStreams);
+ localStorage.setItem("cf4_catalogs",mergeList(localStorage.getItem("cf4_catalogs")||CFG_DEFAULT.catalogs,CATALOG_SOURCES_V41));
+ if(!localStorage.getItem("cf5_subtitle_addon"))localStorage.setItem("cf5_subtitle_addon",CFG_DEFAULT.subtitleAddon);
+ localStorage.setItem("rf41_sources_migrated","1");
 }
 const cfg={
  frost:savedStreams,
