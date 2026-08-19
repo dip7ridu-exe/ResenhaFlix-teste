@@ -1893,61 +1893,78 @@ function ensureHlsLibrary(){
  return hlsLibraryPromise;
 }
 async function loadVideo(url,autoplay=true,stream=null,resumeEntry=null){
- clearPlaybackStallMonitor();
- const v=$("#video");if(v._hls){v._hls.destroy();v._hls=null}v.pause();v.removeAttribute("src");v.preload="auto";v.load();$("#buffering").classList.add("show");
- S.resumeEntry=resumeEntry||null;S.resumeApplied=false;
- const applyResume=()=>{
-  if(S.resumeApplied)return;
-  const pos=Number(S.resumeEntry?.currentTime||0);
-  if(pos>3&&isFinite(v.duration)&&v.duration>0){
-   const safe=Math.min(pos,Math.max(0,v.duration-2));
-   try{v.currentTime=safe;S.resumeApplied=true;toast(`Continuando em ${formatTime(safe)}.`)}catch{}
-  }else S.resumeApplied=true;
- };
+  clearPlaybackStallMonitor();
+  const v=$("#video");if(v._hls){v._hls.destroy();v._hls=null}v.pause();v.removeAttribute("src");v.preload="auto";v.load();$("#buffering").classList.add("show");
+  S.resumeEntry=resumeEntry||null;S.resumeApplied=false;
+  const applyResume=()=>{
+   if(S.resumeApplied)return;
+   const pos=Number(S.resumeEntry?.currentTime||0);
+   if(pos>3&&isFinite(v.duration)&&v.duration>0){
+    const safe=Math.min(pos,Math.max(0,v.duration-2));
+    try{v.currentTime=safe;S.resumeApplied=true;toast(`Continuando em ${formatTime(safe)}.`)}catch{}
+   }else S.resumeApplied=true;
+  };
   const afterTracks=async()=>{applyPreferredAudio();if(S.playType&&S.playId){await fetchExternalSubtitles(S.playType,S.playId,stream||S.selectedStream);await applyPreferredSubtitle()}updateTrackStatus()};
-  v.addEventListener("loadedmetadata",async()=>{applyAspectMode(S.aspectMode,false);applyResume();await afterTracks();$("#buffering").classList.remove("show");if(autoplay)startPlayback()},{once:true});
- if(/\.m3u8($|\?)/i.test(url)){
-  try{
-   await ensureHlsLibrary();
-   if(window.Hls&&Hls.isSupported()){
-    v._hls=new Hls({
-     enableWorker:true,
-     lowLatencyMode:false,
-     backBufferLength:30,
-     maxBufferLength:55,
-     maxMaxBufferLength:110,
-     maxBufferSize:80*1000*1000,
-     capLevelToPlayerSize:true,
-     startFragPrefetch:true,
-     abrBandWidthFactor:.82,
-     abrBandWidthUpFactor:.68,
-     maxBufferHole:.5,
-     nudgeMaxRetry:5,
-     highBufferWatchdogPeriod:2
-    });
-    v._hls.loadSource(url);v._hls.attachMedia(v);
-    v._hls.on(Hls.Events.MANIFEST_PARSED,async()=>{await afterTracks();$("#buffering").classList.remove("show")});
-    if(Hls.Events.AUDIO_TRACKS_UPDATED)v._hls.on(Hls.Events.AUDIO_TRACKS_UPDATED,()=>{applyPreferredAudio();updateTrackStatus()});
-    if(Hls.Events.SUBTITLE_TRACKS_UPDATED)v._hls.on(Hls.Events.SUBTITLE_TRACKS_UPDATED,()=>{applyPreferredSubtitle();updateTrackStatus()});
-    let hlsNetworkRecoveries=0,hlsMediaRecoveries=0;
-    v._hls.on(Hls.Events.ERROR,(_,data)=>{
-     if(!data?.fatal)return;
-     console.warn("Fonte HLS falhou",data);
-     if(data.type===Hls.ErrorTypes.NETWORK_ERROR&&hlsNetworkRecoveries<1){
-      hlsNetworkRecoveries++;try{v._hls.startLoad()}catch{}
-      return;
-     }
-     if(data.type===Hls.ErrorTypes.MEDIA_ERROR&&hlsMediaRecoveries<1){
-      hlsMediaRecoveries++;try{v._hls.recoverMediaError()}catch{}
-      return;
-     }
-     schedulePlaybackRecovery("hls-fatal",1200);
-    });
-   }else v.src=url;
-  }catch(e){console.warn("HLS.js",e);v.src=url}
-  }else{
-   v.src=url;
-  }
+  const onVideoError=(e)=>{
+    console.error("Video load error:", e, v.error);
+    $("#buffering").classList.remove("show");
+    const errMsg = v.error ? `Erro de mídia: ${v.error.code} (${v.error.message || "desconhecido"})` : "Falha ao carregar o vídeo";
+    toast(errMsg);
+    setHealth(stream, "failed", "media-error");
+    rememberSourceResult(stream, false, "media-error");
+  };
+  const onLoadedMeta=async()=>{applyAspectMode(S.aspectMode,false);applyResume();await afterTracks();$("#buffering").classList.remove("show");if(autoplay)startPlayback()};
+  v.addEventListener("error", onVideoError, {once: true});
+  v.addEventListener("loadedmetadata", onLoadedMeta, {once: true});
+  if(/\.m3u8($|\?)/i.test(url)){
+   try{
+    await ensureHlsLibrary();
+    if(window.Hls&&Hls.isSupported()){
+     v._hls=new Hls({
+      enableWorker:true,
+      lowLatencyMode:false,
+      backBufferLength:30,
+      maxBufferLength:55,
+      maxMaxBufferLength:110,
+      maxBufferSize:80*1000*1000,
+      capLevelToPlayerSize:true,
+      startFragPrefetch:true,
+      abrBandWidthFactor:.82,
+      abrBandWidthUpFactor:.68,
+      maxBufferHole:.5,
+      nudgeMaxRetry:5,
+      highBufferWatchdogPeriod:2
+     });
+     v._hls.loadSource(url);v._hls.attachMedia(v);
+     v._hls.on(Hls.Events.MANIFEST_PARSED,async()=>{await afterTracks();$("#buffering").classList.remove("show")});
+     if(Hls.Events.AUDIO_TRACKS_UPDATED)v._hls.on(Hls.Events.AUDIO_TRACKS_UPDATED,()=>{applyPreferredAudio();updateTrackStatus()});
+     if(Hls.Events.SUBTITLE_TRACKS_UPDATED)v._hls.on(Hls.Events.SUBTITLE_TRACKS_UPDATED,()=>{applyPreferredSubtitle();updateTrackStatus()});
+     let hlsNetworkRecoveries=0,hlsMediaRecoveries=0;
+     v._hls.on(Hls.Events.ERROR,(_,data)=>{
+      if(!data?.fatal)return;
+      console.warn("Fonte HLS falhou",data);
+      if(data.type===Hls.ErrorTypes.NETWORK_ERROR&&hlsNetworkRecoveries<1){
+       hlsNetworkRecoveries++;try{v._hls.startLoad()}catch{}
+       return;
+      }
+      if(data.type===Hls.ErrorTypes.MEDIA_ERROR&&hlsMediaRecoveries<1){
+       hlsMediaRecoveries++;try{v._hls.recoverMediaError()}catch{}
+       return;
+      }
+      schedulePlaybackRecovery("hls-fatal",1200);
+     });
+    }else v.src=url;
+   }catch(e){console.warn("HLS.js",e);v.src=url}
+   }else{
+    v.src=url;
+   }
+  setTimeout(()=>{
+    if(v.readyState===0){
+      v.removeEventListener("error", onVideoError);
+      v.removeEventListener("loadedmetadata", onLoadedMeta);
+      onVideoError(new Event("timeout"));
+    }
+  }, 20000);
 }
 
 let autoUnmuteHandler=null;
