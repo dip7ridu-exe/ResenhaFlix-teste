@@ -6,7 +6,7 @@
       "name": "9Router",
       "options": {
         "baseURL": "http://localhost:20128/v1",
-        "apiKey": "9router"
+        "apiKey": "sk-f5b5ab188a9484a4-x8v4zw-02913d93"
       },
       "models": {
         "Combo-trabalho": {
