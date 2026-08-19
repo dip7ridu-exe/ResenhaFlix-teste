@@ -9,11 +9,12 @@
         "apiKey": "9router"
       },
       "models": {
-        "coding": {
-          "name": "9Router Coding"
+        "Combo-trabalho": {
+          "name": "Combo-trabalho"
         }
       }
     }
   },
-  "model": "9router/coding"
+
+  "model": "9router/Combo-trabalho"
 }
