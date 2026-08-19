@@ -1855,7 +1855,7 @@ async function playStream(type,id,title,meta,resumeEntry=null){
    if(!autoStarted&&rankedPlayableStreams(S.streams,resumeEntry).length){
     autoStarted=true;
     if(resumeEntry?.stream?.provider)toast(`Procurando novamente ${resumeEntry.stream.provider}…`);
-    autoPromise=autoChooseWorkingSource(resumeEntry,!!resumeEntry).then(async found=>{if(found)await fetchExternalSubtitles(type,streamId,found);return found});
+    autoPromise=autoChooseWorkingSource(resumeEntry,true).then(async found=>{if(found)await fetchExternalSubtitles(type,streamId,found);return found});
    }
   });
   const streams=await allPromise;if(loadToken!==S.streamLoadToken)return;
@@ -1864,7 +1864,7 @@ async function playStream(type,id,title,meta,resumeEntry=null){
   // Se o primeiro addon chegou rápido mas todas as fontes dele falharam,
   // tenta novamente após os addons mais lentos terminarem de chegar.
   if(!found&&rankedPlayableStreams(S.streams,resumeEntry).length){
-   found=await autoChooseWorkingSource(resumeEntry,!!resumeEntry);
+   found=await autoChooseWorkingSource(resumeEntry,true);
    if(found)await fetchExternalSubtitles(type,streamId,found);
   }
   if(!receivedAny&&!S.streams.length){$("#sources").innerHTML="<div class='sourceEmpty'>Nenhuma fonte foi retornada pelos addons configurados.</div>";return}
