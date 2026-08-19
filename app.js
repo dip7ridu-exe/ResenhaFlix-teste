@@ -1872,7 +1872,7 @@ async function playStream(type,id,title,meta,resumeEntry=null){
  }catch(e){console.error(e);$("#sources").innerHTML="<div class='sourceEmpty'>Falha ao consultar as fontes. Verifique CORS, o manifesto e a disponibilidade do addon.</div>"}
 }
 function resetVideo(){
- stopSourceAttempt();clearPlaybackStallMonitor();S._stallRecovery=false;S._stallEvents=[];
+  stopSourceAttempt();clearPlaybackStallMonitor();disarmAutoUnmute();S._stallRecovery=false;S._stallEvents=[];
  const v=$("#video");v.pause();if(v._hls){v._hls.destroy();v._hls=null}v.removeAttribute("src");
  [...v.querySelectorAll("track[data-casaflix]")].forEach(t=>t.remove());
  if(S.externalSubtitleBlob){URL.revokeObjectURL(S.externalSubtitleBlob);S.externalSubtitleBlob=null}
@@ -1904,8 +1904,8 @@ async function loadVideo(url,autoplay=true,stream=null,resumeEntry=null){
    try{v.currentTime=safe;S.resumeApplied=true;toast(`Continuando em ${formatTime(safe)}.`)}catch{}
   }else S.resumeApplied=true;
  };
- const afterTracks=async()=>{applyPreferredAudio();if(S.playType&&S.playId){await fetchExternalSubtitles(S.playType,S.playId,stream||S.selectedStream);await applyPreferredSubtitle()}updateTrackStatus()};
- v.addEventListener("loadedmetadata",async()=>{applyAspectMode(S.aspectMode,false);applyResume();await afterTracks();$("#buffering").classList.remove("show");if(autoplay)v.play().catch(()=>{})},{once:true});
+  const afterTracks=async()=>{applyPreferredAudio();if(S.playType&&S.playId){await fetchExternalSubtitles(S.playType,S.playId,stream||S.selectedStream);await applyPreferredSubtitle()}updateTrackStatus()};
+  v.addEventListener("loadedmetadata",async()=>{applyAspectMode(S.aspectMode,false);applyResume();await afterTracks();$("#buffering").classList.remove("show");if(autoplay)startPlayback()},{once:true});
  if(/\.m3u8($|\?)/i.test(url)){
   try{
    await ensureHlsLibrary();
@@ -1945,10 +1945,58 @@ async function loadVideo(url,autoplay=true,stream=null,resumeEntry=null){
     });
    }else v.src=url;
   }catch(e){console.warn("HLS.js",e);v.src=url}
- }else{
-  v.src=url;
- }
+  }else{
+   v.src=url;
+  }
 }
+
+let autoUnmuteHandler=null;
+function reflectMuteState(){
+  const v=$("#video");if(!v)return;
+  const b=$("#muteBtn");if(b)b.textContent=v.muted?"🔇":"🔊";
+  const vol=$("#volume");if(vol)vol.value=v.muted?0:v.volume;
+}
+function disarmAutoUnmute(){
+  if(autoUnmuteHandler){
+    document.removeEventListener("pointerdown",autoUnmuteHandler,true);
+    document.removeEventListener("keydown",autoUnmuteHandler,true);
+    document.removeEventListener("touchstart",autoUnmuteHandler,true);
+    autoUnmuteHandler=null;
+  }
+}
+function armAutoUnmute(){
+  disarmAutoUnmute();
+  autoUnmuteHandler=()=>{
+    const v=$("#video");
+    if(v&&v.muted){v.muted=false;v.volume=SITE_DEFAULT_VOLUME;reflectMuteState();}
+    disarmAutoUnmute();
+  };
+  document.addEventListener("pointerdown",autoUnmuteHandler,true);
+  document.addEventListener("keydown",autoUnmuteHandler,true);
+  document.addEventListener("touchstart",autoUnmuteHandler,true);
+}
+// Inicia a reprodução de forma resiliente. Se o navegador bloquear o autoplay
+// (gesto do usuário já expirou por causa da busca assíncrona das fontes), tenta
+// muted-autoplay — sempre permitido — para que o vídeo renderize (sem tela preta)
+// e reativa o áudio no primeiro toque/clique do usuário.
+async function startPlayback(){
+  const v=$("#video");if(!v)return;
+  try{
+    await v.play();
+    return;
+  }catch(_){
+    try{
+      v.muted=true;reflectMuteState();
+      await v.play();
+      armAutoUnmute();
+      toast("Reprodução iniciada sem som. Toque para ativar o áudio.");
+    }catch(__){
+      clearTimeout(S._ctlTimer);showPlayerUI(true);
+      toast("Toque na tela para iniciar a reprodução.");
+    }
+  }
+}
+
 
 function clearPlaybackStallMonitor(){
  clearTimeout(S._stallTimer);
@@ -3941,7 +3989,7 @@ $("#closePlayer").onclick=()=>{$("#playerSide")?.classList.remove("drawerOpen");
 $("#bigPlay").onclick=togglePlayback;$("#playPause").onclick=togglePlayback;
 $("#back10").onclick=()=>{$("#video").currentTime=Math.max(0,$("#video").currentTime-10);showPlayerUI()};
 $("#forward10").onclick=()=>{const v=$("#video");v.currentTime=Math.min(v.duration||Infinity,v.currentTime+10);showPlayerUI()};
-$("#muteBtn").onclick=()=>{const v=$("#video");v.muted=!v.muted;$("#muteBtn").textContent=v.muted?"🔇":"🔊";showPlayerUI()};
+$("#muteBtn").onclick=()=>{disarmAutoUnmute();const v=$("#video");v.muted=!v.muted;$("#muteBtn").textContent=v.muted?"🔇":"🔊";showPlayerUI()};
 $("#volume").oninput=e=>{const v=$("#video");v.volume=Number(e.target.value);v.muted=v.volume===0;$("#muteBtn").textContent=v.muted?"🔇":"🔊";showPlayerUI()};
 $("#speed").onchange=e=>{$("#video").playbackRate=Number(e.target.value);showPlayerUI()};
 $("#seek").oninput=e=>{const v=$("#video"),n=Number(e.target.value);e.target.style.setProperty("--seek-fill",`${n/10}%`);if(isFinite(v.duration)&&v.duration)v.currentTime=n/1000*v.duration;showPlayerUI()};
