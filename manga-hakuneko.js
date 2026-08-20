@@ -1,5 +1,5 @@
 /*
- * ResenhaFLIX Manga Engine v32
+ * ResenhaFLIX Manga Engine v34
  *
  * Arquitetura inspirada no fluxo do HakuNeko:
  * connector -> manga -> chapters -> pages -> download job.
@@ -7,7 +7,8 @@
 (() => {
   "use strict";
 
-  const VERSION = "32.0.0";
+  const VERSION = "34.0.0";
+  const OFFICIAL_BRIDGE = "https://resenhaflix-production.up.railway.app";
   const KEYS = {
     library: "rf_hk_library_v1",
     progress: "rf_hk_progress_v1",
@@ -15,12 +16,19 @@
     query: "rf_hk_last_query_v1",
     language: "rf_hk_language_v1",
     downloads: "rf_hk_download_history_v1",
-    bridge: "rf14_manga_bridge"
+    source: "rf_hk_source_v1",
+    bridge: "rf14_manga_bridge",
+    bridgeDisabled: "rf_hk_bridge_disabled_v1"
   };
+  function sourcePreference(value) {
+    const source = String(value || "");
+    return ["all", "mangadex", "bridge"].includes(source) || /^bridge:[a-z0-9-]+$/i.test(source) ? source : "all";
+  }
   const state = {
     tab: "explore",
     query: localStorage.getItem(KEYS.query) || "",
     language: localStorage.getItem(KEYS.language) || "pt-br",
+    source: sourcePreference(localStorage.getItem(KEYS.source)),
     results: [],
     resultMap: new Map(),
     requestId: 0,
@@ -34,7 +42,12 @@
     saveTimer: 0,
     downloads: readStorage(KEYS.downloads, []).slice(0, 20),
     bridgeStatus: "checking",
-    sourceReport: null
+    bridgeRetryTimer: 0,
+    bridgeRetryAttempt: 0,
+    bridgeCheckToken: 0,
+    bridgeHealthController: null,
+    sourceReport: null,
+    bridgeSourceReports: []
   };
 
   function normalizeBridgeURL(value = "") {
@@ -50,20 +63,64 @@
     try { return normalizeBridgeURL(new URLSearchParams(location.search).get("mangaBridge")); }
     catch { return ""; }
   })();
-  if (queryBridge) localStorage.setItem(KEYS.bridge, queryBridge);
-  function bridgeBase() { return normalizeBridgeURL(localStorage.getItem(KEYS.bridge) || ""); }
+  if (queryBridge) {
+    localStorage.setItem(KEYS.bridge, queryBridge);
+    localStorage.removeItem(KEYS.bridgeDisabled);
+    try { if (typeof cfg !== "undefined") cfg.mangaBridge = queryBridge; } catch {}
+  }
+  function isOfficialSite() {
+    try { return String(location.hostname || "").toLowerCase() === "dip7ridu-exe.github.io"; }
+    catch { return false; }
+  }
+  function bridgeBase() {
+    const configured = normalizeBridgeURL(localStorage.getItem(KEYS.bridge) || "");
+    if (configured) return configured;
+    return isOfficialSite() && localStorage.getItem(KEYS.bridgeDisabled) !== "1" ? OFFICIAL_BRIDGE : "";
+  }
+  function bridgeReady() { return Boolean(bridgeBase() && state.bridgeStatus === "ready"); }
+  function cancelBridgeHealthActivity() {
+    state.bridgeCheckToken++;
+    try { state.bridgeHealthController?.abort(); } catch {}
+    state.bridgeHealthController = null;
+    if (state.bridgeRetryTimer) clearTimeout(state.bridgeRetryTimer);
+    state.bridgeRetryTimer = 0;
+    state.bridgeRetryAttempt = 0;
+  }
   function saveBridge(value) {
     const normalized = normalizeBridgeURL(value);
     if (value && !normalized) throw new Error("Use uma URL HTTPS valida para o Manga Bridge");
-    if (normalized) localStorage.setItem(KEYS.bridge, normalized);
-    else localStorage.removeItem(KEYS.bridge);
+    cancelBridgeHealthActivity();
+    if (normalized) {
+      localStorage.setItem(KEYS.bridge, normalized);
+      localStorage.removeItem(KEYS.bridgeDisabled);
+    } else {
+      localStorage.removeItem(KEYS.bridge);
+      localStorage.setItem(KEYS.bridgeDisabled, "1");
+      if (state.source === "bridge" || state.source.startsWith("bridge:")) {
+        state.source = "mangadex";
+        localStorage.setItem(KEYS.source, state.source);
+      }
+    }
+    try { if (typeof cfg !== "undefined") cfg.mangaBridge = normalized; } catch {}
     state.bridgeStatus = normalized ? "checking" : "off";
+    state.bridgeHealth = normalized ? null : { disabled: true };
+    try { updateSourceSelector(); updateEngineStatus(); } catch {}
     return normalized;
   }
   function bridgeURL(path) {
     const base = bridgeBase();
     if (!base) throw new Error("Manga Bridge ainda nao foi configurado");
     return base + (String(path).startsWith("/") ? path : "/" + path);
+  }
+  function bridgeShareURL() {
+    const base = bridgeBase();
+    if (!base) return "";
+    try {
+      const url = new URL(location.href);
+      url.searchParams.set("mangaBridge", base);
+      url.hash = "";
+      return url.toString();
+    } catch { return ""; }
   }
 
   function readStorage(key, fallback) {
@@ -87,7 +144,54 @@
     return String(value).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
       .replace(/[^a-z0-9]+/g, " ").trim();
   }
-  function safeCSSUrl(value = "") { return String(value).replace(/["'()\\\n\r]/g, ""); }
+  const MANGA_TITLE_OVERRIDES = new Map([
+    ["596191eb-69ee-4401-983e-cc07e277fa17", {
+      title: "Lookism", altTitle: "Aparências", search: "Lookism",
+      aliases: ["Lookism", "Aparências", "Aparencias", "Oemo Jisangjuui", "Oemojisangjuui", "외모지상주의"]
+    }]
+  ]);
+  function uniqueTitles(values = []) {
+    const seen = new Set();
+    return values.map(value => String(value || "").replace(/\s+/g, " ").trim()).filter(value => {
+      const key = normalize(value);
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }
+  function mangaTitleInfo(attributes = {}, mangaId = "") {
+    const titles = attributes.title || {};
+    const localizedAliases = (attributes.altTitles || []).flatMap(item => Object.entries(item || {}));
+    const aliases = uniqueTitles(localizedAliases.map(([, value]) => value));
+    const override = MANGA_TITLE_OVERRIDES.get(String(mangaId || ""));
+    if (override) return {
+      title: override.title, altTitle: override.altTitle,
+      aliases: uniqueTitles([...override.aliases, ...aliases, ...Object.values(titles)])
+    };
+    const aliasFor = (...languages) => localizedAliases.find(([language, value]) => languages.includes(String(language).toLowerCase()) && value)?.[1] || "";
+    const title = aliasFor("pt-br", "pt") || titles["pt-br"] || titles.pt || aliasFor("en") ||
+      titles.en || titles.ja || Object.values(titles)[0] || aliases[0] || "Mangá";
+    const altTitle = uniqueTitles([
+      titles["pt-br"], titles.pt, aliasFor("pt-br", "pt"), titles.en, aliasFor("en"),
+      ...Object.values(titles), ...aliases
+    ]).find(value => normalize(value) !== normalize(title)) || "";
+    return { title, altTitle, aliases };
+  }
+  function canonicalMangaQuery(query = "") {
+    const key = normalize(query);
+    if (!key) return "";
+    for (const override of MANGA_TITLE_OVERRIDES.values()) {
+      if (override.aliases.some(alias => normalize(alias) === key)) return override.search || override.title;
+    }
+    return String(query).trim();
+  }
+  function safeImageURL(value = "") {
+    try {
+      const url = new URL(String(value || ""), typeof location !== "undefined" ? location.href : "https://invalid.local/");
+      return ["http:", "https:"].includes(url.protocol) ? url.toString() : "";
+    } catch { return ""; }
+  }
+  function safeCSSUrl(value = "") { return safeImageURL(value).replace(/["'()\\\n\r]/g, ""); }
   function chapterLabel(chapter) {
     const number = chapter?.number && chapter.number !== "none" ? chapter.number : "?";
     const title = chapter?.title ? " — " + chapter.title : "";
@@ -123,21 +227,39 @@
         score = Math.max(score, intersection * 900 / Math.max(1, wantedTokens.size));
       }
     }
-    return score + Math.min(500, Number(manga.followedCount || 0) / 1000);
+    const portugueseSourceBonus = state.language === "pt-br" && manga.connector === "bridge" ? 2500 : 0;
+    return score + portugueseSourceBonus + Math.min(500, Number(manga.followedCount || 0) / 1000);
   }
   async function fetchJSON(url, options = {}, timeout = 12000) {
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), timeout);
+    const externalSignal = options.signal;
+    let timedOut = false;
+    const relayAbort = () => controller.abort();
+    if (externalSignal?.aborted) relayAbort();
+    else externalSignal?.addEventListener?.("abort", relayAbort, { once: true });
+    const timer = setTimeout(() => { timedOut = true; controller.abort(); }, timeout);
+    const { signal: _externalSignal, ...requestOptions } = options;
     try {
       const response = await fetch(url, {
-        ...options,
+        ...requestOptions,
         signal: controller.signal,
         headers: { Accept: "application/json", ...(options.headers || {}) }
       });
-      if (!response.ok) throw new Error("Servidor respondeu HTTP " + response.status);
+      if (!response.ok) {
+        const httpError = new Error("Servidor respondeu HTTP " + response.status);
+        httpError.code = "HTTP_ERROR";
+        httpError.status = response.status;
+        throw httpError;
+      }
       return await response.json();
     } catch (error) {
-      if (error?.name === "AbortError") throw new Error("A fonte demorou demais para responder");
+      if (error?.name === "AbortError") {
+        const cancelled = Boolean(externalSignal?.aborted && !timedOut);
+        const abortError = new Error(cancelled ? "Operacao cancelada" : "A fonte demorou demais para responder");
+        abortError.code = cancelled ? "ABORTED" : "TIMEOUT";
+        abortError.cause = error;
+        throw abortError;
+      }
       if (error instanceof TypeError && /fetch|network|load/i.test(error.message || "")) {
         const friendly = new Error("O navegador bloqueou a conexao com a fonte");
         friendly.code = "NETWORK_BLOCKED";
@@ -145,7 +267,60 @@
         throw friendly;
       }
       throw error;
-    } finally { clearTimeout(timer); }
+    } finally {
+      clearTimeout(timer);
+      externalSignal?.removeEventListener?.("abort", relayAbort);
+    }
+  }
+
+  function bridgeFailureMessage(error) {
+    const message = String(error?.message || "Falha de conexao");
+    if (error?.code === "NETWORK_BLOCKED") {
+      return "O Bridge nao respondeu neste navegador. Em desenvolvimento, confirme se o PC usa http://localhost e se o servidor permite essa origem.";
+    }
+    if (/HTTP 403|HTTP 401/i.test(message)) return "O Bridge recusou esta origem. Revise ALLOWED_ORIGIN no servidor.";
+    if (/HTTP 404/i.test(message)) return "A URL configurada nao parece ser um Manga Bridge (endpoint /api/health ausente).";
+    return message;
+  }
+  function markBridgeOffline(error) {
+    state.bridgeStatus = "offline";
+    state.bridgeHealth = { error: bridgeFailureMessage(error), rawError: String(error?.message || "") };
+    try { updateEngineStatus(); updateSourceSelector(); } catch {}
+  }
+  function isBridgeTransportFailure(error) {
+    return error?.code === "NETWORK_BLOCKED" || error?.code === "TIMEOUT";
+  }
+  function bridgeRetryAllowed() {
+    if (typeof navigator !== "undefined" && navigator.onLine === false) return false;
+    return typeof document === "undefined" || document.visibilityState !== "hidden";
+  }
+  function scheduleBridgeRetry({ immediate = false } = {}) {
+    if (typeof document === "undefined" || !bridgeBase() || state.bridgeRetryTimer || state.bridgeStatus === "ready") return;
+    const delays = [18000, 60000, 300000];
+    const delay = immediate ? 250 : delays[Math.min(state.bridgeRetryAttempt++, delays.length - 1)];
+    state.bridgeRetryTimer = window.setTimeout(async () => {
+      state.bridgeRetryTimer = 0;
+      if (!document.getElementById("hkEngineStatus") || state.bridgeStatus === "ready") return;
+      if (!bridgeRetryAllowed()) { scheduleBridgeRetry(); return; }
+      await checkBridgeStatus({ retry: true });
+      updateEngineStatus();
+      if (state.bridgeStatus === "ready" && state.tab === "explore") loadExplore();
+    }, delay);
+  }
+  function revalidateBridgeAfterTransportFailure(error, requestBase = bridgeBase()) {
+    if (!isBridgeTransportFailure(error) || !requestBase || requestBase !== bridgeBase()) return;
+    markBridgeOffline(error);
+    scheduleBridgeRetry({ immediate: true });
+  }
+  function resumeBridgeRetry() {
+    if (!bridgeBase() || state.bridgeStatus === "ready" || !bridgeRetryAllowed()) return;
+    if (state.bridgeRetryTimer) clearTimeout(state.bridgeRetryTimer);
+    state.bridgeRetryTimer = 0;
+    scheduleBridgeRetry({ immediate: true });
+  }
+  if (typeof window !== "undefined" && typeof window.addEventListener === "function") window.addEventListener("online", resumeBridgeRetry);
+  if (typeof document !== "undefined" && typeof document.addEventListener === "function") {
+    document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") resumeBridgeRetry(); });
   }
 
   class MangaConnector {
@@ -163,9 +338,15 @@
       this.uploadBase = "https://uploads.mangadex.org";
     }
     async bridgeGet(path, parameters = {}, timeout = 15000) {
-      const url = new URL(bridgeURL(path));
+      const requestBase = bridgeBase();
+      if (!requestBase) throw new Error("Manga Bridge ainda nao foi configurado");
+      const url = new URL(requestBase + (String(path).startsWith("/") ? path : "/" + path));
       for (const [key, value] of Object.entries(parameters)) if (value != null && value !== "") url.searchParams.set(key, String(value));
-      return fetchJSON(url, {}, timeout);
+      try { return await fetchJSON(url, {}, timeout); }
+      catch (error) {
+        revalidateBridgeAfterTransportFailure(error, requestBase);
+        throw error;
+      }
     }
     buildURL(path, parameters = {}) {
       const url = new URL(path, this.apiBase);
@@ -180,10 +361,7 @@
       const relationships = resource?.relationships || [];
       const cover = relationships.find(item => item.type === "cover_art")?.attributes?.fileName || "";
       const author = relationships.find(item => item.type === "author")?.attributes?.name || "";
-      const titles = attributes.title || {};
-      const aliases = (attributes.altTitles || []).flatMap(item => Object.values(item || {})).filter(Boolean);
-      const title = titles["pt-br"] || titles.en || titles.ja || Object.values(titles)[0] || "Manga";
-      const altTitle = [titles.en, titles["pt-br"], ...aliases].find(item => item && item !== title) || "";
+      const { title, altTitle, aliases } = mangaTitleInfo(attributes, resource.id);
       const descriptions = attributes.description || {};
       return {
         id: resource.id,
@@ -207,13 +385,15 @@
     }
     async search(query = "", options = {}) {
       const language = options.language || "pt-br";
-      if (bridgeBase()) {
-        const payload = await this.bridgeGet("/api/v2/manga/search", {
-          query, language, limit: Math.min(40, Math.max(1, Number(options.limit || 30)))
-        });
-        const items = (payload.items || []).map(item => ({ ...item, connector: this.id, tags: (item.tags || []).filter(Boolean) }));
-        items.sort((a, b) => smartScore(b, query) - smartScore(a, query));
-        return items;
+      if (bridgeReady()) {
+        try {
+          const payload = await this.bridgeGet("/api/v2/manga/search", {
+            query, language, limit: Math.min(40, Math.max(1, Number(options.limit || 30)))
+          });
+          const items = (payload.items || []).map(item => ({ ...item, connector: this.id, tags: (item.tags || []).filter(Boolean) }));
+          items.sort((a, b) => smartScore(b, query) - smartScore(a, query));
+          return items;
+        } catch {}
       }
       const parameters = {
         limit: Math.min(48, Math.max(1, Number(options.limit || 30))),
@@ -223,7 +403,7 @@
         hasAvailableChapters: true
       };
       if (query) {
-        parameters.title = query;
+        parameters.title = canonicalMangaQuery(query);
         parameters["order[relevance]"] = "desc";
       } else parameters["order[followedCount]"] = "desc";
       if (language !== "all") parameters["availableTranslatedLanguage[]"] = [language];
@@ -234,22 +414,27 @@
     }
     async manga(id) {
       if (!/^[0-9a-f-]{36}$/i.test(id)) throw new Error("Identificador de manga invalido");
-      if (bridgeBase()) return this.bridgeGet("/api/v2/manga/" + id, {}, 15000);
+      if (bridgeReady()) {
+        try { return await this.bridgeGet("/api/v2/manga/" + id, {}, 15000); }
+        catch {}
+      }
       const payload = await fetchJSON(this.buildURL("/manga/" + id, { "includes[]": ["cover_art", "author", "artist"] }));
       return this.mapManga(payload.data);
     }
     async chapters(mangaId, options = {}) {
       if (!/^[0-9a-f-]{36}$/i.test(mangaId)) throw new Error("Identificador de manga invalido");
       const language = options.language || "pt-br";
-      if (bridgeBase()) {
-        const payload = await this.bridgeGet("/api/v2/manga/" + mangaId + "/chapters", { language }, 20000);
-        return payload.chapters || [];
+      if (bridgeReady()) {
+        try {
+          const payload = await this.bridgeGet("/api/v2/manga/" + mangaId + "/chapters", { language }, 20000);
+          return payload.chapters || [];
+        } catch {}
       }
       const all = [];
       const limit = 100;
       let offset = 0;
       let total = 1;
-      while (offset < total && offset < 500) {
+      while (offset < total && offset < 2000) {
         const parameters = {
           manga: mangaId,
           limit,
@@ -282,12 +467,7 @@
             group
           };
         });
-      const unique = new Map();
-      for (const chapter of mapped) {
-        const key = [chapter.volume, chapter.number, chapter.language].join("|");
-        const previous = unique.get(key);
-        if (!previous || chapter.pageCount > previous.pageCount || chapter.publishedAt > previous.publishedAt) unique.set(key, chapter);
-      }
+      const unique = new Map(mapped.filter(chapter => chapter.id).map(chapter => [chapter.id, chapter]));
       return [...unique.values()].sort((a, b) => {
         const volumeA = Number.parseFloat(a.volume || 0);
         const volumeB = Number.parseFloat(b.volume || 0);
@@ -298,11 +478,13 @@
     }
     async pages(chapterId, options = {}) {
       if (!/^[0-9a-f-]{36}$/i.test(chapterId)) throw new Error("Identificador de capitulo invalido");
-      if (bridgeBase()) {
-        const payload = await this.bridgeGet("/api/v2/chapter/" + chapterId + "/pages", {
-          quality: options.quality === "original" ? "original" : "data-saver"
-        }, 20000);
-        return payload.pages || [];
+      if (bridgeReady()) {
+        try {
+          const payload = await this.bridgeGet("/api/v2/chapter/" + chapterId + "/pages", {
+            quality: options.quality === "original" ? "original" : "data-saver"
+          }, 20000);
+          return payload.pages || [];
+        } catch {}
       }
       const payload = await fetchJSON(this.buildURL("/at-home/server/" + chapterId), {}, 15000);
       const chapter = payload.chapter || {};
@@ -317,6 +499,7 @@
   }
 
   const CURATED_BRIDGE_SOURCES = [
+    { id: "astra-toons", name: "AstraToons", lang: "pt-BR", homeUrl: "https://new.astratoons.com", extension: "Astratoons", pkg: "eu.kanade.tachiyomi.extension.pt.astratoons", repo: "https://raw.githubusercontent.com/keiyoushi/extensions/repo/index.json", contentWarning: "safe" },
     { id: "saikai-scan", name: "Saikai Scan", lang: "pt-BR", homeUrl: "https://housesaikai.net", extension: "Saikai Scan", pkg: "eu.kanade.tachiyomi.extension.pt.saikaiscan", repo: "https://raw.githubusercontent.com/keiyoushi/extensions/repo/index.json", contentWarning: "safe" },
     { id: "lycan-toons", name: "Lycan Toons", lang: "pt-BR", homeUrl: "https://lycantoons.com", extension: "Lycan Toons", pkg: "eu.kanade.tachiyomi.extension.pt.lycantoons", repo: "https://raw.githubusercontent.com/keiyoushi/extensions/repo/index.json", contentWarning: "safe" },
     { id: "mangas-brasuka", name: "Mangas Brasuka", lang: "pt-BR", homeUrl: "https://mangasbrasuka.com.br", extension: "Mangas Brasuka", pkg: "eu.kanade.tachiyomi.extension.pt.mangasbrasuka", repo: "https://raw.githubusercontent.com/keiyoushi/extensions/repo/index.json", contentWarning: "mixed" },
@@ -342,45 +525,84 @@
       this.sourcesCache = null;
     }
     async post(path, body, timeout = 16000) {
-      return fetchJSON(bridgeURL(path), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body)
-      }, timeout);
+      const requestBase = bridgeBase();
+      if (!requestBase) throw new Error("Manga Bridge ainda nao foi configurado");
+      try {
+        return await fetchJSON(requestBase + (String(path).startsWith("/") ? path : "/" + path), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        }, timeout);
+      } catch (error) {
+        revalidateBridgeAfterTransportFailure(error, requestBase);
+        throw error;
+      }
     }
     async sources() {
       if (this.sourcesCache) return this.sourcesCache;
+      const requestBase = bridgeBase();
+      if (!requestBase) return CURATED_BRIDGE_SOURCES;
       try {
-        const payload = await fetchJSON(bridgeURL("/api/sources"), {}, 8000);
-        this.sourcesCache = (payload.sources || CURATED_BRIDGE_SOURCES).slice(0, 4);
-      } catch { this.sourcesCache = CURATED_BRIDGE_SOURCES; }
+        const payload = await fetchJSON(requestBase + "/api/sources", {}, 8000);
+        this.sourcesCache = (payload.sources || CURATED_BRIDGE_SOURCES).slice(0, 5);
+      } catch (error) {
+        revalidateBridgeAfterTransportFailure(error, requestBase);
+        this.sourcesCache = CURATED_BRIDGE_SOURCES;
+      }
       return this.sourcesCache;
     }
     mapResult(item, source) {
       const record = { source: item.source || source, url: item.url };
       return {
         id: encodeBridgeRecord(record), connector: this.id, source: (item.source || source).name || "Fonte PT-BR",
-        sourceUrl: item.url, title: item.title || "Manga", altTitle: "", aliases: [], description: "Detalhes fornecidos pela fonte.",
+        sourceUrl: item.url, title: item.title || "Mangá", altTitle: item.altTitle || "",
+        aliases: uniqueTitles(item.aliases || []), description: item.description || "Detalhes fornecidos pela fonte.",
         cover: item.thumbnail || "", originalCover: item.thumbnail || "", status: "", year: "", author: "",
         contentRating: (item.source || source).contentWarning === "safe" ? "safe" : "suggestive",
         availableLanguages: ["pt-br"], tags: ["Português"], followedCount: 0
       };
     }
     async search(query = "", options = {}) {
-      if (!bridgeBase() || !query.trim() || options.language === "en") return [];
-      const sources = await this.sources();
-      const payload = await this.post("/api/batch/search", { sources, query: query.trim() }, 22000);
+      if (!bridgeReady() || options.language === "en") return [];
+      const selectedSourceId = String(options.source || "").startsWith("bridge:")
+        ? String(options.source).slice("bridge:".length) : "";
+      let sources = await this.sources();
+      if (selectedSourceId) sources = sources.filter(source => source.id === selectedSourceId);
+      if (!sources.length) throw new Error("A fonte PT-BR selecionada nao esta disponivel neste Bridge.");
       const items = [];
-      for (const result of payload.results || []) for (const item of result.items || []) items.push(this.mapResult(item, result.source));
+      const normalizedQuery = query.trim();
+      if (sources.length === 1) {
+        const source = sources[0];
+        const payload = await this.post(normalizedQuery ? "/api/search" : "/api/popular", { source, query: normalizedQuery }, 24000);
+        state.bridgeSourceReports = [{ source, ok: Boolean(payload.ok), count: (payload.items || []).length, error: payload.error || "" }];
+        for (const item of payload.items || []) items.push(this.mapResult(item, source));
+      } else if (normalizedQuery) {
+        const payload = await this.post("/api/batch/search", { sources, query: normalizedQuery }, 26000);
+        state.bridgeSourceReports = (payload.results || []).map(result => ({
+          source: result.source, ok: Boolean(result.ok), count: (result.items || []).length, error: result.error || ""
+        }));
+        for (const result of payload.results || []) for (const item of result.items || []) items.push(this.mapResult(item, result.source));
+      } else {
+        const settled = await Promise.allSettled(sources.map(source =>
+          this.post("/api/popular", { source, query: "" }, 24000).then(payload => ({ source, payload }))
+        ));
+        state.bridgeSourceReports = settled.map((result, index) => result.status === "fulfilled"
+          ? { source: result.value.source, ok: Boolean(result.value.payload.ok), count: (result.value.payload.items || []).length, error: result.value.payload.error || "" }
+          : { source: sources[index], ok: false, count: 0, error: result.reason?.message || "Falha" });
+        for (const result of settled) if (result.status === "fulfilled") {
+          for (const item of result.value.payload.items || []) items.push(this.mapResult(item, result.value.source));
+        }
+      }
       return items.sort((a, b) => smartScore(b, query) - smartScore(a, query)).slice(0, 30);
     }
     async manga(id) {
       if (this.detailsCache.has(id)) return this.detailsCache.get(id).manga;
       const record = decodeBridgeRecord(id);
-      const details = await this.post("/api/manga", { source: record.source, url: record.url }, 18000);
+      const details = await this.post("/api/manga", { source: record.source, url: record.url }, 45000);
       const manga = {
         id, connector: this.id, source: record.source.name || "Fonte PT-BR", sourceUrl: details.url || record.url,
-        title: details.title || "Manga", altTitle: "", aliases: [], description: details.description || "Sem sinopse disponivel.",
+        title: details.title || "Mangá", altTitle: details.altTitle || "", aliases: uniqueTitles(details.aliases || []),
+        description: details.description || "Sem sinopse disponivel.",
         cover: details.cover || "", originalCover: details.cover || "", status: "", year: "", author: "",
         contentRating: record.source.contentWarning === "safe" ? "safe" : "suggestive",
         availableLanguages: ["pt-br"], tags: ["Português"]
@@ -416,7 +638,20 @@
       return connector;
     }
     async search(query, options = {}) {
-      const active = this.connectors.filter(connector => connector.id !== "bridge" || (bridgeBase() && query.trim() && options.language !== "en"));
+      const requestedSource = options.source || "all";
+      const requestedConnector = String(requestedSource).startsWith("bridge:") ? "bridge" : requestedSource;
+      const active = this.connectors.filter(connector => {
+        if (requestedConnector !== "all" && connector.id !== requestedConnector) return false;
+        return connector.id !== "bridge" || (bridgeReady() && options.language !== "en");
+      });
+      if (!active.length) {
+        const bridgeRequested = requestedConnector === "bridge";
+        const error = new Error(bridgeRequested
+          ? "Conecte o Manga Bridge para pesquisar nas fontes PT-BR."
+          : "Nenhuma fonte esta disponivel com estes filtros.");
+        error.code = bridgeRequested ? "BRIDGE_REQUIRED" : "NO_SOURCE";
+        throw error;
+      }
       const settled = await Promise.allSettled(active.map(connector => connector.search(query, options)));
       const items = []; const errors = []; const sources = [];
       settled.forEach((result, index) => {
@@ -463,11 +698,17 @@
     const entries = Object.entries(progress).sort((a, b) => Number(b[1]?.updatedAt || 0) - Number(a[1]?.updatedAt || 0)).slice(0, 600);
     writeStorage(KEYS.progress, Object.fromEntries(entries));
   }
+  function clearProgress(chapterId) {
+    const progress = progressMap();
+    delete progress[chapterId];
+    writeStorage(KEYS.progress, progress);
+  }
   function preferences() {
     return {
       mode: "vertical",
       quality: innerWidth <= 760 ? "data-saver" : "original",
       fit: "width",
+      direction: "rtl",
       gap: "0",
       brightness: 100,
       ...readStorage(KEYS.preferences, {})
@@ -479,24 +720,112 @@
     return next;
   }
 
+  let readerReturnFocus = null;
+  let readerReturnChapterId = "";
+  let readerBackgroundState = [];
+  const READER_FOCUSABLE = 'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"]),[contenteditable="true"]';
+
+  function readerFocusableElements(reader) {
+    return [...reader.querySelectorAll(READER_FOCUSABLE)].filter(element => {
+      if (element.closest("[inert],[aria-hidden=\"true\"]")) return false;
+      return element.getClientRects().length > 0;
+    });
+  }
+
+  function trapReaderFocus(event, reader) {
+    const focusable = readerFocusableElements(reader);
+    if (!focusable.length) {
+      event.preventDefault();
+      reader.focus({ preventScroll: true });
+      return;
+    }
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    const active = document.activeElement;
+    if (event.shiftKey && (active === first || !reader.contains(active))) {
+      event.preventDefault();
+      last.focus({ preventScroll: true });
+    } else if (!event.shiftKey && (active === last || !reader.contains(active))) {
+      event.preventDefault();
+      first.focus({ preventScroll: true });
+    }
+  }
+
+  function setReaderBackgroundInert(active) {
+    const reader = document.getElementById("hkMangaReader");
+    const toastElement = document.getElementById("hkMangaToast");
+    if (!reader) return;
+    if (active) {
+      if (readerBackgroundState.length) return;
+      readerBackgroundState = [...document.body.children]
+        .filter(element => element !== reader && element !== toastElement && !["SCRIPT", "STYLE"].includes(element.tagName))
+        .map(element => ({
+          element,
+          hadInert: element.hasAttribute("inert"),
+          ariaHidden: element.getAttribute("aria-hidden")
+        }));
+      readerBackgroundState.forEach(({ element }) => {
+        element.setAttribute("inert", "");
+        element.setAttribute("aria-hidden", "true");
+      });
+      return;
+    }
+    readerBackgroundState.forEach(({ element, hadInert, ariaHidden }) => {
+      if (!element.isConnected) return;
+      if (!hadInert) element.removeAttribute("inert");
+      if (ariaHidden == null) element.removeAttribute("aria-hidden");
+      else element.setAttribute("aria-hidden", ariaHidden);
+    });
+    readerBackgroundState = [];
+  }
+
+  function rememberReaderFocus() {
+    const active = document.activeElement;
+    readerReturnFocus = active instanceof HTMLElement && active !== document.body ? active : null;
+    readerReturnChapterId = active?.closest?.("[data-hk-chapter]")?.dataset.hkChapter || "";
+  }
+
+  function restoreReaderFocus() {
+    let target = readerReturnFocus?.isConnected ? readerReturnFocus : null;
+    if (!target && readerReturnChapterId) {
+      const row = [...document.querySelectorAll("[data-hk-chapter]")]
+        .find(element => element.dataset.hkChapter === readerReturnChapterId);
+      target = row?.querySelector("[data-hk-read]") || row;
+    }
+    readerReturnFocus = null;
+    readerReturnChapterId = "";
+    target?.focus?.({ preventScroll: true });
+  }
+
+  function setReaderSettingsOpen(open, restoreButton = false) {
+    const settings = document.getElementById("hkReaderSettings");
+    if (!settings) return;
+    settings.classList.toggle("open", open);
+    settings.setAttribute("aria-hidden", String(!open));
+    if ("inert" in settings) settings.inert = !open;
+    if (open) document.getElementById("hkReaderSettingsClose")?.focus({ preventScroll: true });
+    else if (restoreButton) document.getElementById("hkReaderSettingsButton")?.focus({ preventScroll: true });
+  }
+
   function ensureOverlays() {
     if (document.getElementById("hkMangaDetailModal")) return;
     document.body.insertAdjacentHTML("beforeend", `
       <div class="hk-modal" id="hkMangaDetailModal" role="dialog" aria-modal="true" aria-label="Detalhes do manga">
         <div class="hk-detail" id="hkMangaDetail"></div>
       </div>
-      <section class="hk-reader" id="hkMangaReader" aria-label="Leitor de manga">
+      <section class="hk-reader" id="hkMangaReader" role="dialog" aria-modal="true" aria-labelledby="hkReaderTitle" aria-hidden="true" tabindex="-1">
         <div class="hk-reader-top">
           <button class="hk-reader-icon" id="hkReaderClose" type="button" aria-label="Voltar">‹</button>
           <div class="hk-reader-heading">
             <div class="hk-reader-title" id="hkReaderTitle">Manga</div>
             <div class="hk-reader-chapter" id="hkReaderChapter">Capitulo</div>
           </div>
-          <button class="hk-reader-icon" id="hkReaderDownload" type="button" aria-label="Baixar capitulo">⇩</button>
+          <button class="hk-reader-icon hk-reader-download" id="hkReaderDownload" type="button" aria-label="Baixar capitulo">⇩</button>
+          <button class="hk-reader-ui-hide" id="hkReaderUIToggle" type="button" aria-label="Ocultar controles">Ocultar</button>
           <button class="hk-reader-icon" id="hkReaderSettingsButton" type="button" aria-label="Configuracoes">⚙</button>
         </div>
         <div class="hk-reader-progress"><i id="hkReaderProgress"></i></div>
-        <div class="hk-reader-canvas vertical" id="hkReaderCanvas">
+        <div class="hk-reader-canvas vertical" id="hkReaderCanvas" tabindex="0" role="region" aria-label="Paginas do capitulo; toque no centro para mostrar ou ocultar os controles">
           <div class="hk-reader-loading" id="hkReaderLoading">Carregando paginas...</div>
           <div class="hk-reader-pages" id="hkReaderPages"></div>
           <div class="hk-tap left" id="hkReaderTapLeft"></div>
@@ -508,9 +837,11 @@
             <option value="vertical">Rolagem vertical</option>
             <option value="paged">Pagina por pagina</option>
           </select>
+          <button class="hk-reader-download-mobile" type="button" id="hkReaderDownloadMobile" aria-label="Baixar este capitulo em CBZ">⇩ CBZ</button>
           <button type="button" id="hkNextChapter">Proximo cap.</button>
         </div>
-        <aside class="hk-reader-settings" id="hkReaderSettings">
+        <button class="hk-reader-ui-reveal" id="hkReaderUIReveal" type="button" aria-label="Mostrar controles" aria-hidden="true">Mostrar controles</button>
+        <aside class="hk-reader-settings" id="hkReaderSettings" aria-hidden="true" inert>
           <div class="hk-reader-settings-head"><b>Configuracoes do leitor</b><button type="button" id="hkReaderSettingsClose">×</button></div>
           <label>Qualidade
             <select id="hkReaderQuality">
@@ -523,6 +854,12 @@
               <option value="width">Largura da tela</option>
               <option value="contain">Conter na tela</option>
               <option value="original">Tamanho original</option>
+            </select>
+          </label>
+          <label>Direcao no modo paginado
+            <select id="hkReaderDirection">
+              <option value="rtl">Manga · direita para esquerda</option>
+              <option value="ltr">Ocidental · esquerda para direita</option>
             </select>
           </label>
           <label>Espaco entre paginas
@@ -545,22 +882,63 @@
     });
     document.getElementById("hkReaderClose").addEventListener("click", closeReader);
     document.getElementById("hkReaderSettingsButton").addEventListener("click", () => {
-      document.getElementById("hkReaderSettings").classList.toggle("open");
-      showReaderUI(true);
+      const settings = document.getElementById("hkReaderSettings");
+      const open = !settings.classList.contains("open");
+      setReaderSettingsOpen(open, !open);
+      if (open) showReaderUI(true);
+      else showReaderUI();
     });
     document.getElementById("hkReaderSettingsClose").addEventListener("click", () => {
-      document.getElementById("hkReaderSettings").classList.remove("open");
+      setReaderSettingsOpen(false, true);
       showReaderUI();
     });
     document.getElementById("hkReaderDownload").addEventListener("click", () => {
       if (state.currentManga && state.currentChapter) queueDownload(state.currentManga, state.currentChapter);
     });
+    document.getElementById("hkReaderDownloadMobile").addEventListener("click", () => {
+      if (state.currentManga && state.currentChapter) queueDownload(state.currentManga, state.currentChapter);
+    });
+    document.getElementById("hkReaderUIToggle").addEventListener("click", hideReaderUI);
+    document.getElementById("hkReaderUIReveal").addEventListener("click", () => showReaderUI());
     document.getElementById("hkPreviousChapter").addEventListener("click", () => moveChapter(-1));
     document.getElementById("hkNextChapter").addEventListener("click", () => moveChapter(1));
-    document.getElementById("hkReaderTapLeft").addEventListener("click", event => { event.stopPropagation(); movePage(-1); });
-    document.getElementById("hkReaderTapRight").addEventListener("click", event => { event.stopPropagation(); movePage(1); });
-    document.getElementById("hkReaderCanvas").addEventListener("click", event => {
-      if (!event.target.closest(".hk-tap")) showReaderUI();
+    document.getElementById("hkReaderTapLeft").addEventListener("click", event => { event.stopPropagation(); movePage(preferences().direction === "rtl" ? 1 : -1); });
+    document.getElementById("hkReaderTapRight").addEventListener("click", event => { event.stopPropagation(); movePage(preferences().direction === "rtl" ? -1 : 1); });
+    const readerCanvas = document.getElementById("hkReaderCanvas");
+    let readerTap = null;
+    readerCanvas.addEventListener("pointerdown", event => {
+      if ((event.pointerType === "mouse" && event.button !== 0) || event.target.closest(".hk-tap,button,a,input,select,label")) {
+        readerTap = null;
+        return;
+      }
+      readerTap = {
+        id: event.pointerId,
+        x: event.clientX,
+        y: event.clientY,
+        at: performance.now(),
+        scrollTop: readerCanvas.scrollTop,
+        scrollLeft: readerCanvas.scrollLeft
+      };
+    }, { passive: true });
+    readerCanvas.addEventListener("pointerup", event => {
+      if (!readerTap || readerTap.id !== event.pointerId) return;
+      const tap = readerTap;
+      readerTap = null;
+      const moved = Math.hypot(event.clientX - tap.x, event.clientY - tap.y);
+      const scrolled = Math.hypot(readerCanvas.scrollTop - tap.scrollTop, readerCanvas.scrollLeft - tap.scrollLeft);
+      if (moved <= 14 && scrolled <= 8 && performance.now() - tap.at <= 700) toggleReaderUI();
+    }, { passive: true });
+    readerCanvas.addEventListener("pointercancel", () => { readerTap = null; }, { passive: true });
+    readerCanvas.addEventListener("keydown", event => {
+      if ((event.key === "Enter" || event.key === " ") && event.target === readerCanvas) {
+        event.preventDefault();
+        toggleReaderUI();
+      }
+    });
+    readerCanvas.addEventListener("focusin", () => showReaderUI());
+    [document.querySelector(".hk-reader-top"), document.querySelector(".hk-reader-bottom")].forEach(element => {
+      element?.addEventListener("pointerdown", () => showReaderUI(), { passive: true });
+      element?.addEventListener("focusin", () => showReaderUI(true));
     });
     document.getElementById("hkReaderMode").addEventListener("change", event => {
       updatePreferences({ mode: event.target.value }); applyReaderPreferences();
@@ -572,6 +950,9 @@
     document.getElementById("hkReaderFit").addEventListener("change", event => {
       updatePreferences({ fit: event.target.value }); applyReaderPreferences();
     });
+    document.getElementById("hkReaderDirection").addEventListener("change", event => {
+      updatePreferences({ direction: event.target.value }); applyReaderPreferences();
+    });
     document.getElementById("hkReaderGap").addEventListener("change", event => {
       updatePreferences({ gap: event.target.value }); applyReaderPreferences();
     });
@@ -581,13 +962,29 @@
     document.addEventListener("keydown", event => {
       const reader = document.getElementById("hkMangaReader");
       const detail = document.getElementById("hkMangaDetailModal");
+      const readerOpen = reader?.classList.contains("open");
+      if (readerOpen && event.key === "Tab") {
+        trapReaderFocus(event, reader);
+        return;
+      }
       if (event.key === "Escape") {
-        if (reader?.classList.contains("open")) closeReader();
+        if (readerOpen && document.getElementById("hkReaderSettings")?.classList.contains("open")) {
+          event.preventDefault();
+          setReaderSettingsOpen(false, true);
+          showReaderUI(true);
+        } else if (readerOpen) closeReader();
         else if (detail?.classList.contains("open")) closeDetails();
       }
-      if (reader?.classList.contains("open") && preferences().mode === "paged") {
-        if (event.key === "ArrowLeft") movePage(-1);
-        if (event.key === "ArrowRight") movePage(1);
+      const editing = event.target?.closest?.('input,select,textarea,[contenteditable]:not([contenteditable="false"])');
+      if (readerOpen && !editing && preferences().mode === "paged") {
+        if (event.key === "ArrowLeft") {
+          event.preventDefault();
+          movePage(preferences().direction === "rtl" ? 1 : -1);
+        }
+        if (event.key === "ArrowRight") {
+          event.preventDefault();
+          movePage(preferences().direction === "rtl" ? -1 : 1);
+        }
       }
     });
   }
@@ -601,40 +998,108 @@
     toast.timer = setTimeout(() => element.classList.remove("show"), 3600);
   }
 
-  async function checkBridgeStatus() {
-    if (!bridgeBase()) { state.bridgeStatus = "off"; return state.bridgeStatus; }
-    try {
-      const health = await fetchJSON(bridgeURL("/api/health"), {}, 8000);
-      state.bridgeStatus = health?.ok ? "ready" : "offline";
-      state.bridgeHealth = health || null;
-    } catch (error) {
-      state.bridgeStatus = "offline";
-      state.bridgeHealth = { error: error.message || "Falha de conexao" };
+  async function checkBridgeStatus({ retry = false } = {}) {
+    const requestBase = bridgeBase();
+    if (!requestBase) {
+      cancelBridgeHealthActivity();
+      state.bridgeStatus = "off";
+      state.bridgeHealth = null;
+      updateSourceSelector();
+      return state.bridgeStatus;
     }
+    if (!retry) state.bridgeRetryAttempt = 0;
+    if (state.bridgeRetryTimer) clearTimeout(state.bridgeRetryTimer);
+    state.bridgeRetryTimer = 0;
+    const checkToken = ++state.bridgeCheckToken;
+    try { state.bridgeHealthController?.abort(); } catch {}
+    const healthController = new AbortController();
+    state.bridgeHealthController = healthController;
+    state.bridgeStatus = "checking";
+    updateEngineStatus();
+    const startedAt = performance.now();
+    let lastError = null;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        const timeout = attempt === 1 ? 8000 : attempt === 2 ? 10000 : 12000;
+        const health = await fetchJSON(requestBase + "/api/health?check=" + Date.now(), {
+          cache: "no-store", signal: healthController.signal
+        }, timeout);
+        if (checkToken !== state.bridgeCheckToken || requestBase !== bridgeBase()) return state.bridgeStatus;
+        state.bridgeStatus = health?.ok ? "ready" : "offline";
+        state.bridgeHealth = {
+          ...(health || {}), url: requestBase, attempt,
+          latencyMs: Math.round(performance.now() - startedAt), testedAt: new Date().toISOString()
+        };
+        if (state.bridgeStatus === "ready") break;
+      } catch (error) {
+        if (checkToken !== state.bridgeCheckToken || requestBase !== bridgeBase() || error?.code === "ABORTED") return state.bridgeStatus;
+        lastError = error;
+        if (attempt < 3) await new Promise(resolve => setTimeout(resolve, attempt === 1 ? 350 : 900));
+      }
+    }
+    if (checkToken !== state.bridgeCheckToken || requestBase !== bridgeBase()) return state.bridgeStatus;
+    if (state.bridgeHealthController === healthController) state.bridgeHealthController = null;
+    if (state.bridgeStatus !== "ready") markBridgeOffline(lastError || new Error("O Bridge respondeu sem confirmar disponibilidade"));
+    else state.bridgeRetryAttempt = 0;
+    updateSourceSelector();
+    if (state.bridgeStatus === "offline") scheduleBridgeRetry();
     return state.bridgeStatus;
   }
+  function updateSourceSelector() {
+    if (typeof document === "undefined") return;
+    const select = document.getElementById("hkSource");
+    const option = select?.querySelector('option[value="bridge"]');
+    if (!option) return;
+    if (select.querySelector(`option[value="${state.source}"]`)) select.value = state.source;
+    option.textContent = bridgeReady() ? "Fontes PT-BR (conectadas)" : "Fontes PT-BR (requer Bridge)";
+    select.querySelectorAll('option[value^="bridge:"]').forEach(sourceOption => {
+      sourceOption.disabled = !bridgeReady();
+    });
+    select.setAttribute("aria-describedby", "hkSourceHint");
+  }
   function updateEngineStatus() {
+    if (typeof document === "undefined") return;
     const element = document.getElementById("hkEngineStatus");
     if (!element) return;
-    element.classList.toggle("off", state.bridgeStatus === "off" || state.bridgeStatus === "offline");
+    element.classList.toggle("off", state.bridgeStatus !== "ready");
+    element.classList.toggle("checking", state.bridgeStatus === "checking");
     const text = state.bridgeStatus === "ready"
-      ? `Bridge conectado · MangaDex + ${Number(state.bridgeHealth?.sources || 4)} fontes PT-BR · v${VERSION}`
+      ? `Bridge conectado · MangaDex + catálogos PT-BR · v${VERSION}`
+      : state.bridgeStatus === "checking"
+        ? `Testando Manga Bridge · v${VERSION}`
       : state.bridgeStatus === "offline"
-        ? `Bridge indisponivel · modo direto · v${VERSION}`
-        : `Modo direto · configure o bridge · v${VERSION}`;
+        ? `Bridge sem resposta · MangaDex direto · v${VERSION}`
+        : `MangaDex direto · conecte fontes PT-BR · v${VERSION}`;
     element.querySelector("span").textContent = text;
+    element.title = state.bridgeHealth?.error || "Abrir configuracao das fontes";
   }
   function bridgeSetupMarkup(message = "") {
+    const configured = bridgeBase();
+    const automatic = isOfficialSite() && configured === OFFICIAL_BRIDGE && !localStorage.getItem(KEYS.bridge);
     return `
       <div class="hk-bridge-setup">
         <div><b>Conectar o Manga Bridge</b><p>${escapeHTML(message || "O bridge evita bloqueios do navegador e libera fontes PT-BR e download CBZ.")}</p></div>
         <div class="hk-bridge-form">
-          <input id="hkBridgeInput" value="${escapeHTML(bridgeBase())}" placeholder="https://seu-servico.up.railway.app" inputmode="url" autocomplete="url">
+          <input id="hkBridgeInput" value="${escapeHTML(configured)}" placeholder="https://seu-servico.up.railway.app" inputmode="url" autocomplete="url" aria-label="URL do Manga Bridge">
           <button type="button" id="hkBridgeSave">Salvar e testar</button>
         </div>
-        <small>A URL fica salva somente neste aparelho. O servidor precisa responder em <code>/api/health</code>.</small>
+        <div class="hk-bridge-actions">
+          ${configured ? '<button type="button" id="hkBridgeCopyLink">Copiar link para outro aparelho</button><button type="button" id="hkBridgeClear">Usar modo direto</button>' : ""}
+          ${!configured && isOfficialSite() ? '<button type="button" id="hkBridgeDefault">Usar Bridge oficial</button>' : ""}
+        </div>
+        <small>${automatic ? "O GitHub Pages usa esta Bridge automaticamente em aparelhos novos. " : "A configuracao manual e local a cada navegador. "}O teste faz ate tres tentativas para aguardar a inicializacao do servidor. O endpoint precisa responder em <code>/api/health</code>.</small>
       </div>
     `;
+  }
+  async function copyBridgeLink() {
+    const value = bridgeShareURL();
+    if (!value) { toast("Configure o Manga Bridge primeiro."); return; }
+    try {
+      await navigator.clipboard.writeText(value);
+      toast("Link do Bridge copiado. Abra-o no outro aparelho.");
+    } catch {
+      window.prompt("Copie este link e abra no outro aparelho:", value);
+    }
   }
   function bindBridgeSetup(root, onSuccess = null) {
     root?.querySelector("#hkBridgeSave")?.addEventListener("click", async event => {
@@ -652,16 +1117,36 @@
         button.disabled = false; button.textContent = "Salvar e testar";
       }
     });
+    root?.querySelector("#hkBridgeCopyLink")?.addEventListener("click", copyBridgeLink);
+    root?.querySelector("#hkBridgeDefault")?.addEventListener("click", async () => {
+      saveBridge(OFFICIAL_BRIDGE);
+      await checkBridgeStatus();
+      updateEngineStatus();
+      if (onSuccess) onSuccess(); else renderSources();
+    });
+    root?.querySelector("#hkBridgeClear")?.addEventListener("click", () => {
+      saveBridge("");
+      updateEngineStatus();
+      toast("Modo direto ativado neste aparelho.");
+      if (onSuccess) onSuccess(); else renderSources();
+    });
   }
   function renderSources() {
     const root = document.getElementById("hkContent");
     if (!root) return;
+    updateWorkflow("source");
     const ready = state.bridgeStatus === "ready";
     root.innerHTML = `
       <div class="hk-section-head"><div><h3>Fontes de manga</h3><p>Somente a area de mangas usa estas configuracoes.</p></div><button type="button" id="hkRetestBridge">Testar conexao</button></div>
       <div class="hk-source-health ${ready ? "ok" : "warn"}">
         <b>${ready ? "Manga Bridge conectado" : bridgeBase() ? "Manga Bridge sem resposta" : "Manga Bridge nao configurado"}</b>
-        <span>${ready ? escapeHTML(state.bridgeHealth?.version || "online") : "O modo direto pode ser bloqueado por CORS ou pela rede."}</span>
+        <span>${ready ? escapeHTML(state.bridgeHealth?.version || "online") : escapeHTML(state.bridgeHealth?.error || "O MangaDex direto continua disponivel; fontes PT-BR exigem o Bridge.")}</span>
+      </div>
+      <div class="hk-source-picker" role="group" aria-label="Escolher conector do catalogo">
+        <button type="button" data-hk-source-choice="all" aria-pressed="${state.source === "all"}" class="${state.source === "all" ? "active" : ""}"><small>Catalogo combinado</small><b>Todas as fontes</b></button>
+        <button type="button" data-hk-source-choice="mangadex" aria-pressed="${state.source === "mangadex"}" class="${state.source === "mangadex" ? "active" : ""}"><small>Conector direto</small><b>MangaDex</b></button>
+        <button type="button" data-hk-source-choice="bridge" aria-pressed="${state.source === "bridge"}" class="${state.source === "bridge" ? "active" : ""}" ${ready ? "" : "disabled"}><small>${ready ? "Bridge conectado" : "Conecte o Bridge"}</small><b>Fontes PT-BR</b></button>
+        ${CURATED_BRIDGE_SOURCES.map(source => `<button type="button" data-hk-source-choice="bridge:${escapeHTML(source.id)}" aria-pressed="${state.source === "bridge:" + source.id}" class="${state.source === "bridge:" + source.id ? "active" : ""}" ${ready ? "" : "disabled"}><small>${ready ? "Conector PT-BR" : "Bridge necessario"}</small><b>${escapeHTML(source.name)}</b></button>`).join("")}
       </div>
       ${bridgeSetupMarkup()}
       <div class="hk-source-list">
@@ -671,9 +1156,51 @@
       <div class="hk-source-note">O Keiyoushi fornece metadados e codigo Kotlin para aplicativos Mihon. O ResenhaFLIX nao instala APKs: o bridge implementa adaptadores web proprios para ate cinco fontes.</div>
     `;
     bindBridgeSetup(root, renderSources);
+    root.querySelectorAll("[data-hk-source-choice]").forEach(button => {
+      button.addEventListener("click", () => {
+        state.source = button.dataset.hkSourceChoice;
+        localStorage.setItem(KEYS.source, state.source);
+        const selector = document.getElementById("hkSource");
+        if (selector) selector.value = state.source;
+        state.tab = "explore";
+        loadExplore();
+      });
+    });
     document.getElementById("hkRetestBridge")?.addEventListener("click", async () => {
       state.bridgeStatus = "checking"; updateEngineStatus(); await checkBridgeStatus(); updateEngineStatus(); renderSources();
     });
+  }
+
+  function selectedSourceLabel() {
+    if (state.source === "mangadex") return "MangaDex";
+    if (state.source === "bridge") return bridgeReady() ? "Fontes PT-BR" : "Conectar PT-BR";
+    if (state.source.startsWith("bridge:")) {
+      return CURATED_BRIDGE_SOURCES.find(source => source.id === state.source.slice(7))?.name || "Fonte PT-BR";
+    }
+    return bridgeReady() ? "Todas conectadas" : "MangaDex direto";
+  }
+
+  function updateWorkflow(step = "work") {
+    const workflow = document.getElementById("hkWorkflow");
+    if (!workflow) return;
+    const steps = ["source", "work", "chapters", "reader"];
+    const activeIndex = Math.max(0, steps.indexOf(step));
+    workflow.querySelectorAll("[data-hk-flow]").forEach((item, index) => {
+      item.classList.toggle("done", index < activeIndex);
+      item.classList.toggle("active", index === activeIndex);
+      if (index === activeIndex) item.setAttribute("aria-current", "step");
+      else item.removeAttribute("aria-current");
+    });
+    const sourceValue = document.getElementById("hkFlowSource");
+    const workValue = document.getElementById("hkFlowWork");
+    const chapterValue = document.getElementById("hkFlowChapters");
+    const readerValue = document.getElementById("hkFlowReader");
+    if (sourceValue) sourceValue.textContent = selectedSourceLabel();
+    if (workValue) workValue.textContent = step === "work"
+      ? (state.query || "Escolha uma obra")
+      : (state.currentManga?.title || state.query || "Escolha uma obra");
+    if (chapterValue) chapterValue.textContent = state.currentManga ? `${state.currentChapters.length} disponiveis` : "Abra a lista";
+    if (readerValue) readerValue.textContent = state.currentChapter ? chapterLabel(state.currentChapter) : "Visualizar";
   }
 
   function mount() {
@@ -694,9 +1221,9 @@
     if (!pageElement || !pageBody) return;
     hero?.classList.add("hidden");
     main?.classList.add("hidden");
-    pageElement.classList.remove("hidden", "searchPage", "mangaPageModern", "mangaPageV24");
+    pageElement.classList.remove("hidden", "searchPage", "mangaPageModern", "mangaPageV24", "musicPageModern", "booksPageModern");
     pageElement.classList.add("hk-manga-page");
-    if (pageTitle) pageTitle.textContent = "Mangas";
+    if (pageTitle) pageTitle.textContent = "Mangás";
 
     pageBody.innerHTML = `
       <div class="hk-shell">
@@ -706,7 +1233,7 @@
             <h2>Leia. Continue. Baixe.</h2>
             <p>Busca inteligente com prioridade para PT-BR, leitor nativo otimizado para celular, progresso automatico e download de capitulos em CBZ.</p>
           </div>
-          <div class="hk-engine-status" id="hkEngineStatus"><i></i><span>${bridgeBase() ? "Verificando Manga Bridge" : "Modo direto · bridge nao configurado"}</span></div>
+          <button type="button" class="hk-engine-status" id="hkEngineStatus" aria-label="Abrir fontes de manga"><i></i><span>${bridgeBase() ? "Verificando Manga Bridge" : "Modo direto · bridge nao configurado"}</span></button>
         </header>
         <nav class="hk-tabs" id="hkTabs" aria-label="Secoes de manga">
           <button type="button" data-hk-tab="explore">Explorar</button>
@@ -714,9 +1241,24 @@
           <button type="button" data-hk-tab="downloads">Downloads</button>
           <button type="button" data-hk-tab="sources">Fontes</button>
         </nav>
+        <ol class="hk-workflow" id="hkWorkflow" aria-label="Etapas para ler manga">
+          <li data-hk-flow="source"><span>1</span><div><small>Fonte</small><b id="hkFlowSource">${escapeHTML(selectedSourceLabel())}</b></div></li>
+          <li data-hk-flow="work"><span>2</span><div><small>Obra</small><b id="hkFlowWork">Escolha uma obra</b></div></li>
+          <li data-hk-flow="chapters"><span>3</span><div><small>Capitulos</small><b id="hkFlowChapters">Abra a lista</b></div></li>
+          <li data-hk-flow="reader"><span>4</span><div><small>Leitura</small><b id="hkFlowReader">Visualizar</b></div></li>
+        </ol>
         <form class="hk-searchbar" id="hkSearchForm">
           <label class="hk-sr" for="hkMangaSearch">Pesquisar manga</label>
           <input id="hkMangaSearch" value="${escapeHTML(state.query)}" placeholder="Ex.: Mago do Infinito, One Piece..." autocomplete="off">
+          <select id="hkSource" aria-label="Fonte do catalogo">
+            <option value="all" ${state.source === "all" ? "selected" : ""}>Todas as fontes</option>
+            <option value="mangadex" ${state.source === "mangadex" ? "selected" : ""}>MangaDex</option>
+            <option value="bridge" ${state.source === "bridge" ? "selected" : ""}>Fontes PT-BR</option>
+            <optgroup label="Conectores PT-BR">
+              ${CURATED_BRIDGE_SOURCES.map(source => `<option value="bridge:${escapeHTML(source.id)}" ${state.source === "bridge:" + source.id ? "selected" : ""} ${bridgeReady() ? "" : "disabled"}>${escapeHTML(source.name)}</option>`).join("")}
+            </optgroup>
+          </select>
+          <span class="hk-sr" id="hkSourceHint">Escolha o catalogo combinado, MangaDex ou uma fonte PT-BR conectada pelo Manga Bridge.</span>
           <select id="hkLanguage" aria-label="Idioma dos capitulos">
             <option value="pt-br" ${state.language === "pt-br" ? "selected" : ""}>PT-BR primeiro</option>
             <option value="en" ${state.language === "en" ? "selected" : ""}>Ingles</option>
@@ -734,6 +1276,10 @@
       state.tab = button.dataset.hkTab;
       renderTab();
     });
+    pageBody.querySelector("#hkEngineStatus").addEventListener("click", () => {
+      state.tab = "sources";
+      renderTab();
+    });
     pageBody.querySelector("#hkSearchForm").addEventListener("submit", event => {
       event.preventDefault();
       state.query = pageBody.querySelector("#hkMangaSearch").value.trim();
@@ -746,6 +1292,12 @@
       localStorage.setItem(KEYS.language, state.language);
       if (state.tab === "explore") loadExplore();
     });
+    pageBody.querySelector("#hkSource").addEventListener("change", event => {
+      state.source = event.target.value;
+      localStorage.setItem(KEYS.source, state.source);
+      state.tab = "explore";
+      loadExplore();
+    });
     let debounce = 0;
     pageBody.querySelector("#hkMangaSearch").addEventListener("input", event => {
       clearTimeout(debounce);
@@ -756,8 +1308,15 @@
         loadExplore();
       }, 520);
     });
-    checkBridgeStatus().then(updateEngineStatus);
+    if (!bridgeBase()) state.bridgeStatus = "off";
+    updateEngineStatus();
+    updateSourceSelector();
     renderTab();
+    if (bridgeBase()) checkBridgeStatus().then(status => {
+      updateEngineStatus();
+      if (status === "ready" && state.tab === "explore") loadExplore();
+      else if (state.tab === "sources") renderSources();
+    });
   }
 
   function setActiveTab() {
@@ -769,7 +1328,7 @@
   }
   function renderTab() {
     setActiveTab();
-    if (state.tab === "library") renderLibrary();
+    if (state.tab === "library") { updateWorkflow("work"); renderLibrary(); }
     else if (state.tab === "downloads") renderDownloads();
     else if (state.tab === "sources") renderSources();
     else if (state.results.length) renderResults();
@@ -781,12 +1340,13 @@
     if (!root) return;
     state.tab = "explore";
     setActiveTab();
+    updateWorkflow("work");
     const requestId = ++state.requestId;
     root.innerHTML = '<div class="hk-loading">Consultando o catalogo e os capitulos disponiveis...</div>';
     try {
-      let items = await engine.search(state.query, { language: state.language, limit: state.query ? 36 : 30 });
+      let items = await engine.search(state.query, { language: state.language, source: state.source, limit: state.query ? 36 : 30 });
       if (!items.length && state.language === "pt-br" && state.query) {
-        items = await engine.search(state.query, { language: "all", limit: 24 });
+        items = await engine.search(state.query, { language: "all", source: state.source, limit: 24 });
       }
       if (requestId !== state.requestId) return;
       state.results = items;
@@ -808,10 +1368,12 @@
 
   function cardHTML(manga) {
     const saved = isSaved(manga.id, manga.connector);
-    const hasPortuguese = (manga.availableLanguages || []).includes("pt-br");
+    const hasPortuguese = manga.connector === "bridge";
+    const cover = safeImageURL(manga.cover);
     return `
       <article class="hk-card" data-hk-manga="${escapeHTML(manga.id)}">
-        <div class="hk-cover" style="background-image:url('${safeCSSUrl(manga.cover)}')">
+        <div class="hk-cover">
+          ${cover ? '<img src="' + escapeHTML(cover) + '" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">' : ""}
           <span class="hk-cover-badge">${escapeHTML(manga.source || "MangaDex")}</span>
           ${hasPortuguese ? '<span class="hk-cover-lang">PT-BR</span>' : ""}
         </div>
@@ -846,13 +1408,18 @@
   function renderResults() {
     const root = document.getElementById("hkContent");
     if (!root) return;
+    updateWorkflow("work");
     const title = state.query ? 'Resultados para “' + state.query + '”' : "Populares com capitulos disponiveis";
     const successfulSources = (state.sourceReport?.sources || []).filter(source => source.ok && source.count).length;
     const subtitle = state.language === "pt-br"
       ? "Resultados com PT-BR primeiro; se nao houver correspondencia, mostramos outras linguas."
       : "Catalogo filtrado por " + languageLabel(state.language) + ".";
+    const sourceWarnings = state.bridgeSourceReports.filter(report => !report.ok && report.error);
     if (!state.results.length) {
-      root.innerHTML = '<div class="hk-empty"><div><b>Nenhum manga encontrado.</b>Tente o nome em portugues, ingles ou japones.</div></div>';
+      root.innerHTML = `
+        <div class="hk-empty"><div><b>Nenhum manga encontrado.</b>Tente o nome em portugues, ingles ou japones.</div></div>
+        ${sourceWarnings.length ? `<div class="hk-source-report"><b>Diagnostico das fontes:</b>${sourceWarnings.map(report => `<span>${escapeHTML(report.source?.name || "Fonte")}: ${escapeHTML(report.error)}</span>`).join("")}</div>` : ""}
+      `;
       return;
     }
     root.innerHTML = `
@@ -860,6 +1427,7 @@
         <div><h3>${escapeHTML(title)}</h3><p>${escapeHTML(subtitle)} · ${state.results.length} titulos · ${successfulSources || 1} fonte(s)</p></div>
         <button type="button" id="hkRefresh">Atualizar</button>
       </div>
+      ${sourceWarnings.length ? `<div class="hk-source-report"><b>Algumas fontes nao responderam:</b>${sourceWarnings.map(report => `<span>${escapeHTML(report.source?.name || "Fonte")}: ${escapeHTML(report.error)}</span>`).join("")}</div>` : ""}
       <div class="hk-grid" id="hkResultGrid">${state.results.map(cardHTML).join("")}</div>
     `;
     document.getElementById("hkRefresh")?.addEventListener("click", loadExplore);
@@ -895,12 +1463,16 @@
     const detail = document.getElementById("hkMangaDetail");
     modal.classList.add("open");
     document.body.classList.add("hk-lock");
+    state.currentManga = item;
+    state.currentChapters = [];
+    updateWorkflow("chapters");
     detail.innerHTML = '<div class="hk-loading">Carregando detalhes e capitulos...</div>';
     try {
       const connector = engine.connector(item.connector || "mangadex");
       const manga = await connector.manga(item.id);
       state.currentManga = manga;
       state.currentChapters = await connector.chapters(manga.id, { language: state.language });
+      updateWorkflow("chapters");
       renderDetails();
     } catch (error) {
       detail.innerHTML = `
@@ -921,6 +1493,7 @@
         <button class="hk-close" type="button" id="hkDetailClose" aria-label="Fechar">×</button>
         <div class="hk-detail-cover" style="background-image:url('${safeCSSUrl(manga.originalCover || manga.cover)}')"></div>
         <div class="hk-detail-info">
+          <div class="hk-detail-path"><span>1 · ${escapeHTML(manga.source)}</span><i>›</i><span>2 · Obra</span><i>›</i><strong>3 · Capitulos</strong></div>
           <div class="hk-detail-source">${escapeHTML(manga.source)} · ${escapeHTML(languageLabel(state.language))}</div>
           <h2>${escapeHTML(manga.title)}</h2>
           <div class="hk-detail-alt">${escapeHTML(manga.altTitle || manga.author || "")}</div>
@@ -1001,7 +1574,7 @@
       const progress = getProgress(chapter.id);
       const percent = Math.max(0, Math.min(100, Number(progress?.percent || 0)));
       return `
-        <article class="hk-chapter" data-hk-chapter="${escapeHTML(chapter.id)}">
+        <article class="hk-chapter ${progress?.completed ? "read" : ""}" data-hk-chapter="${escapeHTML(chapter.id)}">
           <div class="hk-chapter-main">
             <div class="hk-chapter-title">${escapeHTML(chapterLabel(chapter))}</div>
             <div class="hk-chapter-meta">
@@ -1009,11 +1582,13 @@
               <span>${chapter.pageCount} paginas</span>
               ${chapter.group ? "<span>" + escapeHTML(chapter.group) + "</span>" : ""}
               ${chapter.publishedAt ? "<span>" + escapeHTML(formatDate(chapter.publishedAt)) + "</span>" : ""}
+              ${progress?.completed ? '<span class="hk-read-state">✓ Lido</span>' : percent ? '<span class="hk-read-state">' + Math.round(percent) + "%</span>" : ""}
             </div>
             ${percent ? '<div class="hk-read-progress"><i style="width:' + percent + '%"></i></div>' : ""}
           </div>
           <div class="hk-chapter-actions">
-            <button type="button" data-hk-read>${percent > 1 && percent < 98 ? "Continuar" : "Ler"}</button>
+            <button type="button" data-hk-read>${progress?.completed ? "Reler" : percent > 1 ? "Continuar" : "Ler"}</button>
+            <button type="button" data-hk-toggle-read aria-label="${progress?.completed ? "Marcar como nao lido" : "Marcar como lido"}" title="${progress?.completed ? "Marcar como nao lido" : "Marcar como lido"}">${progress?.completed ? "↺" : "✓"}</button>
             <button type="button" data-hk-download>⇩ CBZ</button>
           </div>
         </article>
@@ -1023,6 +1598,18 @@
     root.querySelectorAll("[data-hk-chapter]").forEach(row => {
       const chapter = map.get(row.dataset.hkChapter);
       row.querySelector("[data-hk-read]").addEventListener("click", () => openReader(chapter));
+      row.querySelector("[data-hk-toggle-read]").addEventListener("click", () => {
+        const completed = Boolean(getProgress(chapter.id)?.completed);
+        if (completed) clearProgress(chapter.id);
+        else setProgress(chapter.id, {
+          mangaId: state.currentManga?.id,
+          mangaTitle: state.currentManga?.title,
+          chapterTitle: chapterLabel(chapter),
+          page: Math.max(0, Number(chapter.pageCount || 1) - 1), percent: 100,
+          completed: true, scrollTop: 0, mode: preferences().mode
+        });
+        renderChapterList();
+      });
       row.querySelector("[data-hk-download]").addEventListener("click", () => queueDownload(state.currentManga, chapter));
     });
   }
@@ -1037,6 +1624,7 @@
   function closeDetails() {
     document.getElementById("hkMangaDetailModal")?.classList.remove("open");
     if (!document.getElementById("hkMangaReader")?.classList.contains("open")) document.body.classList.remove("hk-lock");
+    updateWorkflow("work");
   }
 
   async function openReader(chapter, options = {}) {
@@ -1045,19 +1633,25 @@
     const loading = document.getElementById("hkReaderLoading");
     const pagesRoot = document.getElementById("hkReaderPages");
     const preserved = options.preservePage ? state.pageIndex : null;
+    const opening = !reader.classList.contains("open");
+    if (opening) rememberReaderFocus();
     state.currentChapter = chapter;
     state.pages = [];
     state.pageIndex = 0;
     disconnectReaderObserver();
     reader.classList.add("open");
     reader.classList.remove("ui-hidden");
+    reader.setAttribute("aria-hidden", "false");
+    setReaderBackgroundInert(true);
     document.body.classList.add("hk-lock");
+    updateWorkflow("reader");
     document.getElementById("hkReaderTitle").textContent = state.currentManga.title;
     document.getElementById("hkReaderChapter").textContent = chapterLabel(chapter);
     pagesRoot.innerHTML = "";
     loading.classList.remove("hidden");
     loading.textContent = "Carregando paginas...";
     showReaderUI(true);
+    if (opening) requestAnimationFrame(() => document.getElementById("hkReaderClose")?.focus({ preventScroll: true }));
     try {
       state.pages = await engine.connector(chapter.connector).pages(chapter.id, { quality: preferences().quality });
       pagesRoot.innerHTML = state.pages.map(page => `
@@ -1102,6 +1696,7 @@
     if (!canvas || !pagesRoot) return;
     canvas.classList.toggle("vertical", pref.mode === "vertical");
     canvas.classList.toggle("paged", pref.mode === "paged");
+    canvas.classList.toggle("allow-pan-x", pref.mode === "vertical" && pref.fit === "original");
     pagesRoot.style.gap = Number(pref.gap || 0) + "px";
     pagesRoot.style.filter = "brightness(" + Number(pref.brightness || 100) + "%)";
     pagesRoot.querySelectorAll(".hk-reader-page").forEach(image => {
@@ -1111,6 +1706,7 @@
     document.getElementById("hkReaderMode").value = pref.mode;
     document.getElementById("hkReaderQuality").value = pref.quality;
     document.getElementById("hkReaderFit").value = pref.fit;
+    document.getElementById("hkReaderDirection").value = pref.direction;
     document.getElementById("hkReaderGap").value = String(pref.gap);
     document.getElementById("hkReaderBrightness").value = Number(pref.brightness);
     document.getElementById("hkBrightnessLabel").textContent = Number(pref.brightness) + "%";
@@ -1134,7 +1730,7 @@
       }
     }, { root: canvas, threshold: [0.15, 0.35, 0.55, 0.75] });
     images.forEach(image => state.readerObserver.observe(image));
-    canvas.onscroll = () => { showReaderUI(); scheduleProgressSave(); };
+    canvas.onscroll = () => { hideReaderUI(); scheduleProgressSave(); };
   }
   function disconnectReaderObserver() { state.readerObserver?.disconnect(); state.readerObserver = null; }
   function updatePagedPage() {
@@ -1146,11 +1742,12 @@
   }
   function movePage(delta) {
     if (!state.pages.length || preferences().mode !== "paged") return;
+    const controlsWereHidden = document.getElementById("hkMangaReader")?.classList.contains("ui-hidden");
     const next = state.pageIndex + delta;
     if (next < 0 || next >= state.pages.length) { moveChapter(delta > 0 ? 1 : -1); return; }
     state.pageIndex = next;
     updatePagedPage();
-    showReaderUI();
+    if (!controlsWereHidden) showReaderUI();
   }
   function updateReaderProgress() {
     const percent = state.pages.length ? ((state.pageIndex + 1) / state.pages.length) * 100 : 0;
@@ -1185,25 +1782,79 @@
     if (!target) { toast(direction > 0 ? "Voce chegou ao capitulo mais recente." : "Este e o primeiro capitulo."); return; }
     openReader(target);
   }
+  function setReaderUIHidden(hidden) {
+    const reader = document.getElementById("hkMangaReader");
+    if (!reader) return;
+    const settings = document.getElementById("hkReaderSettings");
+    const active = document.activeElement;
+    const hiddenControlsHadFocus = Boolean(active && (
+      reader.querySelector(".hk-reader-top")?.contains(active)
+      || reader.querySelector(".hk-reader-bottom")?.contains(active)
+      || settings?.contains(active)
+    ));
+    if (hidden) setReaderSettingsOpen(false);
+    reader.classList.toggle("ui-hidden", hidden);
+    [reader.querySelector(".hk-reader-top"), reader.querySelector(".hk-reader-bottom"), reader.querySelector(".hk-reader-progress")]
+      .forEach(element => {
+        if (!element) return;
+        element.setAttribute("aria-hidden", String(hidden));
+        if ("inert" in element) element.inert = hidden;
+      });
+    const hideButton = document.getElementById("hkReaderUIToggle");
+    const revealButton = document.getElementById("hkReaderUIReveal");
+    hideButton?.setAttribute("aria-pressed", String(hidden));
+    revealButton?.setAttribute("aria-hidden", String(!hidden));
+    if (revealButton && "inert" in revealButton) revealButton.inert = !hidden;
+    if (hidden && hiddenControlsHadFocus) {
+      requestAnimationFrame(() => {
+        const focusTarget = revealButton?.getClientRects().length
+          ? revealButton
+          : document.getElementById("hkReaderCanvas");
+        focusTarget?.focus({ preventScroll: true });
+      });
+    }
+  }
   function showReaderUI(sticky = false) {
     const reader = document.getElementById("hkMangaReader");
     if (!reader) return;
-    reader.classList.remove("ui-hidden");
+    const revealHadFocus = document.activeElement === document.getElementById("hkReaderUIReveal");
+    setReaderUIHidden(false);
+    if (revealHadFocus) requestAnimationFrame(() => document.getElementById("hkReaderCanvas")?.focus({ preventScroll: true }));
     clearTimeout(state.uiTimer);
     if (!sticky) state.uiTimer = setTimeout(() => {
-      if (!document.getElementById("hkReaderSettings")?.classList.contains("open")) reader.classList.add("ui-hidden");
+      const active = document.activeElement;
+      const controlsHaveFocus = Boolean(active?.closest?.(".hk-reader-top,.hk-reader-bottom,.hk-reader-settings"));
+      if (!controlsHaveFocus && !document.getElementById("hkReaderSettings")?.classList.contains("open")) hideReaderUI();
     }, 4300);
+  }
+  function hideReaderUI() {
+    const reader = document.getElementById("hkMangaReader");
+    if (!reader) return;
+    clearTimeout(state.uiTimer);
+    setReaderUIHidden(true);
+  }
+  function toggleReaderUI() {
+    const reader = document.getElementById("hkMangaReader");
+    if (!reader) return;
+    if (reader.classList.contains("ui-hidden")) showReaderUI();
+    else hideReaderUI();
   }
   function closeReader() {
     saveReaderProgress();
     disconnectReaderObserver();
     clearTimeout(state.uiTimer);
-    document.getElementById("hkMangaReader")?.classList.remove("open", "ui-hidden");
-    document.getElementById("hkReaderSettings")?.classList.remove("open");
+    setReaderUIHidden(false);
+    const reader = document.getElementById("hkMangaReader");
+    reader?.classList.remove("open");
+    reader?.setAttribute("aria-hidden", "true");
+    setReaderSettingsOpen(false);
+    setReaderBackgroundInert(false);
     document.getElementById("hkReaderPages").innerHTML = "";
     state.pages = [];
     if (!document.getElementById("hkMangaDetailModal")?.classList.contains("open")) document.body.classList.remove("hk-lock");
+    updateWorkflow("chapters");
     renderChapterList();
+    requestAnimationFrame(restoreReaderFocus);
   }
 
   function renderDownloads() {

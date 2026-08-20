@@ -18,4 +18,4 @@ await assert.rejects(
   error => error.code === "BRIDGE_REQUIRED" && /bloqueou/.test(error.message)
 );
 
-console.log("manga engine v32: direct failure requests bridge setup");
+console.log("manga engine v34: direct failure requests bridge setup");
