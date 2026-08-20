@@ -1,41 +1,41 @@
-// ResenhaFlix — versão simplificada baseada no site funcional
+<script>
 const CFG_DEFAULT={
-  frost:[
-    "https://froststream.cloutteam.com/manifest.json",
-    "https://watchhub.strem.io/manifest.json"
-  ].join("\n"),
-  meta:"https://v3-cinemeta.strem.io/manifest.json",
-  catalogs:[
-    "https://v3-cinemeta.strem.io/manifest.json",
-    "https://7a82163c306e-stremio-netflix-catalog-addon.baby-beamup.club/manifest.json"
-  ].join("\n"),
-  subtitleAddon:"https://opensubtitles-v3.strem.io/manifest.json",
-  audioPref:"jpn",
-  subtitlePref:"pob",
-  mangaRepos:[
-    "https://raw.githubusercontent.com/keiyoushi/extensions/repo/index.json"
-  ].join("\n"),
-  mangaBridge:"",
-  lang:"pt-BR"
+ frost:[
+  "https://froststream.cloutteam.com/manifest.json",
+  "https://watchhub.strem.io/manifest.json"
+ ].join("\n"),
+ meta:"https://v3-cinemeta.strem.io/manifest.json",
+ catalogs:[
+  "https://v3-cinemeta.strem.io/manifest.json",
+  "https://7a82163c306e-stremio-netflix-catalog-addon.baby-beamup.club/manifest.json"
+ ].join("\n"),
+ subtitleAddon:"https://opensubtitles-v3.strem.io/manifest.json",
+ audioPref:"jpn",
+ subtitlePref:"pob",
+ mangaRepos:[
+  "https://raw.githubusercontent.com/keiyoushi/extensions/repo/index.json"
+ ].join("\n"),
+ mangaBridge:"",
+ lang:"pt-BR"
 };
 let savedStreams=localStorage.getItem("cf2_frost")||CFG_DEFAULT.frost;
 if(!localStorage.getItem("cf5_watchhub_migrated")){
-  if(!savedStreams.includes("watchhub.strem.io"))savedStreams=savedStreams.trim()+"\nhttps://watchhub.strem.io/manifest.json";
-  localStorage.setItem("cf2_frost",savedStreams);localStorage.setItem("cf5_watchhub_migrated","1");
+ if(!savedStreams.includes("watchhub.strem.io"))savedStreams=savedStreams.trim()+"\nhttps://watchhub.strem.io/manifest.json";
+ localStorage.setItem("cf2_frost",savedStreams);localStorage.setItem("cf5_watchhub_migrated","1");
 }
 const cfg={
-  frost:savedStreams,
-  meta:localStorage.getItem("cf2_meta")||CFG_DEFAULT.meta,
-  catalogs:localStorage.getItem("cf4_catalogs")||CFG_DEFAULT.catalogs,
-  subtitleAddon:localStorage.getItem("cf5_subtitle_addon")||CFG_DEFAULT.subtitleAddon,
-  audioPref:localStorage.getItem("cf5_audio_pref")||CFG_DEFAULT.audioPref,
-  subtitlePref:localStorage.getItem("cf5_subtitle_pref")||CFG_DEFAULT.subtitlePref,
-  mangaRepos:localStorage.getItem("rf15_manga_repos")||localStorage.getItem("cf12_manga_repo")||CFG_DEFAULT.mangaRepos,
-  mangaBridge:localStorage.getItem("rf14_manga_bridge")||CFG_DEFAULT.mangaBridge,
-  lang:localStorage.getItem("cf2_lang")||CFG_DEFAULT.lang
+ frost:savedStreams,
+ meta:localStorage.getItem("cf2_meta")||CFG_DEFAULT.meta,
+ catalogs:localStorage.getItem("cf4_catalogs")||CFG_DEFAULT.catalogs,
+ subtitleAddon:localStorage.getItem("cf5_subtitle_addon")||CFG_DEFAULT.subtitleAddon,
+ audioPref:localStorage.getItem("cf5_audio_pref")||CFG_DEFAULT.audioPref,
+ subtitlePref:localStorage.getItem("cf5_subtitle_pref")||CFG_DEFAULT.subtitlePref,
+ mangaRepos:localStorage.getItem("rf15_manga_repos")||localStorage.getItem("cf12_manga_repo")||CFG_DEFAULT.mangaRepos,
+ mangaBridge:localStorage.getItem("rf14_manga_bridge")||CFG_DEFAULT.mangaBridge,
+ lang:localStorage.getItem("cf2_lang")||CFG_DEFAULT.lang
 };
 if(!localStorage.getItem("rf30_manga_repo_defaults")){
-  const merged=[...new Set([...String(cfg.mangaRepos||"").split(/\n+/),...String(CFG_DEFAULT.mangaRepos).split(/\n+/)].map(x=>x.trim()).filter(Boolean))];
+ const merged=[...new Set([...String(cfg.mangaRepos||"").split(/\n+/),...String(CFG_DEFAULT.mangaRepos).split(/\n+/)].map(x=>x.trim()).filter(Boolean))];
  cfg.mangaRepos=merged.join("\n");localStorage.setItem("rf15_manga_repos",cfg.mangaRepos);localStorage.setItem("rf30_manga_repo_defaults","1")
 }
 const S={hero:null,current:null,currentShow:null,currentEpisode:null,nextEpisode:null,season:1,currentPage:"home",streams:[],selectedStream:null,selectedAddon:"all",qualityFilter:"all",streamTitle:"",streamMeta:null,playType:null,playId:null,rootId:null,resumeEntry:null,resumeApplied:false,searchFilter:"all",searchItems:[],searchQuery:"",searchToken:0,manifestCache:new Map(),catalogCache:new Map(),itemCache:new Map(),externalSubtitles:[],externalSubtitleBlob:null,playerMenuKind:null,aspectMode:localStorage.getItem("cf9_aspect")||"smart",introSkipped:false,introSkipSeconds:90,autoFallback:localStorage.getItem("cf11_auto_fallback")!=="0",sourceHealth:new Map(),sourceAttemptToken:0,attemptedSourceKeys:new Set(),streamCache:new Map(),streamLoadToken:0,addonNameCache:new Map(),primaryManifest:localStorage.getItem("rf17_primary_manifest")||"",sourceToolsOpen:false,pageCategory:"all",pageItems:[],pageTypeForCategories:"",mangaRepoItems:[],mangaRepoLoadedAt:0,mangaTab:"explore",mangaQuery:"",mangaExtensionQuery:"",mangaLang:"pt",mangaReaderUrl:"",mangaCatalog:[],mangaCatalogPage:1,mangaCatalogHasNext:true,mangaSearchToken:0,mangaPickerMedia:null,mangaSearchCandidates:[],mangaSearchCandidateIndex:0,mangaNativeResults:[],mangaDetail:null,mangaDetailSource:null,mangaChapters:[],mangaChapterOrder:"desc",mangaReaderManga:null,mangaReaderSource:null,mangaReaderChapter:null,mangaReaderPages:[],mangaReaderPageIndex:0,mangaReaderObserver:null,mangaReaderUiTimer:null,mangaRepoStats:[],mangaExploreCatalogCache:new Map(),mangaProgressiveToken:0,mangaProgressiveResults:[],mangaMatchMedia:null,mangaMatchResults:[],mangaMatchToken:0,mangaSearchLang:localStorage.getItem("rf16_manga_search_lang")||"both",mangaWebSource:null,mangaWebQuery:"",mangaWebCandidates:[],mangaWebCandidateIndex:0,mangaWebCurrentUrl:"",_sourceTimer:null,_ctlTimer:null,_lastProgressSave:0,_stallTimer:null,_stallStartedAt:0,_stallEvents:[],_stallRecovery:false,_stallCooldownUntil:0,_lastStablePlaybackAt:0,mangaSourceLimit:Number(localStorage.getItem("rf24_manga_source_limit")||5),mangaRepoV24:null,musicTab:"tracks",musicQuery:"",musicResults:[],booksTab:"all",booksQuery:"",bookResults:[],bookReaderBook:null,bookReaderRendition:null,bookReaderEpub:null,mediaSourceTab:"music",musicQueue:[],musicQueueIndex:-1,musicShuffle:false,musicRepeat:false,musicCurrentItem:null,musicBackend:"audio",soundcloudWidget:null,soundcloudWidgetReady:false,soundcloudPosition:0,soundcloudDuration:0,soundcloudPaused:true};
@@ -43,18 +43,6 @@ const S={hero:null,current:null,currentShow:null,currentEpisode:null,nextEpisode
 const $=s=>document.querySelector(s);
 const $$=s=>document.querySelectorAll(s);
 const esc=x=>String(x??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
-const SITE_DEFAULT_VOLUME=0.3,SITE_DEFAULT_VOLUME_PCT=30;
-function attachYouTubePreviewVolume(iframe,pct){
- let ready=false;
- const send=(func,args=[])=>{try{iframe.contentWindow.postMessage(JSON.stringify({event:"command",func,args}),"*")}catch{}};
- const onMsg=e=>{
-  if(!iframe.isConnected||e.source!==iframe.contentWindow)return;
-  let data;try{data=typeof e.data==="string"?JSON.parse(e.data):e.data}catch{return}
-  if(data&&data.event==="onReady"){ready=true;send("unMute");send("setVolume",[pct]);window.removeEventListener("message",onMsg)}
- };
- window.addEventListener("message",onMsg);
- setTimeout(()=>{if(!ready){send("unMute");send("setVolume",[pct])}window.removeEventListener("message",onMsg)},1200);
-}
 
 S.globalVideoResults=[];
 S.globalVideosExpanded=false;
@@ -228,46 +216,16 @@ function langLabel(x){
  return ({jpn:"Japonês",pob:"Português (Brasil)",por:"Português",eng:"Inglês",und:"Desconhecido"})[l]||x||"Desconhecido";
 }
 
-const MANIFEST_DATA=new Map();
 async function getManifest(manifestUrl){
-  if(S.manifestCache.has(manifestUrl))return S.manifestCache.get(manifestUrl);
-  const p=getJSON(manifestUrl).catch(e=>{S.manifestCache.delete(manifestUrl);throw e});
-  S.manifestCache.set(manifestUrl,p);return p;
-}
-// Respeita o manifesto do addon (resources/types/idPrefixes) para não fazer chamadas inúteis.
-function addonSupports(manifestUrl,resource,type,id){
-  const m=MANIFEST_DATA.get(manifestUrl);
- if(!m)return true;
- const resources=(m.resources||[]).map(r=>typeof r==="string"?{name:r}:(r||{}));
- if(!resources.length)return true;
- const entry=resources.find(r=>r.name===resource);
- if(!entry)return false;
- const types=Array.isArray(entry.types)&&entry.types.length?entry.types:(Array.isArray(m.types)?m.types:[]);
- if(type&&types.length&&!types.includes(type))return false;
- const prefixes=Array.isArray(entry.idPrefixes)&&entry.idPrefixes.length?entry.idPrefixes:(Array.isArray(m.idPrefixes)?m.idPrefixes:[]);
- if(id&&prefixes.length&&!prefixes.some(p=>String(id).startsWith(p)))return false;
- return true;
-}
-// Converte fontes de torrent (infoHash) em magnet aberto em player externo.
-function magnetFromStream(s){
- if(!s?.infoHash)return "";
- const trackers=(Array.isArray(s.sources)?s.sources:[]).filter(x=>typeof x==="string"&&x.startsWith("tracker:")).map(x=>"&tr="+encodeURIComponent(x.slice(8)));
- const dht=(Array.isArray(s.sources)?s.sources:[]).filter(x=>typeof x==="string"&&x.startsWith("dht:")).length?"":"";
- const dn=encodeURIComponent(String(s.title||s.name||s.behaviorHints?.filename||s.infoHash).split("\n")[0]);
- return `magnet:?xt=urn:btih:${String(s.infoHash).toLowerCase()}&dn=${dn}${trackers.slice(0,12).join("")}${dht}`;
-}
-function openExternalSource(url){
- if(!url)return;
- try{
-  const a=document.createElement("a");a.href=url;a.target="_blank";a.rel="noopener noreferrer";
-  document.body.appendChild(a);a.click();a.remove();
- }catch{window.open(url,"_blank","noopener,noreferrer")}
+ if(S.manifestCache.has(manifestUrl))return S.manifestCache.get(manifestUrl);
+ const p=getJSON(manifestUrl).catch(e=>{S.manifestCache.delete(manifestUrl);throw e});
+ S.manifestCache.set(manifestUrl,p);return p;
 }
 async function getCatalog(manifest,type,id,params=""){
-  const key=[manifest,type,id,normalizeExtra(params)].join("|");
-  if(S.catalogCache.has(key))return S.catalogCache.get(key);
-  const p=getJSON(catalogURLFor(manifest,type,id,params)).then(x=>x.metas||[]).catch(e=>{S.catalogCache.delete(key);throw e});
-  S.catalogCache.set(key,p);return p;
+ const key=[manifest,type,id,normalizeExtra(params)].join("|");
+ if(S.catalogCache.has(key))return S.catalogCache.get(key);
+ const p=getJSON(catalogURLFor(manifest,type,id,params)).then(x=>x.metas||[]).catch(e=>{S.catalogCache.delete(key);throw e});
+ S.catalogCache.set(key,p);return p;
 }
 
 function lists(){
@@ -412,52 +370,6 @@ function recentSourceInstability(s){
  if(st.lastStall&&now-Number(st.lastStall)>7*864e5)penalty=Math.round(penalty*.25);
  return penalty;
 }
-
-/* ---- v42: garante que os addons recebam o ID IMDb correto ---- */
-const RF_ID_CACHE=new Map();
-function isImdbId(x){return /^tt\d+/i.test(String(x||""))}
-async function resolveStreamId(type,id,meta){
- const raw=String(id||"");
- if(!raw)return raw;
- const parts=raw.split(":");
- const base=parts[0],suffix=parts.slice(1).join(":");
- if(isImdbId(base))return raw;
- if(RF_ID_CACHE.has(base))return [RF_ID_CACHE.get(base),suffix].filter(Boolean).join(":");
- let out=base;
- const direct=meta&&(meta.imdb_id||meta.imdbId);
- if(isImdbId(direct))out=direct;
- else{
-  try{
-   const d=await getJSONTimeout(metaURL(type,base),7000);
-   const m=(d&&(d.meta||d))||{};
-   if(isImdbId(m.imdb_id))out=m.imdb_id;
-  }catch(_){}
- }
- RF_ID_CACHE.set(base,out);
- return [out,suffix].filter(Boolean).join(":");
-}
-function normTitleText(t){
- return String(t||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g," ").trim();
-}
-/* Conservador: só marca quando o texto traz um ANO claramente diferente
-   e nenhuma palavra relevante do título bate. Evita falso positivo com
-   títulos traduzidos (ex.: Interstellar -> Interestelar). */
-function streamLooksMismatched(s,meta,type){
- try{
-  if(!meta||type==="series")return false;
-  const want=normTitleText(meta.name);if(!want)return false;
-  const txt=normTitleText([s.name,s.title,s.description].filter(Boolean).join(" "));
-  if(!txt)return false;
-  const year=Number(String(meta.year||"").slice(0,4));
-  if(!year)return false;
-  const years=[...txt.matchAll(/\b(?:19|20)\d{2}\b/g)].map(m=>Number(m[0]));
-  if(!years.length||years.some(y=>Math.abs(y-year)<=1))return false;
-  const words=want.split(" ").filter(w=>w.length>3);
-  if(!words.length)return false;
-  const hit=words.filter(w=>txt.includes(w)).length/words.length;
-  return hit<0.5;
- }catch(_){return false}
-}
 function sourceReliabilityScore(s,resumeEntry=null){
  let score=qualityScore(s._quality)*12;
  const provider=detectProvider(s);
@@ -487,11 +399,10 @@ function sourceReliabilityScore(s,resumeEntry=null){
  if(S.primaryManifest&&s._manifest===S.primaryManifest)score+=190;
  score+=configuredManifestPriority(s._manifest);
  if(s._external)score-=500;
- if(s._mismatch)score-=900;
  return score;
 }
 function rankedPlayableStreams(streams,resumeEntry=null){
- return streams.filter(s=>!s._external&&s.url&&!s._mismatch).slice().sort((a,b)=>sourceReliabilityScore(b,resumeEntry)-sourceReliabilityScore(a,resumeEntry));
+ return streams.filter(s=>!s._external&&s.url).slice().sort((a,b)=>sourceReliabilityScore(b,resumeEntry)-sourceReliabilityScore(a,resumeEntry));
 }
 
 
@@ -521,7 +432,6 @@ function animateListButton(btn,added){
 }
 function bindCards(root){
  root.querySelectorAll(".card").forEach(c=>c.onclick=e=>{
-   if(c._suppressClick){c._suppressClick=false;return}
    if(e.target.closest("[data-plus]")||e.target.closest("[data-remove-continue]"))return;
    const continueKey=c.dataset.continueKey;
    if(continueKey){resumeFromHistoryKey(continueKey);return}
@@ -537,100 +447,6 @@ function bindCards(root){
    else removeHistory(key);
    toast("Removido de Continuar assistindo.");
  });
- root.querySelectorAll(".card").forEach(c=>{
-   c.onmouseenter=()=>schedulePreview(c);
-   c.onmouseleave=()=>cancelPreview();
-   let pressTimer=null,start=null;
-   c.ontouchstart=e=>{
-    clearTimeout(pressTimer);c._longPress=false;
-    const t=e.touches[0];start={x:t.clientX,y:t.clientY};
-    pressTimer=setTimeout(()=>{
-     c._longPress=true;
-     if(navigator.vibrate)try{navigator.vibrate(8)}catch{}
-     showCardPreview(c);
-    },420);
-   };
-   c.ontouchmove=e=>{
-    if(!start)return;const t=e.touches[0];
-    if(Math.abs(t.clientX-start.x)>10||Math.abs(t.clientY-start.y)>10)clearTimeout(pressTimer);
-   };
-   const endTouch=()=>{
-    clearTimeout(pressTimer);
-    if(c._longPress){hideCardPreview();c._suppressClick=true;setTimeout(()=>{c._suppressClick=false},300)}
-    c._longPress=false;start=null;
-   };
-   c.ontouchend=endTouch;
-   c.ontouchcancel=endTouch;
- });
-}
-let previewTimer=null,previewHideTimer=null,previewToken=0;
-function schedulePreview(cardEl){
- if(!window.matchMedia||!window.matchMedia("(hover:hover) and (pointer:fine)").matches)return;
- clearTimeout(previewTimer);clearTimeout(previewHideTimer);
- previewTimer=setTimeout(()=>showCardPreview(cardEl),500);
-}
-function cancelPreview(){
- clearTimeout(previewTimer);
- clearTimeout(previewHideTimer);
- previewHideTimer=setTimeout(hideCardPreview,120);
-}
-function positionCardPreview(box,rect){
- const margin=10,vw=innerWidth,vh=innerHeight,isTouch=!(window.matchMedia&&window.matchMedia("(hover:hover) and (pointer:fine)").matches);
- if(isTouch)return;
- const width=Math.min(340,vw-2*margin);
- box.style.width=width+"px";
- let left=rect.left+rect.width/2-width/2;
- left=Math.max(margin,Math.min(left,vw-width-margin));
- let top=rect.top-16;
- if(top<margin)top=Math.min(rect.bottom+10,vh-margin-160);
- box.style.left=left+"px";
- box.style.top=Math.max(margin,top)+"px";
-}
-function renderCardPreviewContent(m){
- const img=$("#cardPreviewImg");
- img.src=m.background||m.poster||"";
- $("#cardPreviewTitle").textContent=m.name||"";
- const anime=isAnimeLike(m);
- const bits=[m.year,m.imdbRating?`★ ${m.imdbRating}`:"",anime?"Anime":(m.type==="series"?"Série":"Filme")].filter(Boolean);
- $("#cardPreviewMeta").textContent=bits.join(" • ");
- $("#cardPreviewDesc").textContent=m.description||"";
-}
-function showCardPreview(cardEl){
- clearTimeout(previewHideTimer);
- const type=cardEl.dataset.type,id=cardEl.dataset.id;
- if(!type||!id)return;
- const token=++previewToken;
- const box=$("#cardPreview");
- positionCardPreview(box,cardEl.getBoundingClientRect());
- const cached=S.itemCache.get(`${type}|${id}`)||{id,type,name:cardEl.querySelector(".title")?.textContent||""};
- renderCardPreviewContent(cached);
- $("#cardPreviewVideoWrap").innerHTML="";
- box.classList.add("show");box.setAttribute("aria-hidden","false");
- fetchPreviewMeta(type,id,token);
-}
-async function fetchPreviewMeta(type,id,token){
- try{
-  let m=S.itemCache.get(`${type}|${id}`);
-  if(!m||!("description" in m)){
-   const d=await getJSON(metaURL(type,id));
-   m=d.meta||d;
-   S.itemCache.set(`${type}|${id}`,m);
-  }
-  if(token!==previewToken||!$("#cardPreview").classList.contains("show"))return;
-  renderCardPreviewContent(m);
-  const trailer=(m.trailers||[]).find(t=>t&&t.source);
-  if(trailer){
-   $("#cardPreviewVideoWrap").innerHTML=`<iframe src="https://www.youtube.com/embed/${esc(trailer.source)}?autoplay=1&mute=0&controls=0&modestbranding=1&rel=0&playsinline=1&loop=1&playlist=${esc(trailer.source)}&hl=pt-BR&cc_lang_pref=pt&cc_load_policy=1&enablejsapi=1&origin=${encodeURIComponent(location.origin)}" allow="autoplay; encrypted-media" frameborder="0" title="Trailer"></iframe>`;
-   const frame=$("#cardPreviewVideoWrap iframe");
-   if(frame)attachYouTubePreviewVolume(frame,SITE_DEFAULT_VOLUME_PCT);
-  }
- }catch{}
-}
-function hideCardPreview(){
- const box=$("#cardPreview");
- box.classList.remove("show");box.setAttribute("aria-hidden","true");
- $("#cardPreviewVideoWrap").innerHTML="";
- previewToken++;
 }
 function refreshContinueSectionState(){
  const section=document.querySelector('[data-section="continue"]');
@@ -965,20 +781,6 @@ function renderEpisodes(m){
  $("#episodes").querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>{S.season=Number(b.dataset.s);renderEpisodes(m)});
  $("#episodes").querySelectorAll(".ep").forEach(e=>e.onclick=()=>{const ep=eps.find(x=>String(x.id)===String(e.dataset.ep));if(ep)playEpisode(m,ep)});
 }
-function renderPlayerEpisodes(){
- const list=$("#playerEpisodesList"),show=S.currentShow;
- if(!list||!show)return;
- const vids=show.videos||show.episodes||[];
- $("#playerEpisodesSub").textContent=show.name||"";
- if(!vids.length){list.innerHTML='<div class="hint">Nenhum episódio disponível.</div>';return}
- const seasons=[...new Set(vids.map(v=>Number(v.season||1)))].sort((a,b)=>a-b);
- if(!S.playerSeason||!seasons.includes(S.playerSeason))S.playerSeason=Number(S.currentEpisode?.season)||seasons[0];
- const eps=vids.filter(v=>Number(v.season||1)===S.playerSeason).sort((a,b)=>(a.episode||0)-(b.episode||0));
- list.innerHTML=`<div class="seasons">${seasons.map(s=>`<button class="${s===S.playerSeason?"active":""}" data-player-s="${s}">Temporada ${s}</button>`).join("")}</div>`+
- eps.map(v=>`<div class="ep${String(v.id)===String(S.currentEpisode?.id)?" active":""}" data-player-ep="${esc(v.id)}"><div class="epThumb" style="background-image:url('${esc(v.thumbnail||v.poster||"")}')"></div><div><h4>E${esc(v.episode||"")} — ${esc(v.title||v.name||"Sem título")}</h4><p>${esc(v.overview||v.description||"")}</p></div></div>`).join("");
- list.querySelectorAll("[data-player-s]").forEach(b=>b.onclick=()=>{S.playerSeason=Number(b.dataset.playerS);renderPlayerEpisodes()});
- list.querySelectorAll(".ep").forEach(e=>e.onclick=()=>{const ep=eps.find(x=>String(x.id)===String(e.dataset.playerEp));if(ep){persistPlaybackProgress(true);playEpisode(show,ep)}});
-}
 async function resumeFromHistoryKey(key){
  const entry=getHistoryEntry(key);
  if(!entry)return toast("Esse item não está mais no histórico.");
@@ -1006,14 +808,12 @@ function playFirst(m){
  else playStream("movie",m.id,m.name,m)
 }
 function playEpisode(show,ep,resumeEntry=null){
- S.currentShow=show;S.currentEpisode=ep;S.playerSeason=Number(ep.season)||1;
+ S.currentShow=show;S.currentEpisode=ep;
  const ordered=[...(show.videos||show.episodes||[])].sort((a,b)=>(Number(a.season||1)-Number(b.season||1))||(Number(a.episode||0)-Number(b.episode||0)));
  const idx=ordered.findIndex(x=>String(x.id)===String(ep.id));
  S.nextEpisode=idx>=0&&idx<ordered.length-1?ordered[idx+1]:null;
  $("#nextBtn").style.display=S.nextEpisode?"":"none";
- $("#episodesBtn").style.display=ordered.length>1?"":"none";
  $("#primeNextFloat").classList.toggle("show",!!S.nextEpisode);
- if(S.playerSideTab==="episodios")renderPlayerEpisodes();
  const key=ep.id;
  playStream("series",key,`${show.name} — T${ep.season} E${ep.episode}`,{...compactMeta(show),...compactMeta(ep),id:ep.id,name:show.name,poster:show.poster,background:show.background,year:show.year},resumeEntry)
 }
@@ -1099,25 +899,19 @@ function configuredManifestPriority(manifest){
 function sortStreamManifests(manifests){
  const pref=preferredManifestForEpisode(),primary=S.primaryManifest;
  return manifests.slice().sort((a,b)=>{
-  const sa=(a===primary?190:0)+(a===pref?110:0)+configuredManifestPriority(a);
-  const sb=(b===primary?190:0)+(b===pref?110:0)+configuredManifestPriority(b);
+  const sa=(a===primary?190:0)+(a===pref?110:0)+configuredManifestPriority(a)+(a.includes("froststream")?45:0)-(a.includes("watchhub")?10:0);
+  const sb=(b===primary?190:0)+(b===pref?110:0)+configuredManifestPriority(b)+(b.includes("froststream")?45:0)-(b.includes("watchhub")?10:0);
   return sb-sa;
  });
 }
 async function fetchStreamBatch(manifest,type,id,index,{fresh=false}={}){
  if(!fresh){const cached=getCachedStreamBatch(manifest,type,id);if(cached)return cached}
  const name=quickAddonName(manifest,index);
- await getManifest(manifest).catch(()=>null);
- if(!addonSupports(manifest,"stream",type,id)){saveStreamBatch(manifest,type,id,[]);return []}
- const data=await getJSONTimeout(streamURLFor(manifest,type,id),9000);
+ const data=await getJSONTimeout(streamURLFor(manifest,type,id),6500);
  const officialLegal=/watchhub\.strem\.io/i.test(manifest);
- const streams=(data.streams||[]).map(s=>{
-  if(s&&!s.url&&!s.externalUrl&&s.infoHash){const magnet=magnetFromStream(s);return magnet?{...s,externalUrl:magnet,_torrent:true}:null}
-  if(s&&!s.url&&!s.externalUrl&&s.ytId)return {...s,externalUrl:`https://www.youtube.com/watch?v=${encodeURIComponent(s.ytId)}`};
-  return s;
- }).filter(x=>x&&(x.url||x.externalUrl)).map((s,i)=>{
+ const streams=(data.streams||[]).filter(x=>x.url||x.externalUrl).map((s,i)=>{
   const x={...s,_addon:name,_manifest:manifest,_idx:i,_quality:getQuality(s),_external:!s.url&&!!s.externalUrl,_officialLegal:officialLegal};
-  x._provider=detectProvider(x);x._mismatch=streamLooksMismatched(x,S.streamMeta,type);return x;
+  x._provider=detectProvider(x);return x;
  });
  saveStreamBatch(manifest,type,id,streams);return streams;
 }
@@ -1186,7 +980,7 @@ function renderSourceSelectedBar(){
    <button type="button" class="selectedSecondary" data-selected-download ${(!external&&isDirectDownloadable(s.url))?"":"disabled"}>⇩</button>
    <button type="button" class="selectedPlay" data-selected-play>${external?"Abrir provedor":"▶ Assistir"}</button>
   </div>`;
- bar.querySelector("[data-selected-play]").onclick=()=>external?openExternalSource(s.externalUrl):selectStream(s,true);
+ bar.querySelector("[data-selected-play]").onclick=()=>external?window.open(s.externalUrl,"_blank","noopener,noreferrer"):selectStream(s,true);
  const other=bar.querySelector("[data-selected-other]");if(other)other.onclick=()=>openOtherPlayerMenu(s);
  const dl=bar.querySelector("[data-selected-download]");if(dl)dl.onclick=()=>{if(!external)browserDownload(s)};
 }
@@ -1214,7 +1008,7 @@ function renderSourceUI(){
  const recommend=$("#sourceRecommend");
  if(recommend){
   recommend.innerHTML=rec?`<button type="button" class="recommendCard"><span class="recommendIcon">★</span><span class="recommendText"><small>RECOMENDADA AGORA</small><b>${esc(detectProvider(rec))}</b><span>${esc(rec._addon)} • ${esc(rec._quality)}</span></span><span class="recommendUse">Usar</span></button>`:"";
-  if(rec)recommend.querySelector("button").onclick=()=>{S.selectedStream=rec;renderSourceUI();if(rec._external)openExternalSource(rec.externalUrl);else selectStream(rec,true);if(innerWidth<=900)$("#playerSide")?.classList.remove("drawerOpen")};
+  if(rec)recommend.querySelector("button").onclick=()=>{S.selectedStream=rec;renderSourceUI();if(rec._external)window.open(rec.externalUrl,"_blank","noopener,noreferrer");else selectStream(rec,true);if(innerWidth<=900)$("#playerSide")?.classList.remove("drawerOpen")};
  }
  if(!filtered.length){$("#sources").innerHTML='<div class="sourceEmpty">Nenhuma fonte corresponde aos filtros escolhidos.</div>';renderSourceSelectedBar();return}
 
@@ -1234,7 +1028,7 @@ function renderSourceUI(){
  $("#sources").querySelectorAll(".sourceCard").forEach(card=>{
   const s=filtered.find(x=>`${x._manifest}|${x._idx}`===card.dataset.sourceKey);if(!s)return;
   card.onclick=e=>{if(e.target.closest("[data-play]"))return;S.selectedStream=s;renderSourceUI()};
-  card.querySelector("[data-play]").onclick=e=>{e.stopPropagation();S.selectedStream=s;renderSourceSelectedBar();if(s._external)openExternalSource(s.externalUrl);else selectStream(s,true)};
+  card.querySelector("[data-play]").onclick=e=>{e.stopPropagation();S.selectedStream=s;renderSourceSelectedBar();if(s._external)window.open(s.externalUrl,"_blank","noopener,noreferrer");else selectStream(s,true)};
  });
  renderSourceSelectedBar();
 }
@@ -1325,7 +1119,7 @@ async function autoChooseWorkingSource(resumeEntry=null,autoplay=true){
 }
 async function selectStream(stream,autoplay=true,resumeEntry=null){
  if(!stream)return;
- if(stream._external){openExternalSource(stream.externalUrl);return}
+ if(stream._external){window.open(stream.externalUrl,"_blank","noopener,noreferrer");return}
  const v=$("#video");
  const liveResume=resumeEntry||((v.currentTime||0)>3?{currentTime:v.currentTime,duration:v.duration||0,stream:streamIdentity(stream)}:null);
  if((v.currentTime||0)>1)persistPlaybackProgress(true);
@@ -1745,22 +1539,18 @@ function setPrimePlayerMeta(type,title,meta){
 }
 async function playStream(type,id,title,meta,resumeEntry=null){
  $("#playerModal").classList.add("open");document.body.classList.add("playerOpen");setPrimePlayerMeta(type,title,meta);$("#playerSide").classList.remove("drawerOpen");$("#sourcePanelBackdrop").classList.remove("open");$("#primeNextFloat").classList.remove("show");
- if(type!=="series")$("#episodesBtn").style.display="none";
- setPlayerSideTab("fontes");
  S.streamTitle=title||"video";S.streamMeta=meta||{id,type,name:title};S.playType=type;S.playId=id;S.introSkipped=false;$("#skipIntroBtn").classList.remove("show");S.rootId=type==="series"?(S.currentShow?.id||resumeEntry?.rootId||meta?.id):(resumeEntry?.rootId||meta?.id||id);S.resumeEntry=resumeEntry;S.resumeApplied=false;S.streams=[];S.selectedStream=null;S.selectedAddon="all";S.qualityFilter="all";S.externalSubtitles=[];S.sourceHealth.clear();S.attemptedSourceKeys.clear();S._lastProgressSave=0;
  resetVideo();showPlayerUI(true);
  $("#addonTabs").innerHTML="";$("#qualityFilters").innerHTML="";$("#sources").innerHTML="<div class='sourceEmpty'>Buscando fontes disponíveis...</div>";
  try{
   const loadToken=++S.streamLoadToken;let autoStarted=false,autoPromise=null,receivedAny=false;
-  const streamId=await resolveStreamId(type,id,meta);
-  if(loadToken!==S.streamLoadToken)return;
-  const allPromise=loadStreamsFromAddons(type,streamId,(batch)=>{
+  const allPromise=loadStreamsFromAddons(type,id,(batch)=>{
    if(loadToken!==S.streamLoadToken||!batch?.length)return;
    receivedAny=true;S.streams=mergeStreamBatches(S.streams,batch);renderSourceUI();
    if(!autoStarted&&rankedPlayableStreams(S.streams,resumeEntry).length){
     autoStarted=true;
     if(resumeEntry?.stream?.provider)toast(`Procurando novamente ${resumeEntry.stream.provider}…`);
-    autoPromise=autoChooseWorkingSource(resumeEntry,true).then(async found=>{if(found)await fetchExternalSubtitles(type,streamId,found);return found});
+    autoPromise=autoChooseWorkingSource(resumeEntry,!!resumeEntry).then(async found=>{if(found)await fetchExternalSubtitles(type,id,found);return found});
    }
   });
   const streams=await allPromise;if(loadToken!==S.streamLoadToken)return;
@@ -1769,19 +1559,19 @@ async function playStream(type,id,title,meta,resumeEntry=null){
   // Se o primeiro addon chegou rápido mas todas as fontes dele falharam,
   // tenta novamente após os addons mais lentos terminarem de chegar.
   if(!found&&rankedPlayableStreams(S.streams,resumeEntry).length){
-   found=await autoChooseWorkingSource(resumeEntry,true);
-   if(found)await fetchExternalSubtitles(type,streamId,found);
+   found=await autoChooseWorkingSource(resumeEntry,!!resumeEntry);
+   if(found)await fetchExternalSubtitles(type,id,found);
   }
   if(!receivedAny&&!S.streams.length){$("#sources").innerHTML="<div class='sourceEmpty'>Nenhuma fonte foi retornada pelos addons configurados.</div>";return}
   if(!rankedPlayableStreams(S.streams,resumeEntry).length&&S.streams.length)$("#sources").insertAdjacentHTML("afterbegin","<div class='sourceEmpty'>As opções disponíveis abrem provedores externos; escolha uma delas na lista.</div>");
  }catch(e){console.error(e);$("#sources").innerHTML="<div class='sourceEmpty'>Falha ao consultar as fontes. Verifique CORS, o manifesto e a disponibilidade do addon.</div>"}
 }
 function resetVideo(){
-  stopSourceAttempt();clearPlaybackStallMonitor();disarmAutoUnmute();S._stallRecovery=false;S._stallEvents=[];
-  const v=$("#video");v.pause();if(v._hls){v._hls.destroy();v._hls=null}v.removeAttribute("src");
-  [...v.querySelectorAll("track[data-casaflix]")].forEach(t=>t.remove());
-  if(S.externalSubtitleBlob){URL.revokeObjectURL(S.externalSubtitleBlob);S.externalSubtitleBlob=null}
-  v.load();v.muted=false;$("#muteBtn").textContent="🔊";S.resumeEntry=null;S.resumeApplied=false;applyAspectMode(S.aspectMode,false);$("#seek").value=0;$("#seek").style.setProperty("--seek-fill","0%");$("#timeText").textContent="0:00 / 0:00";$("#bigPlay").classList.remove("hidden");$("#playPause").textContent="▶";$("#centerPlay").textContent="▶";$("#trackStatus").textContent="Áudio: auto • Legenda: auto";$("#playerMenu").classList.remove("open");$("#playerMenuBackdrop").classList.remove("open");S.playerMenuKind=null;
+ stopSourceAttempt();clearPlaybackStallMonitor();S._stallRecovery=false;S._stallEvents=[];
+ const v=$("#video");v.pause();if(v._hls){v._hls.destroy();v._hls=null}v.removeAttribute("src");
+ [...v.querySelectorAll("track[data-casaflix]")].forEach(t=>t.remove());
+ if(S.externalSubtitleBlob){URL.revokeObjectURL(S.externalSubtitleBlob);S.externalSubtitleBlob=null}
+ v.load();S.resumeEntry=null;S.resumeApplied=false;applyAspectMode(S.aspectMode,false);$("#seek").value=0;$("#seek").style.setProperty("--seek-fill","0%");$("#timeText").textContent="0:00 / 0:00";$("#bigPlay").classList.remove("hidden");$("#playPause").textContent="▶";$("#centerPlay").textContent="▶";$("#trackStatus").textContent="Áudio: auto • Legenda: auto";$("#playerMenu").classList.remove("open");$("#playerMenuBackdrop").classList.remove("open");S.playerMenuKind=null;
 }
 let hlsLibraryPromise=null;
 function ensureHlsLibrary(){
@@ -1798,110 +1588,62 @@ function ensureHlsLibrary(){
  return hlsLibraryPromise;
 }
 async function loadVideo(url,autoplay=true,stream=null,resumeEntry=null){
-  clearPlaybackStallMonitor();
-  const v=$("#video");if(v._hls){v._hls.destroy();v._hls=null}v.pause();v.removeAttribute("src");v.preload="auto";v.load();$("#buffering").classList.add("show");
-  S.resumeEntry=resumeEntry||null;S.resumeApplied=false;
-  const applyResume=()=>{
-    if(S.resumeApplied)return;
-    const pos=Number(S.resumeEntry?.currentTime||0);
-    if(pos>3&&isFinite(v.duration)&&v.duration>0){
-      const safe=Math.min(pos,Math.max(0,v.duration-2));
-      try{v.currentTime=safe;S.resumeApplied=true;toast(`Continuando em ${formatTime(safe)}.`)}catch{}
-    }else S.resumeApplied=true;
-  };
-  const afterTracks=async()=>{applyPreferredAudio();if(S.playType&&S.playId){await fetchExternalSubtitles(S.playType,S.playId,stream||S.selectedStream);await applyPreferredSubtitle()}updateTrackStatus()};
-  v.addEventListener("loadedmetadata",async()=>{applyAspectMode(S.aspectMode,false);applyResume();await afterTracks();$("#buffering").classList.remove("show");if(autoplay)v.play().catch(()=>{})},{once:true});
-  if(/\.m3u8($|\?)/i.test(url)){
-    try{
-     await ensureHlsLibrary();
-     if(window.Hls&&Hls.isSupported()){
-      v._hls=new Hls({
-       enableWorker:true,
-       lowLatencyMode:false,
-       backBufferLength:30,
-       maxBufferLength:55,
-       maxMaxBufferLength:110,
-       maxBufferSize:80*1000*1000,
-       capLevelToPlayerSize:true,
-       startFragPrefetch:true,
-       abrBandWidthFactor:.82,
-       abrBandWidthUpFactor:.68,
-       maxBufferHole:.5,
-       nudgeMaxRetry:5,
-       highBufferWatchdogPeriod:2
-      });
-      v._hls.loadSource(url);v._hls.attachMedia(v);
-      v._hls.on(Hls.Events.MANIFEST_PARSED,async()=>{await afterTracks();$("#buffering").classList.remove("show")});
-      if(Hls.Events.AUDIO_TRACKS_UPDATED)v._hls.on(Hls.Events.AUDIO_TRACKS_UPDATED,()=>{applyPreferredAudio();updateTrackStatus()});
-      if(Hls.Events.SUBTITLE_TRACKS_UPDATED)v._hls.on(Hls.Events.SUBTITLE_TRACKS_UPDATED,()=>{applyPreferredSubtitle();updateTrackStatus()});
-      let hlsNetworkRecoveries=0,hlsMediaRecoveries=0;
-      v._hls.on(Hls.Events.ERROR,(_,data)=>{
-       if(!data?.fatal)return;
-       console.warn("Fonte HLS falhou",data);
-       if(data.type===Hls.ErrorTypes.NETWORK_ERROR&&hlsNetworkRecoveries<1){
-        hlsNetworkRecoveries++;try{v._hls.startLoad()}catch{}
-        return;
-       }
-       if(data.type===Hls.ErrorTypes.MEDIA_ERROR&&hlsMediaRecoveries<1){
-        hlsMediaRecoveries++;try{v._hls.recoverMediaError()}catch{}
-        return;
-       }
-       schedulePlaybackRecovery("hls-fatal",1200);
-      });
-     }else v.src=url;
-    }catch(e){console.warn("HLS.js",e);v.src=url}
-    }else{
-     v.src=url;
-    }
-}
-
-let autoUnmuteHandler=null;
-function reflectMuteState(){
-  const v=$("#video");if(!v)return;
-  const b=$("#muteBtn");if(b)b.textContent=v.muted?"🔇":"🔊";
-  const vol=$("#volume");if(vol)vol.value=v.muted?0:v.volume;
-}
-function disarmAutoUnmute(){
-  if(autoUnmuteHandler){
-    document.removeEventListener("pointerdown",autoUnmuteHandler,true);
-    document.removeEventListener("keydown",autoUnmuteHandler,true);
-    document.removeEventListener("touchstart",autoUnmuteHandler,true);
-    autoUnmuteHandler=null;
-  }
-}
-function armAutoUnmute(){
-  disarmAutoUnmute();
-  autoUnmuteHandler=()=>{
-    const v=$("#video");
-    if(v&&v.muted){v.muted=false;v.volume=SITE_DEFAULT_VOLUME;reflectMuteState();}
-    disarmAutoUnmute();
-  };
-  document.addEventListener("pointerdown",autoUnmuteHandler,true);
-  document.addEventListener("keydown",autoUnmuteHandler,true);
-  document.addEventListener("touchstart",autoUnmuteHandler,true);
-}
-// Inicia a reprodução de forma resiliente. Se o navegador bloquear o autoplay
-// (gesto do usuário já expirou por causa da busca assíncrona das fontes), tenta
-// muted-autoplay — sempre permitido — para que o vídeo renderize (sem tela preta)
-// e reativa o áudio no primeiro toque/clique do usuário.
-async function startPlayback(){
-  const v=$("#video");if(!v)return;
+ clearPlaybackStallMonitor();
+ const v=$("#video");if(v._hls){v._hls.destroy();v._hls=null}v.pause();v.removeAttribute("src");v.preload="auto";v.load();$("#buffering").classList.add("show");
+ S.resumeEntry=resumeEntry||null;S.resumeApplied=false;
+ const applyResume=()=>{
+  if(S.resumeApplied)return;
+  const pos=Number(S.resumeEntry?.currentTime||0);
+  if(pos>3&&isFinite(v.duration)&&v.duration>0){
+   const safe=Math.min(pos,Math.max(0,v.duration-2));
+   try{v.currentTime=safe;S.resumeApplied=true;toast(`Continuando em ${formatTime(safe)}.`)}catch{}
+  }else S.resumeApplied=true;
+ };
+ const afterTracks=async()=>{applyPreferredAudio();if(S.playType&&S.playId){await fetchExternalSubtitles(S.playType,S.playId,stream||S.selectedStream);await applyPreferredSubtitle()}updateTrackStatus()};
+ v.addEventListener("loadedmetadata",async()=>{applyAspectMode(S.aspectMode,false);applyResume();await afterTracks();$("#buffering").classList.remove("show");if(autoplay)v.play().catch(()=>{})},{once:true});
+ if(/\.m3u8($|\?)/i.test(url)){
   try{
-    await v.play();
-    return;
-  }catch(_){
-    try{
-      v.muted=true;reflectMuteState();
-      await v.play();
-      armAutoUnmute();
-      toast("Reprodução iniciada sem som. Toque para ativar o áudio.");
-    }catch(__){
-      clearTimeout(S._ctlTimer);showPlayerUI(true);
-      toast("Toque na tela para iniciar a reprodução.");
-    }
-  }
+   await ensureHlsLibrary();
+   if(window.Hls&&Hls.isSupported()){
+    v._hls=new Hls({
+     enableWorker:true,
+     lowLatencyMode:false,
+     backBufferLength:30,
+     maxBufferLength:55,
+     maxMaxBufferLength:110,
+     maxBufferSize:80*1000*1000,
+     capLevelToPlayerSize:true,
+     startFragPrefetch:true,
+     abrBandWidthFactor:.82,
+     abrBandWidthUpFactor:.68,
+     maxBufferHole:.5,
+     nudgeMaxRetry:5,
+     highBufferWatchdogPeriod:2
+    });
+    v._hls.loadSource(url);v._hls.attachMedia(v);
+    v._hls.on(Hls.Events.MANIFEST_PARSED,async()=>{await afterTracks();$("#buffering").classList.remove("show")});
+    if(Hls.Events.AUDIO_TRACKS_UPDATED)v._hls.on(Hls.Events.AUDIO_TRACKS_UPDATED,()=>{applyPreferredAudio();updateTrackStatus()});
+    if(Hls.Events.SUBTITLE_TRACKS_UPDATED)v._hls.on(Hls.Events.SUBTITLE_TRACKS_UPDATED,()=>{applyPreferredSubtitle();updateTrackStatus()});
+    let hlsNetworkRecoveries=0,hlsMediaRecoveries=0;
+    v._hls.on(Hls.Events.ERROR,(_,data)=>{
+     if(!data?.fatal)return;
+     console.warn("Fonte HLS falhou",data);
+     if(data.type===Hls.ErrorTypes.NETWORK_ERROR&&hlsNetworkRecoveries<1){
+      hlsNetworkRecoveries++;try{v._hls.startLoad()}catch{}
+      return;
+     }
+     if(data.type===Hls.ErrorTypes.MEDIA_ERROR&&hlsMediaRecoveries<1){
+      hlsMediaRecoveries++;try{v._hls.recoverMediaError()}catch{}
+      return;
+     }
+     schedulePlaybackRecovery("hls-fatal",1200);
+    });
+   }else v.src=url;
+  }catch(e){console.warn("HLS.js",e);v.src=url}
+ }else{
+  v.src=url;
+ }
 }
-
 
 function clearPlaybackStallMonitor(){
  clearTimeout(S._stallTimer);
@@ -3167,7 +2909,7 @@ async function playSoundCloudItem(x,queue=null,index=-1){
   widget.bind(SC.Widget.Events.READY,()=>{
    S.soundcloudWidgetReady=true;S.soundcloudPaused=false;
    widget.getDuration(ms=>{S.soundcloudDuration=Number(ms||0)/1000;updateSpotifyPlayer()});
-   widget.setVolume(Math.round(Number($("#musicVolume")?.value||SITE_DEFAULT_VOLUME)*100));widget.play()
+   widget.setVolume(Math.round(Number($("#musicVolume")?.value||.9)*100));widget.play()
   });
   widget.bind(SC.Widget.Events.PLAY_PROGRESS,e=>{S.soundcloudPosition=Number(e?.currentPosition||0)/1000;S.soundcloudDuration=Math.max(S.soundcloudDuration,S.soundcloudPosition/(Number(e?.relativePosition)||1));updateSpotifyPlayer()});
   widget.bind(SC.Widget.Events.PLAY,()=>{S.soundcloudPaused=false;updateSpotifyPlayer()});
@@ -3259,7 +3001,7 @@ function playMusicItem(x,queue=null,index=-1){
  const url=safeHttpUrl(x?.streamUrl||x?.previewUrl||"");if(!url)return toast("Essa faixa não possui áudio reproduzível.");
  if(queue){S.musicQueue=queue;S.musicQueueIndex=index}
  S.musicCurrentItem=x;S.musicBackend="audio";pauseOtherMusicBackend("audio");
- const a=$("#musicPreviewAudio");a.pause();a.src=url;a.load();a.volume=Number($("#musicVolume")?.value||SITE_DEFAULT_VOLUME);
+ const a=$("#musicPreviewAudio");a.pause();a.src=url;a.load();a.volume=Number($("#musicVolume")?.value||.9);
  $("#musicMiniCover").style.backgroundImage=`url('${x.image||""}')`;$("#musicMiniTitle").textContent=x.title||"Música";
  $("#musicMiniArtist").textContent=`${x.artist||""}${x.fullTrack?" • Audius":" • Prévia"}`;
  $("#musicMiniStore").style.display=x.source==="SoundCloud"?"none":(x.externalUrl?"":"none");$("#musicMiniStore").onclick=x.source==="SoundCloud"?null:(()=>{if(x.externalUrl)window.open(x.externalUrl,"_blank","noopener,noreferrer")});
@@ -3894,7 +3636,7 @@ $("#closePlayer").onclick=()=>{$("#playerSide")?.classList.remove("drawerOpen");
 $("#bigPlay").onclick=togglePlayback;$("#playPause").onclick=togglePlayback;
 $("#back10").onclick=()=>{$("#video").currentTime=Math.max(0,$("#video").currentTime-10);showPlayerUI()};
 $("#forward10").onclick=()=>{const v=$("#video");v.currentTime=Math.min(v.duration||Infinity,v.currentTime+10);showPlayerUI()};
-$("#muteBtn").onclick=()=>{disarmAutoUnmute();const v=$("#video");v.muted=!v.muted;$("#muteBtn").textContent=v.muted?"🔇":"🔊";showPlayerUI()};
+$("#muteBtn").onclick=()=>{const v=$("#video");v.muted=!v.muted;$("#muteBtn").textContent=v.muted?"🔇":"🔊";showPlayerUI()};
 $("#volume").oninput=e=>{const v=$("#video");v.volume=Number(e.target.value);v.muted=v.volume===0;$("#muteBtn").textContent=v.muted?"🔇":"🔊";showPlayerUI()};
 $("#speed").onchange=e=>{$("#video").playbackRate=Number(e.target.value);showPlayerUI()};
 $("#seek").oninput=e=>{const v=$("#video"),n=Number(e.target.value);e.target.style.setProperty("--seek-fill",`${n/10}%`);if(isFinite(v.duration)&&v.duration)v.currentTime=n/1000*v.duration;showPlayerUI()};
@@ -3904,18 +3646,9 @@ $("#downloadCurrent").onclick=()=>S.selectedStream?browserDownload(S.selectedStr
 $("#skipIntroBtn").onclick=skipIntro;
 $("#sourceToolsToggle").onclick=()=>{S.sourceToolsOpen=!S.sourceToolsOpen;$("#sourceTools").classList.toggle("open",S.sourceToolsOpen);$("#sourceToolsToggle").classList.toggle("active",S.sourceToolsOpen)};
 function setSourceDrawer(open){$("#playerSide").classList.toggle("drawerOpen",!!open);$("#sourcePanelBackdrop").classList.toggle("open",!!open);showPlayerUI(!!open)}
-function setPlayerSideTab(tab){
- S.playerSideTab=tab;
- $$(".playerSideTab").forEach(b=>b.classList.toggle("active",b.dataset.sideTab===tab));
- $("#playerSidePanelFontes").hidden=tab!=="fontes";
- $("#playerSidePanelEpisodes").hidden=tab!=="episodios";
- if(tab==="episodios")renderPlayerEpisodes();
-}
-$$(".playerSideTab").forEach(b=>b.onclick=()=>setPlayerSideTab(b.dataset.sideTab));
-$("#sourceDrawerHandle").onclick=()=>{const opening=!$("#playerSide").classList.contains("drawerOpen");if(opening)setPlayerSideTab("fontes");setSourceDrawer(opening)};
+$("#sourceDrawerHandle").onclick=()=>setSourceDrawer(!$("#playerSide").classList.contains("drawerOpen"));
 $("#sourcePanelBackdrop").onclick=()=>setSourceDrawer(false);
-$("#primeSourceBtn").onclick=()=>{const opening=!$("#playerSide").classList.contains("drawerOpen");if(opening)setPlayerSideTab("fontes");setSourceDrawer(opening)};
-$("#episodesBtn").onclick=()=>{setPlayerSideTab("episodios");setSourceDrawer(true)};
+$("#primeSourceBtn").onclick=()=>setSourceDrawer(!$("#playerSide").classList.contains("drawerOpen"));
 $("#centerPlay").onclick=togglePlayback;
 $("#centerBack10").onclick=()=>{$("#video").currentTime=Math.max(0,$("#video").currentTime-10);showPlayerUI()};
 $("#centerForward10").onclick=()=>{const v=$("#video");v.currentTime=Math.min(v.duration||Infinity,v.currentTime+10);showPlayerUI()};
@@ -3970,16 +3703,16 @@ document.addEventListener("keydown",e=>{if(!$("#playerModal").classList.contains
 });
 $("#detailModal").onclick=e=>{if(e.target.id==="detailModal"){$("#detailModal").classList.remove("open");document.body.classList.remove("detailOpen")}};
 $("#playerModal").onclick=e=>{if(e.target.id==="playerModal")$("#closePlayer").click()};
-$("#settingsBtn").onclick=()=>{$("#frostUrl").value=cfg.frost;$("#metaUrl").value=cfg.meta;$("#catalogUrls").value=cfg.catalogs;$("#subtitleAddon").value=cfg.subtitleAddon;$("#audioPref").value=cfg.audioPref;$("#subtitlePref").value=cfg.subtitlePref;$("#mangaRepoUrls").value=cfg.mangaRepos;$("#mangaBridgeUrl").value=cfg.mangaBridge;$("#corsProxyUrl").value=localStorage.getItem("rf40_cors_proxy")||"";$("#lang").value=cfg.lang;$("#settingsModal").classList.add("open");document.body.classList.add("settingsOpen");openSettingsTab("geral")};
+$("#settingsBtn").onclick=()=>{$("#frostUrl").value=cfg.frost;$("#metaUrl").value=cfg.meta;$("#catalogUrls").value=cfg.catalogs;$("#subtitleAddon").value=cfg.subtitleAddon;$("#audioPref").value=cfg.audioPref;$("#subtitlePref").value=cfg.subtitlePref;$("#mangaRepoUrls").value=cfg.mangaRepos;$("#mangaBridgeUrl").value=cfg.mangaBridge;$("#lang").value=cfg.lang;$("#settingsModal").classList.add("open");document.body.classList.add("settingsOpen");openSettingsTab("geral")};
 $("#closeSettings").onclick=()=>{$("#settingsModal").classList.remove("open");document.body.classList.remove("settingsOpen");unlockMobileDocument()};
-$("#saveSettings").onclick=()=>{cfg.frost=$("#frostUrl").value.trim()||CFG_DEFAULT.frost;cfg.meta=$("#metaUrl").value.trim()||CFG_DEFAULT.meta;cfg.catalogs=$("#catalogUrls").value.trim()||CFG_DEFAULT.catalogs;cfg.subtitleAddon=$("#subtitleAddon").value.trim()||CFG_DEFAULT.subtitleAddon;cfg.audioPref=$("#audioPref").value;cfg.subtitlePref=$("#subtitlePref").value;cfg.mangaRepos=$("#mangaRepoUrls").value.trim()||CFG_DEFAULT.mangaRepos;cfg.mangaBridge=$("#mangaBridgeUrl").value.trim();cfg.lang=$("#lang").value;localStorage.setItem("cf2_frost",cfg.frost);localStorage.setItem("cf2_meta",cfg.meta);localStorage.setItem("cf4_catalogs",cfg.catalogs);localStorage.setItem("cf5_subtitle_addon",cfg.subtitleAddon);localStorage.setItem("cf5_audio_pref",cfg.audioPref);localStorage.setItem("cf5_subtitle_pref",cfg.subtitlePref);localStorage.setItem("rf15_manga_repos",cfg.mangaRepos);localStorage.setItem("rf14_manga_bridge",cfg.mangaBridge);localStorage.setItem("rf40_cors_proxy",($("#corsProxyUrl")?.value||"").trim());localStorage.setItem("cf2_lang",cfg.lang);S.manifestCache.clear();S.catalogCache.clear();$("#settingsModal").classList.remove("open");document.body.classList.remove("settingsOpen");toast("Configurações salvas.");home()};
+$("#saveSettings").onclick=()=>{cfg.frost=$("#frostUrl").value.trim()||CFG_DEFAULT.frost;cfg.meta=$("#metaUrl").value.trim()||CFG_DEFAULT.meta;cfg.catalogs=$("#catalogUrls").value.trim()||CFG_DEFAULT.catalogs;cfg.subtitleAddon=$("#subtitleAddon").value.trim()||CFG_DEFAULT.subtitleAddon;cfg.audioPref=$("#audioPref").value;cfg.subtitlePref=$("#subtitlePref").value;cfg.mangaRepos=$("#mangaRepoUrls").value.trim()||CFG_DEFAULT.mangaRepos;cfg.mangaBridge=$("#mangaBridgeUrl").value.trim();cfg.lang=$("#lang").value;localStorage.setItem("cf2_frost",cfg.frost);localStorage.setItem("cf2_meta",cfg.meta);localStorage.setItem("cf4_catalogs",cfg.catalogs);localStorage.setItem("cf5_subtitle_addon",cfg.subtitleAddon);localStorage.setItem("cf5_audio_pref",cfg.audioPref);localStorage.setItem("cf5_subtitle_pref",cfg.subtitlePref);localStorage.setItem("rf15_manga_repos",cfg.mangaRepos);localStorage.setItem("rf14_manga_bridge",cfg.mangaBridge);localStorage.setItem("cf2_lang",cfg.lang);S.manifestCache.clear();S.catalogCache.clear();$("#settingsModal").classList.remove("open");document.body.classList.remove("settingsOpen");toast("Configurações salvas.");home()};
 function openSettingsTab(name="geral"){
  $$("#settingsTabs [data-settings-tab]").forEach(b=>b.classList.toggle("active",b.dataset.settingsTab===name));
  $$("#settingsBody [data-settings-pane]").forEach(p=>p.classList.toggle("active",p.dataset.settingsPane===name));
  $("#settingsBody").scrollTop=0;
 }
 $$("[data-settings-tab]").forEach(b=>b.onclick=()=>openSettingsTab(b.dataset.settingsTab));
-$("#resetSettings").onclick=()=>{$("#frostUrl").value=CFG_DEFAULT.frost;$("#metaUrl").value=CFG_DEFAULT.meta;$("#catalogUrls").value=CFG_DEFAULT.catalogs;$("#subtitleAddon").value=CFG_DEFAULT.subtitleAddon;$("#audioPref").value=CFG_DEFAULT.audioPref;$("#subtitlePref").value=CFG_DEFAULT.subtitlePref;$("#mangaRepoUrls").value=CFG_DEFAULT.mangaRepos;$("#mangaBridgeUrl").value=CFG_DEFAULT.mangaBridge;if($("#corsProxyUrl"))$("#corsProxyUrl").value="";$("#lang").value=CFG_DEFAULT.lang};
+$("#resetSettings").onclick=()=>{$("#frostUrl").value=CFG_DEFAULT.frost;$("#metaUrl").value=CFG_DEFAULT.meta;$("#catalogUrls").value=CFG_DEFAULT.catalogs;$("#subtitleAddon").value=CFG_DEFAULT.subtitleAddon;$("#audioPref").value=CFG_DEFAULT.audioPref;$("#subtitlePref").value=CFG_DEFAULT.subtitlePref;$("#mangaRepoUrls").value=CFG_DEFAULT.mangaRepos;$("#mangaBridgeUrl").value=CFG_DEFAULT.mangaBridge;$("#lang").value=CFG_DEFAULT.lang};
 let scrollRAF=0,scrollEndTimer=0;
 window.addEventListener("scroll",()=>{
  document.body.classList.add("fastScrolling");
@@ -4014,8 +3747,13 @@ $("#installAppBtn").onclick=async()=>{
 };
 window.addEventListener("appinstalled",()=>{deferredInstallPrompt=null;$("#installAppBtn").style.display="none";toast("ResenhaFlix instalado como aplicativo.")});
 if("serviceWorker" in navigator){
- window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js?v=36",{updateViaCache:"none"}).catch(e=>console.warn("Service Worker",e)));
+ window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js?v=34",{updateViaCache:"none"}).catch(e=>console.warn("Service Worker",e)));
 }
-window.addEventListener("scroll",()=>hideCardPreview(),{passive:true,capture:true});
-window.addEventListener("resize",()=>hideCardPreview());
 home();
+</script>
+<!-- ResenhaFlix v12 — fontes progressivas/cache + tela Mangás/Keiyoushi -->
+<!-- ResenhaFlix v28 — manga exato/rápido, livros PT-BR e detalhes estilo Netflix -->
+<!-- ResenhaFlix v34 — Manga Bridge automática, conectores HakuNeko e leitor mobile -->
+  <script src="./manga-hakuneko.js?v=34"></script>
+</body>
+</html>
