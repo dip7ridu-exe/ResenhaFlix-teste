@@ -1,0 +1,10 @@
+.git
+.github
+examples
+icons
+*.html
+*.css
+manga-hakuneko.js
+soundcloud-worker
+__pycache__
+*.pyc

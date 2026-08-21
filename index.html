@@ -2658,6 +2658,7 @@ input::placeholder,textarea::placeholder{color:#898294;opacity:1}
 
 </style>
 <link rel="stylesheet" href="./manga-hakuneko.css?v=34">
+<link rel="stylesheet" href="./ui-polish.css?v=50">
 </head>
 <body>
 <header class="top" id="top">
@@ -3620,7 +3621,7 @@ function card(m){
  S.itemCache.set(`${m.type||"movie"}|${m.id}`,m);
  const remaining=h?.currentTime?formatTime(h.currentTime):"";
  return `<article class="card" data-id="${esc(m.id)}" data-type="${esc(m.type||"movie")}" ${m._continue?`data-continue-key="${esc(m._historyKey||key)}"`:""}>
-   <div class="poster">${m.poster?`<img class="posterImg" src="${esc(m.poster)}" alt="" loading="lazy" decoding="async" fetchpriority="low">`:""}</div>
+   <div class="poster">${m.poster?`<img class="posterImg" src="${esc(m.poster)}" alt="${esc(m.name||"")}" loading="lazy" decoding="async" fetchpriority="low">`:""}</div>
    ${m.imdbRating?`<div class="rating">★ ${esc(m.imdbRating)}</div>`:""}
    <button class="plus ${saved?"saved":""}" data-plus="${esc(m.id)}" data-type="${esc(m.type||"movie")}" title="${saved?"Remover da minha lista":"Adicionar à minha lista"}">${saved?"✓":"+"}</button>
    ${m._continue?`<button class="continueRemove" data-remove-continue="${esc(m._historyKey||key)}" title="Remover de Continuar assistindo">✕</button>`:""}
@@ -3629,16 +3630,51 @@ function card(m){
    ${h?`<div class="bar"><i style="width:${Math.min(100,Math.max(0,h.progress||0))}%"></i></div>`:""}
  </article>`
 }
+
+function top10Card(m, index){
+ const rank = index + 1;
+ const key = historyKey(m.type||"movie", m._rootId||m.id);
+ S.itemCache.set(`${m.type||"movie"}|${m.id}`, m);
+ const saved = lists().some(x=>x.id===m.id&&String(x.type||"movie")===String(m.type||"movie"));
+ return `<article class="top10Card" data-id="${esc(m.id)}" data-type="${esc(m.type||"movie")}">
+   <div class="top10Number" aria-hidden="true">${rank}</div>
+   <div class="top10PosterWrap">
+     ${m.poster?`<img class="posterImg" src="${esc(m.poster)}" alt="${esc(m.name||"")}" loading="lazy" decoding="async" fetchpriority="low">`:""}
+     <div class="top10Badge">TOP ${rank}</div>
+     ${m.imdbRating?`<div class="rating">★ ${esc(m.imdbRating)}</div>`:""}
+     <button class="plus ${saved?"saved":""}" data-plus="${esc(m.id)}" data-type="${esc(m.type||"movie")}" title="${saved?"Remover da minha lista":"Adicionar à minha lista"}">${saved?"✓":"+"}</button>
+   </div>
+ </article>`;
+}
+
+function top10Row(title, items, sub="Top 10 no Brasil hoje", opts={}){
+ const slice = (items||[]).slice(0, 10);
+ if(!slice.length) return "";
+ return `<section class="section top10Section" ${opts.key?`data-section="${esc(opts.key)}"`:""} aria-label="${esc(title)}">
+   <div class="sectionHead">
+     <div class="sectionHeadText">
+       <div class="sectionTitle">${esc(title)}</div>
+       <div class="sectionSub">${esc(sub||"")}</div>
+     </div>
+     <div class="carouselControls" aria-label="Navegar em ${esc(title)}">
+       <button type="button" class="carouselArrow" data-carousel-dir="-1" aria-label="Ver itens anteriores">‹</button>
+       <button type="button" class="carouselArrow" data-carousel-dir="1" aria-label="Ver próximos itens">›</button>
+     </div>
+   </div>
+   <div class="top10Row" data-carousel tabindex="0" aria-label="${esc(title)}; deslize para ver o Top 10">${slice.map(top10Card).join("")}</div>
+ </section>`;
+}
+
 function animateListButton(btn,added){
  if(!btn)return;
  btn.textContent=added?"✓":"+";
  btn.classList.toggle("saved",added);
  btn.title=added?"Remover da minha lista":"Adicionar à minha lista";
  btn.classList.remove("listPop");void btn.offsetWidth;btn.classList.add("listPop");
- const card=btn.closest(".card");if(card){card.classList.remove("listPulse");void card.offsetWidth;card.classList.add("listPulse")}
+ const card=btn.closest(".card, .top10Card");if(card){card.classList.remove("listPulse");void card.offsetWidth;card.classList.add("listPulse")}
 }
 function bindCards(root){
- root.querySelectorAll(".card").forEach(c=>c.onclick=e=>{
+ root.querySelectorAll(".card, .top10Card").forEach(c=>c.onclick=e=>{
    if(e.target.closest("[data-plus]")||e.target.closest("[data-remove-continue]"))return;
    const continueKey=c.dataset.continueKey;
    if(continueKey){resumeFromHistoryKey(continueKey);return}
@@ -3864,7 +3900,7 @@ async function appendExternalHomeRows(){
 }
 async function home(){
  S.currentPage="home";S.pageCategory="all";setActiveNav("home");unlockMobileDocument();scrollPageTop();toggleCategoryMega(false);
- $("#page").classList.remove("searchPage","hk-manga-page");
+ $("#page").classList.remove("searchPage","hk-manga-page","animePageModern");
  $("#hero").classList.remove("hidden");$("#main").classList.remove("hidden");$("#page").classList.add("hidden");
  $("#main").innerHTML='<div class="row">'+Array.from({length:8},()=>'<div class="skeleton card"></div>').join("")+'</div>';
  try{
@@ -3883,13 +3919,18 @@ async function home(){
   }).filter(x=>x.poster);
   const featured=movies[0]||series[0];
   if(featured)setHero(featured);
+  
+  const allAnime = Array.from(new Map([...animeSeries,...animeMovies].map(x=>[x.id,x])).values());
+  const top10Brasil = [...series.slice(0, 5), ...movies.slice(0, 5)];
+
   $("#main").innerHTML=[
    row("Continuar assistindo",continueItems,"Retome exatamente de onde parou",{key:"continue"}),
+   top10Row("Top 10 no Brasil hoje", top10Brasil, "Os filmes e séries mais assistidos"),
    row("Filmes populares",movies,"Atualizado automaticamente"),
    row("Séries populares",series,"Atualizado automaticamente"),
-   row("Animes",Array.from(new Map([...animeSeries,...animeMovies].map(x=>[x.id,x])).values()),"Animação"),
-   row("Mais filmes",movies.slice(8),""),
-   row("Mais séries",series.slice(8),"")
+   row("Animes em destaque",allAnime,"Animação japonesa e novidades"),
+   row("Mais filmes para você",movies.slice(8),"Sucessos de audiência"),
+   row("Mais séries imperdíveis",series.slice(8),"Maratone agora")
   ].join("")||'<div class="empty">Nenhum catálogo retornado.</div>';
   bindCards($("#main"));initCarousels($("#main"));
   runWhenIdle(appendExternalHomeRows);
@@ -6411,9 +6452,218 @@ function downloadBook(b){const d=bestBookDownload(b);if(!d)return toast("Este li
 function openMediaSources(tab="music"){S.mediaSourceTab=tab;$("#audiusApiKey").value=mediaCfg.audiusApiKey||"";$("#audiusApiUrl").value=mediaCfg.audiusApi||MEDIA_DEFAULT.audiusApi;$("#soundcloudProxyUrl").value=mediaCfg.soundcloudProxyUrl||"";$("#musicApiUrl").value=mediaCfg.musicApi;$("#musicJsonUrls").value=mediaCfg.musicJsonUrls;$("#booksOpenLibraryUrl").value=mediaCfg.booksOpenLibrary;$("#booksGutendexUrl").value=mediaCfg.booksGutendex;$("#booksJsonUrls").value=mediaCfg.booksJsonUrls;$$("[data-media-source-tab]").forEach(b=>b.classList.toggle("active",b.dataset.mediaSourceTab===tab));$$("[data-media-source-pane]").forEach(x=>x.classList.toggle("active",x.dataset.mediaSourcePane===tab));$("#mediaSourcesModal").classList.add("open");document.body.classList.add("mediaSourcesOpen")}
 function closeMediaSources(){$("#mediaSourcesModal").classList.remove("open");document.body.classList.remove("mediaSourcesOpen")}
 function saveMediaSourceSettings(){mediaCfg.audiusApiKey=$("#audiusApiKey").value.trim();mediaCfg.audiusApi=$("#audiusApiUrl").value.trim()||MEDIA_DEFAULT.audiusApi;mediaCfg.soundcloudProxyUrl=$("#soundcloudProxyUrl").value.trim();mediaCfg.musicApi=$("#musicApiUrl").value.trim()||MEDIA_DEFAULT.musicApi;mediaCfg.musicJsonUrls=$("#musicJsonUrls").value.trim();mediaCfg.booksOpenLibrary=$("#booksOpenLibraryUrl").value.trim()||MEDIA_DEFAULT.booksOpenLibrary;mediaCfg.booksGutendex=$("#booksGutendexUrl").value.trim()||MEDIA_DEFAULT.booksGutendex;mediaCfg.booksJsonUrls=$("#booksJsonUrls").value.trim();localStorage.setItem("rf25_audius_key",mediaCfg.audiusApiKey);localStorage.setItem("rf25_audius_api",mediaCfg.audiusApi);localStorage.setItem("rf26_soundcloud_proxy",mediaCfg.soundcloudProxyUrl);audiusSdkClient=null;localStorage.setItem("rf24_music_api",mediaCfg.musicApi);localStorage.setItem("rf24_music_json_urls",mediaCfg.musicJsonUrls);localStorage.setItem("rf24_books_openlibrary",mediaCfg.booksOpenLibrary);localStorage.setItem("rf24_books_gutendex",mediaCfg.booksGutendex);localStorage.setItem("rf24_books_json_urls",mediaCfg.booksJsonUrls);closeMediaSources();toast("Fontes de mídia salvas.")}
-async function importJsonFile(kind,file){if(!file)return;const status=$(kind==="music"?"#musicImportStatus":"#booksImportStatus");if(file.size>1.5*1024*1024){status.textContent="Arquivo maior que 1,5 MB.";return}try{const data=JSON.parse(await file.text()),items=genericJsonItems(data);if(!items.length)throw Error("O JSON não contém um array reconhecível.");saveMediaImported(kind,items);status.textContent=`${Math.min(items.length,500)} item(ns) importado(s) e salvo(s) neste dispositivo.`}catch(e){status.textContent=`Erro: ${e.message||"JSON inválido"}`}}
+let currentAnimeSpotlightIndex = 0;
+let animeSpotlightItems = [];
+
+async function animePage(initialGenre = "all") {
+  S.currentPage = "anime";
+  S.pageTypeForCategories = "anime";
+  S.pageCategory = initialGenre || "all";
+  setActiveNav("anime");
+  unlockMobileDocument();
+  scrollPageTop();
+  toggleCategoryMega(false);
+  
+  $("#page").classList.remove("searchPage", "mangaPageModern", "hk-manga-page", "musicPageModern", "booksPageModern");
+  $("#page").classList.add("animePageModern");
+  $("#hero").classList.add("hidden");
+  $("#main").classList.add("hidden");
+  $("#page").classList.remove("hidden");
+  $("#pageTitle").textContent = "Animes";
+  $("#pageBody").innerHTML = '<div class="loading">Carregando portal de animes...</div>';
+  
+  try {
+    const [aniTrending, animeMovies, animeSeries] = await Promise.all([
+      aniListTrendingMedia("ANIME", 24).catch(() => []),
+      freshCatalog("movie", "top", { genre: "Animation" }, cfg.meta, "anime-movies"),
+      freshCatalog("series", "top", { genre: "Animation" }, cfg.meta, "anime-series")
+    ]);
+    
+    if (S.currentPage !== "anime") return;
+    
+    const combinedCatalog = dedupeMetas([...animeSeries, ...animeMovies]);
+    
+    // Candidatos para o Spotlight Hero do Figma
+    let spotlightCandidates = combinedCatalog.slice(0, 6);
+    if (!spotlightCandidates.length && aniTrending.length) {
+      spotlightCandidates = aniTrending.slice(0, 6).map(m => ({
+        id: String(m.id),
+        name: m.title?.english || m.title?.romaji || m.title?.native || "Anime",
+        type: "series",
+        poster: m.coverImage?.extraLarge || m.coverImage?.large || "",
+        background: m.coverImage?.extraLarge || m.coverImage?.large || "",
+        description: "Assista aos episódios completos e temporadas com máxima qualidade.",
+        imdbRating: m.averageScore ? (m.averageScore / 10).toFixed(1) : "8.9",
+        year: 2024
+      }));
+    }
+    
+    animeSpotlightItems = spotlightCandidates.length ? spotlightCandidates : combinedCatalog.slice(0, 5);
+    currentAnimeSpotlightIndex = 0;
+    
+    const genres = [
+      ["all", "Todos (A–Z)"],
+      ["Shonen", "Shonen"],
+      ["Ação", "Ação"],
+      ["Isekai", "Isekai"],
+      ["Romance", "Romance"],
+      ["Fantasia", "Fantasia"],
+      ["Sci-Fi", "Ficção Científica"],
+      ["Sobrenatural", "Sobrenatural"],
+      ["Seinen", "Seinen"],
+      ["Comédia", "Comédia"],
+      ["Aventura", "Aventura"]
+    ];
+    
+    let filteredItems = combinedCatalog;
+    if (S.pageCategory && S.pageCategory !== "all") {
+      const gNorm = normText(S.pageCategory);
+      filteredItems = combinedCatalog.filter(item => {
+        const itemGenres = (item.genres || []).map(normText).join(" ");
+        const name = normText(item.name || "");
+        return itemGenres.includes(gNorm) || name.includes(gNorm);
+      });
+      if (!filteredItems.length) filteredItems = combinedCatalog;
+    }
+    
+    const top10Animes = combinedCatalog.slice(0, 10);
+    const seasonReleases = combinedCatalog.slice(4, 16);
+    const dubbedAnimes = combinedCatalog.filter(x => isAnimeLike(x)).slice(8, 20);
+    const classics = combinedCatalog.slice(12, 24);
+    
+    const firstSpotlight = animeSpotlightItems[0] || {};
+    
+    const shellHtml = `
+      <div class="animePageShell">
+        <!-- Spotlight Hero Banner do Figma -->
+        <section class="animeSpotlight" id="animeSpotlightContainer">
+          <div class="animeSpotlightBg" id="animeSpotlightBg" style="background-image: url('${esc(firstSpotlight.background || firstSpotlight.poster || "")}')"></div>
+          <div class="animeSpotlightGradient"></div>
+          <div class="animeSpotlightGrid">
+            <div class="animeSpotlightMain">
+              <div class="animeSpotlightBadge" id="animeSpotlightBadge">#1 SPOTLIGHT</div>
+              <h1 class="animeSpotlightTitle" id="animeSpotlightTitle">${esc(firstSpotlight.name || "Anime em Destaque")}</h1>
+              <p class="animeSpotlightDesc" id="animeSpotlightDesc">${esc(firstSpotlight.description || "Assista a episódios legendados e dublados em alta definição.")}</p>
+              <div class="animeSpotlightActions">
+                <button type="button" class="btn primary" id="animeSpotlightWatch">▶ EXPLORAR ANIME</button>
+                <button type="button" class="btn secondary" id="animeSpotlightSave">＋ Minha Lista</button>
+              </div>
+              <div class="animeSpotlightControls">
+                <button type="button" class="animeControlBtn" id="animeSpotlightPrev" aria-label="Anime anterior">‹</button>
+                <button type="button" class="animeControlBtn" id="animeSpotlightNext" aria-label="Próximo anime">›</button>
+                <span id="animeSpotlightCounter" style="font-size:12px;color:var(--rf-muted);margin-left:8px;font-weight:700">1 / ${animeSpotlightItems.length || 1}</span>
+              </div>
+            </div>
+            <!-- Featured Stack Mini Cards (Figma) -->
+            <div class="animeFeaturedStack" id="animeFeaturedStack">
+              ${animeSpotlightItems.slice(1, 5).map((item, idx) => `
+                <div class="animeMiniCard" data-spotlight-jump="${idx + 1}" title="${esc(item.name || "")}">
+                  <img src="${esc(item.poster || item.background || "")}" alt="${esc(item.name || "")}" loading="lazy">
+                </div>
+              `).join("")}
+            </div>
+          </div>
+        </section>
+
+        <!-- Barra de Filtros de Gênero de Animes -->
+        <div class="animeGenreBar">
+          ${genres.map(([gKey, gLabel]) => `
+            <button type="button" class="animeGenreChip ${S.pageCategory === gKey ? "active" : ""}" data-anime-genre="${esc(gKey)}">
+              ${esc(gLabel)}
+            </button>
+          `).join("")}
+        </div>
+
+        <!-- Fileira Top 10 Animes com números gigantes -->
+        ${top10Row("Top 10 Animes no Brasil", top10Animes, "Os animes mais assistidos da temporada")}
+        
+        <!-- Fileiras temáticas -->
+        ${row("Lançamentos da Temporada", seasonReleases, "Episódios novos toda semana")}
+        ${row("Animes Dublados em Português", dubbedAnimes.length ? dubbedAnimes : combinedCatalog.slice(6, 18), "Áudio em PT-BR")}
+        ${row("Clássicos Obrigatórios", classics.length ? classics : combinedCatalog.slice(10, 22), "Obras consagradas")}
+        
+        <!-- Grade do Catálogo Filtrado -->
+        <section class="section" style="margin-top: 30px;">
+          <div class="sectionHead">
+            <div class="sectionTitle">Catálogo de Animes ${S.pageCategory !== "all" ? `— ${esc(S.pageCategory)}` : ""}</div>
+            <div class="sectionSub">${filteredItems.length} animes disponíveis</div>
+          </div>
+          <div class="grid" id="animeCatalogGrid">
+            ${filteredItems.map(card).join("")}
+          </div>
+        </section>
+      </div>
+    `;
+    
+    $("#pageBody").innerHTML = shellHtml;
+    bindCards($("#pageBody"));
+    initCarousels($("#pageBody"));
+    
+    bindAnimeSpotlight();
+    
+    $$("[data-anime-genre]").forEach(chip => {
+      chip.onclick = () => {
+        const g = chip.dataset.animeGenre;
+        animePage(g);
+      };
+    });
+  } catch (err) {
+    console.error(err);
+    $("#pageBody").innerHTML = '<div class="empty">Não foi possível carregar a página de animes.</div>';
+  }
+}
+
+function updateAnimeSpotlight(index) {
+  if (!animeSpotlightItems.length) return;
+  currentAnimeSpotlightIndex = (index + animeSpotlightItems.length) % animeSpotlightItems.length;
+  const item = animeSpotlightItems[currentAnimeSpotlightIndex];
+  if (!item) return;
+  
+  const bg = $("#animeSpotlightBg");
+  const badge = $("#animeSpotlightBadge");
+  const title = $("#animeSpotlightTitle");
+  const desc = $("#animeSpotlightDesc");
+  const counter = $("#animeSpotlightCounter");
+  const watchBtn = $("#animeSpotlightWatch");
+  const saveBtn = $("#animeSpotlightSave");
+  
+  if (bg) bg.style.backgroundImage = `url('${item.background || item.poster || ""}')`;
+  if (badge) badge.textContent = `#${currentAnimeSpotlightIndex + 1} SPOTLIGHT`;
+  if (title) title.textContent = item.name || "Anime";
+  if (desc) desc.textContent = item.description || "Assista aos episódios completos.";
+  if (counter) counter.textContent = `${currentAnimeSpotlightIndex + 1} / ${animeSpotlightItems.length}`;
+  
+  if (watchBtn) watchBtn.onclick = () => openDetails(item.type || "series", item.id);
+  if (saveBtn) {
+    const saved = lists().some(x => x.id === item.id);
+    saveBtn.textContent = saved ? "✓ Na minha lista" : "＋ Minha Lista";
+    saveBtn.onclick = () => {
+      toggleCurrentList(item);
+      const isNowSaved = lists().some(x => x.id === item.id);
+      saveBtn.textContent = isNowSaved ? "✓ Na minha lista" : "＋ Minha Lista";
+    };
+  }
+}
+
+function bindAnimeSpotlight() {
+  updateAnimeSpotlight(0);
+  
+  const prevBtn = $("#animeSpotlightPrev");
+  const nextBtn = $("#animeSpotlightNext");
+  if (prevBtn) prevBtn.onclick = () => updateAnimeSpotlight(currentAnimeSpotlightIndex - 1);
+  if (nextBtn) nextBtn.onclick = () => updateAnimeSpotlight(currentAnimeSpotlightIndex + 1);
+  
+  $$("[data-spotlight-jump]").forEach(card => {
+    card.onclick = () => {
+      const idx = Number(card.dataset.spotlightJump);
+      updateAnimeSpotlight(idx);
+    };
+  });
+}
+
 async function page(type,initialCategory="all"){
  if(type==="trending")return trendingPage();
+ if(type==="anime")return animePage(initialCategory);
  if(type==="manga")return mangaPage();
  if(type==="music")return musicPage();
  if(type==="books")return booksPage();
@@ -6962,5 +7212,6 @@ home();
 <!-- ResenhaFlix v28 — manga exato/rápido, livros PT-BR e detalhes estilo Netflix -->
 <!-- ResenhaFlix v34 — Manga Bridge automática, conectores HakuNeko e leitor mobile -->
   <script src="./manga-hakuneko.js?v=34"></script>
+  <script src="./ui-polish.js?v=50"></script>
 </body>
 </html>
