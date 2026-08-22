@@ -1,11 +1,13 @@
 // ResenhaFlix — versão simplificada baseada no site funcional
+const CORE_STREAM_MANIFESTS=[
+  "https://bestcine.alwaysdata.net/manifest.json",
+  "https://froststream.cloutteam.com/manifest.json",
+  "https://fenixflix.fenixhub.online/manifest.json"
+];
+const TORRENTIO_MANIFEST="https://torrentio.strem.fun/manifest.json";
+const REQUIRED_STREAM_MANIFESTS=[...CORE_STREAM_MANIFESTS,TORRENTIO_MANIFEST];
 const CFG_DEFAULT={
-  frost:[
-    "https://froststream.cloutteam.com/manifest.json",
-    "https://bestcine.alwaysdata.net/manifest.json",
-    "https://fenixflix.fenixhub.online/manifest.json",
-    "https://watchhub.strem.io/manifest.json"
-  ].join("\n"),
+  frost:REQUIRED_STREAM_MANIFESTS.join("\n"),
   meta:"https://v3-cinemeta.strem.io/manifest.json",
   catalogs:[
     "https://v3-cinemeta.strem.io/manifest.json",
@@ -21,12 +23,11 @@ const CFG_DEFAULT={
   lang:"pt-BR"
 };
 let savedStreams=localStorage.getItem("cf2_frost")||CFG_DEFAULT.frost;
-if(!localStorage.getItem("rf51_fast_sources_migrated")){
+if(!localStorage.getItem("rf52_parallel_sources_migrated")){
   const current=String(savedStreams||"").split(/[\n,]+/).map(x=>x.trim()).filter(Boolean);
-  const defaults=String(CFG_DEFAULT.frost).split(/\n+/).map(x=>x.trim()).filter(Boolean);
-  const defaultSet=new Set(defaults);
-  savedStreams=[...new Set([...defaults,...current.filter(url=>!defaultSet.has(url))])].join("\n");
-  localStorage.setItem("cf2_frost",savedStreams);localStorage.setItem("rf51_fast_sources_migrated","1");
+  const formerDefaults=new Set(["https://watchhub.strem.io/manifest.json"]);
+  savedStreams=[...new Set([...REQUIRED_STREAM_MANIFESTS,...current.filter(url=>!formerDefaults.has(url))])].join("\n");
+  localStorage.setItem("cf2_frost",savedStreams);localStorage.setItem("rf52_parallel_sources_migrated","1");
 }
 const cfg={
   frost:savedStreams,
@@ -43,7 +44,7 @@ if(!localStorage.getItem("rf30_manga_repo_defaults")){
   const merged=[...new Set([...String(cfg.mangaRepos||"").split(/\n+/),...String(CFG_DEFAULT.mangaRepos).split(/\n+/)].map(x=>x.trim()).filter(Boolean))];
  cfg.mangaRepos=merged.join("\n");localStorage.setItem("rf15_manga_repos",cfg.mangaRepos);localStorage.setItem("rf30_manga_repo_defaults","1")
 }
-const S={hero:null,current:null,currentShow:null,currentEpisode:null,nextEpisode:null,season:1,currentPage:"home",streams:[],selectedStream:null,selectedAddon:"all",qualityFilter:"all",streamTitle:"",streamMeta:null,playType:null,playId:null,rootId:null,resumeEntry:null,resumeApplied:false,searchFilter:"all",searchItems:[],searchQuery:"",searchToken:0,manifestCache:new Map(),catalogCache:new Map(),itemCache:new Map(),externalSubtitles:[],externalSubtitleBlob:null,playerMenuKind:null,aspectMode:localStorage.getItem("cf9_aspect")||"smart",introSkipped:false,introSkipSeconds:90,autoFallback:localStorage.getItem("cf11_auto_fallback")!=="0",sourceHealth:new Map(),sourceAttemptToken:0,attemptedSourceKeys:new Set(),streamCache:new Map(),streamLoadToken:0,addonNameCache:new Map(),primaryManifest:localStorage.getItem("rf17_primary_manifest")||"",sourceToolsOpen:false,pageCategory:"all",pageItems:[],pageTypeForCategories:"",mangaRepoItems:[],mangaRepoLoadedAt:0,mangaTab:"explore",mangaQuery:"",mangaExtensionQuery:"",mangaLang:"pt",mangaReaderUrl:"",mangaCatalog:[],mangaCatalogPage:1,mangaCatalogHasNext:true,mangaSearchToken:0,mangaPickerMedia:null,mangaSearchCandidates:[],mangaSearchCandidateIndex:0,mangaNativeResults:[],mangaDetail:null,mangaDetailSource:null,mangaChapters:[],mangaChapterOrder:"desc",mangaReaderManga:null,mangaReaderSource:null,mangaReaderChapter:null,mangaReaderPages:[],mangaReaderPageIndex:0,mangaReaderObserver:null,mangaReaderUiTimer:null,mangaRepoStats:[],mangaExploreCatalogCache:new Map(),mangaProgressiveToken:0,mangaProgressiveResults:[],mangaMatchMedia:null,mangaMatchResults:[],mangaMatchToken:0,mangaSearchLang:localStorage.getItem("rf16_manga_search_lang")||"both",mangaWebSource:null,mangaWebQuery:"",mangaWebCandidates:[],mangaWebCandidateIndex:0,mangaWebCurrentUrl:"",_sourceTimer:null,_ctlTimer:null,_lastProgressSave:0,_stallTimer:null,_stallStartedAt:0,_stallEvents:[],_stallRecovery:false,_stallCooldownUntil:0,_lastStablePlaybackAt:0,mangaSourceLimit:Number(localStorage.getItem("rf24_manga_source_limit")||5),mangaRepoV24:null,booksTab:"all",booksQuery:"",bookResults:[],bookReaderBook:null,bookReaderRendition:null,bookReaderEpub:null,mediaSourceTab:"books"};
+const S={hero:null,current:null,currentShow:null,currentEpisode:null,nextEpisode:null,season:1,currentPage:"home",streams:[],selectedStream:null,selectedAddon:"all",qualityFilter:"all",streamTitle:"",streamMeta:null,playType:null,playId:null,rootId:null,resumeEntry:null,resumeApplied:false,searchFilter:"all",searchItems:[],searchQuery:"",searchToken:0,manifestCache:new Map(),catalogCache:new Map(),itemCache:new Map(),externalSubtitles:[],externalSubtitleBlob:null,playerMenuKind:null,aspectMode:localStorage.getItem("cf9_aspect")||"smart",introSkipped:false,introSkipSeconds:90,autoFallback:localStorage.getItem("cf11_auto_fallback")!=="0",sourceHealth:new Map(),sourceAttemptToken:0,attemptedSourceKeys:new Set(),streamCache:new Map(),streamLoadToken:0,addonNameCache:new Map(),addonQueryStatus:new Map(),primaryManifest:localStorage.getItem("rf17_primary_manifest")||"",sourceToolsOpen:false,pageCategory:"all",pageItems:[],pageTypeForCategories:"",mangaRepoItems:[],mangaRepoLoadedAt:0,mangaTab:"explore",mangaQuery:"",mangaExtensionQuery:"",mangaLang:"pt",mangaReaderUrl:"",mangaCatalog:[],mangaCatalogPage:1,mangaCatalogHasNext:true,mangaSearchToken:0,mangaPickerMedia:null,mangaSearchCandidates:[],mangaSearchCandidateIndex:0,mangaNativeResults:[],mangaDetail:null,mangaDetailSource:null,mangaChapters:[],mangaChapterOrder:"desc",mangaReaderManga:null,mangaReaderSource:null,mangaReaderChapter:null,mangaReaderPages:[],mangaReaderPageIndex:0,mangaReaderObserver:null,mangaReaderUiTimer:null,mangaRepoStats:[],mangaExploreCatalogCache:new Map(),mangaProgressiveToken:0,mangaProgressiveResults:[],mangaMatchMedia:null,mangaMatchResults:[],mangaMatchToken:0,mangaSearchLang:localStorage.getItem("rf16_manga_search_lang")||"both",mangaWebSource:null,mangaWebQuery:"",mangaWebCandidates:[],mangaWebCandidateIndex:0,mangaWebCurrentUrl:"",_sourceTimer:null,_ctlTimer:null,_lastProgressSave:0,_stallTimer:null,_stallStartedAt:0,_stallEvents:[],_stallRecovery:false,_stallCooldownUntil:0,_lastStablePlaybackAt:0,mangaSourceLimit:Number(localStorage.getItem("rf24_manga_source_limit")||5),mangaRepoV24:null,booksTab:"all",booksQuery:"",bookResults:[],bookReaderBook:null,bookReaderRendition:null,bookReaderEpub:null,mediaSourceTab:"books"};
 
 const $=s=>document.querySelector(s);
 const $$=s=>document.querySelectorAll(s);
@@ -213,7 +214,8 @@ function catalogURLFor(manifest,type,id="top",params=""){
 function catalogURL(type,id="top",params=""){return catalogURLFor(cfg.meta,type,id,params)}
 function streamURLFor(manifest,type,id){return api(manifest,`stream/${type}/${encodeURIComponent(id)}.json`)}
 function configuredStreamManifests(){
- return [...new Set(String(cfg.frost||"").split(/[\n,]+/).map(x=>x.trim()).filter(Boolean))].slice(0,6)
+ const saved=String(cfg.frost||"").split(/[\n,]+/).map(x=>x.trim()).filter(Boolean);
+ return [...new Set([...REQUIRED_STREAM_MANIFESTS,...saved])].slice(0,8)
 }
 function configuredCatalogManifests(){return [...new Set(String(cfg.catalogs||CFG_DEFAULT.catalogs).split(/[\n,]+/).map(x=>x.trim()).filter(Boolean))]}
 function subtitleURLFor(manifest,type,id){return api(manifest,`subtitles/${type}/${encodeURIComponent(id)}.json`)}
@@ -234,7 +236,8 @@ function langLabel(x){
 const MANIFEST_DATA=new Map();
 async function getManifest(manifestUrl){
   if(S.manifestCache.has(manifestUrl))return S.manifestCache.get(manifestUrl);
-  const p=getJSONTimeout(manifestUrl,3500).then(data=>{MANIFEST_DATA.set(manifestUrl,data);return data}).catch(e=>{S.manifestCache.delete(manifestUrl);throw e});
+  const timeout=REQUIRED_STREAM_MANIFESTS.includes(manifestUrl)?10000:3500;
+  const p=getJSONTimeout(manifestUrl,timeout).then(data=>{MANIFEST_DATA.set(manifestUrl,data);return data}).catch(e=>{S.manifestCache.delete(manifestUrl);throw e});
   S.manifestCache.set(manifestUrl,p);return p;
 }
 // Respeita o manifesto do addon (resources/types/idPrefixes) para não fazer chamadas inúteis.
@@ -254,7 +257,9 @@ function addonSupports(manifestUrl,resource,type,id){
 // Converte fontes de torrent (infoHash) em magnet aberto em player externo.
 function magnetFromStream(s){
  if(!s?.infoHash)return "";
- const trackers=(Array.isArray(s.sources)?s.sources:[]).filter(x=>typeof x==="string"&&x.startsWith("tracker:")).map(x=>"&tr="+encodeURIComponent(x.slice(8)));
+ const browserTrackers=["wss://tracker.openwebtorrent.com","wss://tracker.webtorrent.dev"];
+ const sourceTrackers=(Array.isArray(s.sources)?s.sources:[]).filter(x=>typeof x==="string"&&x.startsWith("tracker:")).map(x=>x.slice(8));
+ const trackers=[...new Set([...sourceTrackers,...browserTrackers])].map(x=>"&tr="+encodeURIComponent(x));
  const dht=(Array.isArray(s.sources)?s.sources:[]).filter(x=>typeof x==="string"&&x.startsWith("dht:")).length?"":"";
  const dn=encodeURIComponent(String(s.title||s.name||s.behaviorHints?.filename||s.infoHash).split("\n")[0]);
  return `magnet:?xt=urn:btih:${String(s.infoHash).toLowerCase()}&dn=${dn}${trackers.slice(0,12).join("")}${dht}`;
@@ -300,7 +305,9 @@ function streamIdentity(s){
   quality:s._quality||getQuality(s),
   index:Number.isInteger(s._idx)?s._idx:null,
   provider:detectProvider(s),
-  url:s.url||""
+  url:s.url||"",
+  infoHash:s.infoHash||"",
+  torrent:!!s._torrent
  };
 }
 function compactMeta(m){
@@ -468,7 +475,7 @@ function streamLooksMismatched(s,meta,type){
  }catch(_){return false}
 }
 function sourceReliabilityScore(s,resumeEntry=null){
- const qualityPreference={"1080p":96,"4K":82,"1440p":74,"720p":54,"576p":26,"480p":18,"360p":8,"Outro":0};
+ const qualityPreference={"1080p":150,"4K":120,"1440p":100,"720p":45,"576p":24,"480p":14,"360p":6,"Outro":0};
  let score=qualityPreference[s._quality]??0;
  const provider=detectProvider(s);
  const pref=preferredSeriesSource();
@@ -484,24 +491,33 @@ function sourceReliabilityScore(s,resumeEntry=null){
   if(carry.quality&&carry.quality===s._quality)score+=30;
  }
  if(pref){
-  if(pref.provider===provider)score+=150;
-  if(pref.manifest===s._manifest)score+=40;
-  if(pref.quality===s._quality)score+=28;
-  if(pref.index===s._idx)score+=16;
+  if(pref.provider===provider)score+=60;
+  if(pref.manifest===s._manifest)score+=22;
+  if(pref.quality===s._quality)score+=18;
+  if(pref.index===s._idx)score+=8;
  }
  score+=Math.min(70,Number(stats.success||0)*14);
  if(stats.lastSuccess&&now-stats.lastSuccess<7*864e5)score+=45;
  if(stats.lastFail&&now-stats.lastFail<6*3600e3)score-=90;
  score-=Math.min(100,Number(stats.fail||0)*18);
  score-=recentSourceInstability(s);
- if(S.primaryManifest&&s._manifest===S.primaryManifest)score+=190;
+ if(S.primaryManifest&&s._manifest===S.primaryManifest)score+=35;
  score+=configuredManifestPriority(s._manifest);
+ if(s._torrent)score-=260;
  if(s._external)score-=500;
  if(s._mismatch)score-=900;
  return score;
 }
 function rankedPlayableStreams(streams,resumeEntry=null){
- return streams.filter(s=>!s._external&&s.url&&!s._mismatch).slice().sort((a,b)=>sourceReliabilityScore(b,resumeEntry)-sourceReliabilityScore(a,resumeEntry));
+ return streams.filter(s=>!s._external&&(s.url||s._torrent)&&!s._mismatch).slice().sort((a,b)=>sourceReliabilityScore(b,resumeEntry)-sourceReliabilityScore(a,resumeEntry));
+}
+function diversePlayableStreams(streams,resumeEntry=null){
+ const ranked=rankedPlayableStreams(streams,resumeEntry),first=[],rest=[],seen=new Set();
+ for(const stream of ranked){
+  if(!seen.has(stream._manifest)){seen.add(stream._manifest);first.push(stream)}
+  else rest.push(stream);
+ }
+ return [...first,...rest];
 }
 
 
@@ -1007,8 +1023,33 @@ function toggleCurrentList(m){
  const b=$("#detailList");b.classList.remove("detailListAdded");void b.offsetWidth;b.classList.add("detailListAdded");
  document.querySelectorAll(`.card[data-id="${CSS.escape(m.id)}"][data-type="${CSS.escape(m.type||"movie")}"] [data-plus]`).forEach(btn=>animateListButton(btn,added));
 }
+const SERIES_EXTRA_TITLE_RE=/(?:official\s+podcast|podcast\s+oficial|after\s*show|behind\s+the\s+scenes|bastidores|making\s+of|featurette|sneak\s+peek|table\s+read|cast\s+interview|entrevista\s+com\s+o\s+elenco|official\s+(?:trailer|teaser)|(?:trailer|teaser)\s+oficial|pr[eé]via\s+oficial|^(?:trailer|teaser)(?:\s+\d+)?$)/i;
+function isPromotionalSeriesExtra(video){
+ const title=String(video?.title||video?.name||"").trim();
+ if(!title)return false;
+ return SERIES_EXTRA_TITLE_RE.test(title);
+}
+function episodeCandidateScore(video){
+ let score=isPromotionalSeriesExtra(video)?-1000:1000;
+ if(video?.thumbnail||video?.poster)score+=80;
+ if(video?.overview||video?.description)score+=20;
+ if(video?.released)score+=5;
+ return score;
+}
+function playableSeriesEpisodes(showOrVideos){
+ const videos=Array.isArray(showOrVideos)?showOrVideos:(showOrVideos?.videos||showOrVideos?.episodes||[]);
+ const bestByNumber=new Map(),withoutNumber=[];
+ for(const video of videos){
+  if(!video||isPromotionalSeriesExtra(video))continue;
+  const season=Number(video.season),episode=Number(video.episode);
+  if(!Number.isFinite(season)||!Number.isFinite(episode)||episode<=0){withoutNumber.push(video);continue}
+  const key=`${season}:${episode}`,previous=bestByNumber.get(key);
+  if(!previous||episodeCandidateScore(video)>episodeCandidateScore(previous))bestByNumber.set(key,video);
+ }
+ return [...bestByNumber.values(),...withoutNumber].sort((a,b)=>(Number(a.season||1)-Number(b.season||1))||(Number(a.episode||0)-Number(b.episode||0)));
+}
 function renderEpisodes(m){
- const vids=m.videos||m.episodes||[];
+ const vids=playableSeriesEpisodes(m);
  if(!vids.length){$("#episodes").innerHTML='<div class="hint">Nenhum episódio retornado pelo catálogo.</div>';return}
  const seasons=[...new Set(vids.map(v=>Number(v.season||1)))].sort((a,b)=>a-b);
  if(!seasons.includes(S.season))S.season=seasons[0];
@@ -1021,7 +1062,7 @@ function renderEpisodes(m){
 function renderPlayerEpisodes(){
  const list=$("#playerEpisodesList"),show=S.currentShow;
  if(!list||!show)return;
- const vids=show.videos||show.episodes||[];
+ const vids=playableSeriesEpisodes(show);
  $("#playerEpisodesSub").textContent=show.name||"";
  if(!vids.length){list.innerHTML='<div class="hint">Nenhum episódio disponível.</div>';return}
  const seasons=[...new Set(vids.map(v=>Number(v.season||1)))].sort((a,b)=>a-b);
@@ -1039,7 +1080,7 @@ async function resumeFromHistoryKey(key){
   if(entry.type==="series"){
    const d=await getJSON(metaURL("series",entry.rootId||entry.id));
    const show=d.meta||d;
-   const vids=show.videos||show.episodes||[];
+   const vids=playableSeriesEpisodes(show);
    const ep=vids.find(v=>String(v.id)===String(entry.playId))||
             vids.find(v=>Number(v.season)===Number(entry.season)&&Number(v.episode)===Number(entry.episode))||
             vids[0];
@@ -1055,12 +1096,12 @@ async function resumeFromHistoryKey(key){
 function playFirst(m){
  const saved=getHistoryEntry(historyKey(m.type,m.id));
  if(saved&&saved.currentTime>5){resumeFromHistoryKey(saved.key||historyKey(m.type,m.id));return}
- if(m.type==="series"){const ep=(m.videos||[])[0];if(ep)playEpisode(m,ep);else toast("Nenhum episódio encontrado.")}
+ if(m.type==="series"){const ep=playableSeriesEpisodes(m)[0];if(ep)playEpisode(m,ep);else toast("Nenhum episódio encontrado.")}
  else playStream("movie",m.id,m.name,m)
 }
 function playEpisode(show,ep,resumeEntry=null){
  S.currentShow=show;S.currentEpisode=ep;S.playerSeason=Number(ep.season)||1;
- const ordered=[...(show.videos||show.episodes||[])].sort((a,b)=>(Number(a.season||1)-Number(b.season||1))||(Number(a.episode||0)-Number(b.episode||0)));
+ const ordered=playableSeriesEpisodes(show);
  const idx=ordered.findIndex(x=>String(x.id)===String(ep.id));
  S.nextEpisode=idx>=0&&idx<ordered.length-1?ordered[idx+1]:null;
  $("#nextBtn").style.display=S.nextEpisode?"":"none";
@@ -1088,7 +1129,7 @@ function getQuality(s){
  if(q.startsWith("360"))return "360p";
  return "Outro";
 }
-function qualityScore(q){return {"4K":6,"1440p":5,"1080p":4,"720p":3,"576p":2,"480p":1,"360p":0,"Outro":-1}[q]??-1}
+function qualityScore(q){return {"1080p":6,"4K":5,"1440p":4,"720p":3,"576p":2,"480p":1,"360p":0,"Outro":-1}[q]??-1}
 function streamLines(s){
  const raw=[s.title,s.description].filter(Boolean).join("\n").replace(/<[^>]*>/g,"");
  return raw.split(/\n+/).map(x=>x.trim()).filter(Boolean).slice(0,5);
@@ -1111,6 +1152,7 @@ function extensionFromUrl(url){
  }catch{return "mp4"}
 }
 function browserDownload(stream){
+ if(stream?._torrent){openExternalSource(stream.externalUrl||magnetFromStream(stream));toast("Magnet enviado ao aplicativo de torrent instalado.");return}
  if(!stream?.url)return toast("Esta fonte não possui URL direta.");
  if(!isDirectDownloadable(stream.url))return toast("Download direto indisponível para esta fonte (ex.: HLS/M3U8).");
  const a=document.createElement("a");
@@ -1121,7 +1163,10 @@ function browserDownload(stream){
 function quickAddonName(manifest,index){
  if(S.addonNameCache.has(manifest))return S.addonNameCache.get(manifest);
  const low=String(manifest).toLowerCase();let name="";
- if(low.includes("froststream"))name="FrostStream";
+ if(low.includes("bestcine"))name="BestCine";
+ else if(low.includes("froststream"))name="FrostStream";
+ else if(low.includes("fenixflix"))name="FenixFlix";
+ else if(low.includes("torrentio"))name="Torrentio";
  else if(low.includes("watchhub"))name="WatchHub";
  else{
   try{name=new URL(manifest).hostname.replace(/^www\./,"").split(".")[0]||`Fonte ${index+1}`}catch{name=`Fonte ${index+1}`}
@@ -1136,7 +1181,7 @@ function streamCacheKey(manifest,type,id){return `${manifest}|${type}|${id}`}
 function getCachedStreamBatch(manifest,type,id){
  const x=S.streamCache.get(streamCacheKey(manifest,type,id));
  if(!x)return null;
- const ttl=x.streams?.length?15*60*1000:45*1000;
+ const ttl=x.streams?.length?15*60*1000:(REQUIRED_STREAM_MANIFESTS.includes(manifest)?20*1000:45*1000);
  if(Date.now()-x.at>ttl){S.streamCache.delete(streamCacheKey(manifest,type,id));return null}
  return x.streams;
 }
@@ -1148,29 +1193,37 @@ function preferredManifestForEpisode(){
 function configuredManifestPriority(manifest){
  const list=configuredStreamManifests();
  const i=list.indexOf(manifest);
- return i<0?0:Math.max(0,(list.length-i)*28);
+ return i<0?0:Math.max(0,(list.length-i)*12);
 }
 function sortStreamManifests(manifests){
  const pref=preferredManifestForEpisode(),primary=S.primaryManifest;
  return manifests.slice().sort((a,b)=>{
-  const sa=(a===primary?190:0)+(a===pref?110:0)+configuredManifestPriority(a);
-  const sb=(b===primary?190:0)+(b===pref?110:0)+configuredManifestPriority(b);
+  const sa=(a===primary?35:0)+(a===pref?70:0)+configuredManifestPriority(a);
+  const sb=(b===primary?35:0)+(b===pref?70:0)+configuredManifestPriority(b);
   return sb-sa;
  });
+}
+function streamRequestTimeout(manifest){
+ const value=String(manifest||"").toLowerCase();
+ if(value.includes("froststream"))return 18000;
+ if(value.includes("fenixflix"))return 14000;
+ if(value.includes("torrentio"))return 12000;
+ if(value.includes("bestcine"))return 10000;
+ return 8000;
 }
 async function fetchStreamBatch(manifest,type,id,index,{fresh=false}={}){
  if(!fresh){const cached=getCachedStreamBatch(manifest,type,id);if(cached)return cached}
  const name=quickAddonName(manifest,index);
  getManifest(manifest).catch(()=>null);
  if(!addonSupports(manifest,"stream",type,id)){saveStreamBatch(manifest,type,id,[]);return []}
- const data=await getJSONTimeout(streamURLFor(manifest,type,id),6500);
+ const data=await getJSONTimeout(streamURLFor(manifest,type,id),streamRequestTimeout(manifest));
  const officialLegal=/watchhub\.strem\.io/i.test(manifest);
  const streams=(data.streams||[]).map(s=>{
   if(s&&!s.url&&!s.externalUrl&&s.infoHash){const magnet=magnetFromStream(s);return magnet?{...s,externalUrl:magnet,_torrent:true}:null}
   if(s&&!s.url&&!s.externalUrl&&s.ytId)return {...s,externalUrl:`https://www.youtube.com/watch?v=${encodeURIComponent(s.ytId)}`};
   return s;
  }).filter(x=>x&&(x.url||x.externalUrl)).map((s,i)=>{
-  const x={...s,_addon:name,_manifest:manifest,_idx:i,_quality:getQuality(s),_external:!s.url&&!!s.externalUrl,_officialLegal:officialLegal};
+  const x={...s,_addon:name,_manifest:manifest,_idx:i,_quality:getQuality(s),_external:!s.url&&!s._torrent&&!!s.externalUrl,_officialLegal:officialLegal};
   x._provider=detectProvider(x);x._mismatch=streamLooksMismatched(x,S.streamMeta,type);return x;
  });
  saveStreamBatch(manifest,type,id,streams);return streams;
@@ -1183,11 +1236,18 @@ function mergeStreamBatches(current,batch){
  }
  return [...map.values()].sort((a,b)=>(b._external?0:1)-(a._external?0:1)||sourceReliabilityScore(b,S.resumeEntry)-sourceReliabilityScore(a,S.resumeEntry));
 }
-async function loadStreamsFromAddons(type,id,onBatch=null){
+async function loadStreamsFromAddons(type,id,onBatch=null,onStatus=null){
  const manifests=sortStreamManifests(configuredStreamManifests());
- const jobs=manifests.map((manifest,index)=>fetchStreamBatch(manifest,type,id,index)
-  .then(batch=>{if(onBatch)onBatch(batch,manifest);return batch})
-  .catch(e=>{console.warn("Addon lento/indisponível",manifest,e);return []}));
+ const publish=(manifest,index,status,count=0)=>{
+  S.addonQueryStatus.set(manifest,{name:quickAddonName(manifest,index),status,count,at:Date.now()});
+  if(onStatus)onStatus(manifest,status,count);
+ };
+ const jobs=manifests.map((manifest,index)=>{
+  publish(manifest,index,"loading",0);
+  return fetchStreamBatch(manifest,type,id,index)
+   .then(batch=>{publish(manifest,index,batch.length?"ready":"empty",batch.length);if(onBatch)onBatch(batch,manifest);return batch})
+   .catch(e=>{publish(manifest,index,"failed",0);console.warn("Addon lento/indisponível",manifest,e);return []});
+ });
  const results=await Promise.all(jobs);
  return results.flat();
 }
@@ -1203,7 +1263,7 @@ function prefetchNextEpisodeSources(){
 }
 function sourceHealthRank(s){
  const h=getHealthStatus(s);
- return h==="working"?0:h==="testing"?1:h==="failed"?4:s._external?3:2;
+ return h==="working"?0:h==="testing"?1:h==="failed"?5:s._external?4:s._torrent?3:2;
 }
 function sourceBadgeList(s){
  const txt=[s.name,s.title,s.description,...streamLines(s)].filter(Boolean).join(" ").toLowerCase();
@@ -1220,7 +1280,7 @@ function sourceStatusLabel(s){
  if(h==="working")return"Funcionando";
  if(h==="testing")return"Testando…";
  if(h==="failed")return st.lastStall&&Date.now()-st.lastStall<2*3600e3?"Instável":"Falhou";
- return s._external?"Externo":"Disponível";
+ return s._external?"Externo":s._torrent?"Torrent online":"Disponível";
 }
 function sourceStatusIcon(s){
  const h=getHealthStatus(s);
@@ -1233,28 +1293,30 @@ function renderSourceSelectedBar(){
  const bar=$("#sourceSelectedBar"),s=S.selectedStream;
  if(!bar)return;
  if(!s){bar.innerHTML='<div class="sourceSelectedEmpty">Escolha uma fonte para ver as ações.</div>';return}
- const provider=detectProvider(s),external=!!s._external;
+ const provider=detectProvider(s),torrent=!!s._torrent,external=!!s._external&&!torrent;
  bar.innerHTML=`<div class="selectedSourceInfo"><small>SELECIONADA</small><b>${esc(provider)}</b><span>${esc(s._addon||"")} • ${esc(s._quality||"Outro")}</span></div>
   <div class="selectedSourceActions">
    <button type="button" class="selectedSecondary" data-selected-other ${external?"style='display:none'":""}>↗</button>
-   <button type="button" class="selectedSecondary" data-selected-download ${(!external&&isDirectDownloadable(s.url))?"":"disabled"}>⇩</button>
-   <button type="button" class="selectedPlay" data-selected-play>${external?"Abrir provedor":"▶ Assistir"}</button>
+   <button type="button" class="selectedSecondary" data-selected-download ${(torrent||(!external&&isDirectDownloadable(s.url)))?"":"disabled"}>⇩</button>
+   <button type="button" class="selectedPlay" data-selected-play>${external?"Abrir provedor":torrent?"▶ Assistir torrent":"▶ Assistir"}</button>
   </div>`;
  bar.querySelector("[data-selected-play]").onclick=()=>external?openExternalSource(s.externalUrl):selectStream(s,true);
  const other=bar.querySelector("[data-selected-other]");if(other)other.onclick=()=>openOtherPlayerMenu(s);
- const dl=bar.querySelector("[data-selected-download]");if(dl)dl.onclick=()=>{if(!external)browserDownload(s)};
+ const dl=bar.querySelector("[data-selected-download]");if(dl)dl.onclick=()=>{if(torrent)openExternalSource(s.externalUrl);else if(!external)browserDownload(s)};
 }
 function renderSourceUI(){
  const streams=S.streams||[];
- const manifests=[...new Map(streams.map(s=>[s._manifest,s._addon||"Fonte"])).entries()];
- const addons=["all",...new Set(streams.map(s=>s._addon))];
+ const configured=configuredStreamManifests();
+ const manifests=configured.map((manifest,index)=>[manifest,S.addonQueryStatus.get(manifest)?.name||quickAddonName(manifest,index)]);
+ const addons=["all",...new Set(manifests.map(([,name])=>name))];
  const prefSel=$("#preferredSourceSelect");
  if(prefSel){
   const current=S.primaryManifest;
   prefSel.innerHTML='<option value="">Automática</option>'+manifests.map(([m,n])=>`<option value="${esc(m)}" ${current===m?"selected":""}>${esc(n)}</option>`).join("");
   prefSel.onchange=()=>{S.primaryManifest=prefSel.value;localStorage.setItem("rf17_primary_manifest",S.primaryManifest);renderSourceUI();};
  }
- const count=$("#sourceCountText");if(count)count.textContent=streams.length?`${streams.length} opção(ões) • ${addons.length-1} addon(s) • ordenação inteligente`:"Procurando fontes…";
+ const states=[...S.addonQueryStatus.values()],finished=states.filter(x=>x.status!=="loading").length,failed=states.filter(x=>x.status==="failed").length;
+ const count=$("#sourceCountText");if(count)count.textContent=streams.length?`${streams.length} opção(ões) • ${finished}/${configured.length} fontes consultadas${failed?` • ${failed} indisponível(is)`:""}`:`Consultando ${configured.length} fontes ao mesmo tempo…`;
  const drawerLabel=$("#sourceDrawerLabel");if(drawerLabel)drawerLabel.textContent=streams.length?`Fontes • ${streams.length}`:"Fontes";
 
  $("#addonTabs").innerHTML=addons.map(a=>`<button class="${S.selectedAddon===a?"active":""}" data-addon="${esc(a)}">${a==="all"?"Todas":esc(a)}</button>`).join("");
@@ -1270,7 +1332,11 @@ function renderSourceUI(){
   recommend.innerHTML=rec?`<button type="button" class="recommendCard"><span class="recommendIcon">★</span><span class="recommendText"><small>RECOMENDADA AGORA</small><b>${esc(detectProvider(rec))}</b><span>${esc(rec._addon)} • ${esc(rec._quality)}</span></span><span class="recommendUse">Usar</span></button>`:"";
   if(rec)recommend.querySelector("button").onclick=()=>{S.selectedStream=rec;renderSourceUI();if(rec._external)openExternalSource(rec.externalUrl);else selectStream(rec,true);if(innerWidth<=900)$("#playerSide")?.classList.remove("drawerOpen")};
  }
- if(!filtered.length){$("#sources").innerHTML='<div class="sourceEmpty">Nenhuma fonte corresponde aos filtros escolhidos.</div>';renderSourceSelectedBar();return}
+ if(!filtered.length){
+  const selectedState=[...S.addonQueryStatus.values()].find(x=>x.name===S.selectedAddon);
+  const message=selectedState?.status==="loading"?"Essa fonte ainda está respondendo…":selectedState?.status==="failed"?"Essa fonte está indisponível no momento.":"Nenhuma fonte corresponde aos filtros escolhidos.";
+  $("#sources").innerHTML=`<div class="sourceEmpty">${message}</div>`;renderSourceSelectedBar();return
+ }
 
  $("#sources").innerHTML=filtered.map((s,i)=>{
   const selected=S.selectedStream===s,provider=detectProvider(s),badges=sourceBadgeList(s),status=getHealthStatus(s);
@@ -1281,14 +1347,14 @@ function renderSourceUI(){
     <div class="sourceCompactSub">${esc(s._addon||"Fonte")} • ${esc(sourceStatusLabel(s))}</div>
     <div class="sourceCompactBadges"><span>${esc(s._quality||"Outro")}</span>${badges.map(x=>`<span>${esc(x)}</span>`).join("")}${getCachedStreamBatch(s._manifest,S.playType,S.playId)?'<span>⚡ cache</span>':""}</div>
    </div>
-   <button type="button" class="sourceQuickPlay" data-play aria-label="Reproduzir">${s._external?"↗":"▶"}</button>
+   <button type="button" class="sourceQuickPlay" data-play aria-label="Reproduzir">${s._external&&!s._torrent?"↗":"▶"}</button>
   </article>`;
  }).join("");
 
  $("#sources").querySelectorAll(".sourceCard").forEach(card=>{
   const s=filtered.find(x=>`${x._manifest}|${x._idx}`===card.dataset.sourceKey);if(!s)return;
   card.onclick=e=>{if(e.target.closest("[data-play]"))return;S.selectedStream=s;renderSourceUI()};
-  card.querySelector("[data-play]").onclick=e=>{e.stopPropagation();S.selectedStream=s;renderSourceSelectedBar();if(s._external)openExternalSource(s.externalUrl);else selectStream(s,true)};
+  card.querySelector("[data-play]").onclick=e=>{e.stopPropagation();S.selectedStream=s;renderSourceSelectedBar();if(s._external&&!s._torrent)openExternalSource(s.externalUrl);else selectStream(s,true)};
  });
  renderSourceSelectedBar();
 }
@@ -1320,20 +1386,22 @@ function waitForSourceReady(stream,token,timeoutMs=14000){
   v.addEventListener("playing",onReady,{once:true});
   v.addEventListener("error",onError,{once:true});
   if(v._hls&&window.Hls)try{v._hls.on(Hls.Events.ERROR,onHlsError)}catch{}
+  if(v.readyState>=3){finish(true,"");return}
   S._sourceTimer=setTimeout(()=>finish(false,"timeout"),timeoutMs);
  });
 }
 async function attemptSource(stream,autoplay=true,resumeEntry=null){
- if(!stream||stream._external||!stream.url)return false;
+ if(!stream||stream._external||(!stream.url&&!stream._torrent))return false;
  stopSourceAttempt();
  const token=S.sourceAttemptToken;
  S.selectedStream=stream;
  S.attemptedSourceKeys.add(sourceKey(stream));
  setHealth(stream,"testing");
  renderSourceUI();
-
+ 
  try{
-  await loadVideo(stream.url,autoplay,stream,resumeEntry);
+  if(stream._torrent)await loadTorrentVideo(stream,autoplay,resumeEntry);
+  else await loadVideo(stream.url,autoplay,stream,resumeEntry);
  }catch(e){
   console.warn("Falha preparando a fonte",e);
   setHealth(stream,"failed","prepare-error");
@@ -1341,7 +1409,7 @@ async function attemptSource(stream,autoplay=true,resumeEntry=null){
   return false;
  }
  // Aguarda o HLS/arquivo realmente ficar pronto para reproduzir.
- const result=await waitForSourceReady(stream,token,9000);
+ const result=await waitForSourceReady(stream,token,stream._torrent?28000:9000);
  if(token!==S.sourceAttemptToken)return false;
  if(result.ok){
   setHealth(stream,"working");
@@ -1368,7 +1436,7 @@ async function trySourcesInOrder(candidates,autoplay=true,resumeEntry=null,annou
 }
 async function autoChooseWorkingSource(resumeEntry=null,autoplay=true){
  S.attemptedSourceKeys.clear();
- const ranked=rankedPlayableStreams(S.streams,resumeEntry);
+ const ranked=diversePlayableStreams(S.streams,resumeEntry);
  if(!ranked.length)return null;
  const found=await trySourcesInOrder(ranked,autoplay,resumeEntry,true);
  if(!found){
@@ -1379,7 +1447,7 @@ async function autoChooseWorkingSource(resumeEntry=null,autoplay=true){
 }
 async function selectStream(stream,autoplay=true,resumeEntry=null){
  if(!stream)return;
- if(stream._external){openExternalSource(stream.externalUrl);return}
+ if(stream._external&&!stream._torrent){openExternalSource(stream.externalUrl);return}
  const v=$("#video");
  const liveResume=resumeEntry||((v.currentTime||0)>3?{currentTime:v.currentTime,duration:v.duration||0,stream:streamIdentity(stream)}:null);
  if((v.currentTime||0)>1)persistPlaybackProgress(true);
@@ -1392,7 +1460,7 @@ async function selectStream(stream,autoplay=true,resumeEntry=null){
   return;
  }
  toast("Essa fonte falhou. Procurando automaticamente outra opção...");
- const ranked=rankedPlayableStreams(S.streams,liveResume).filter(s=>sourceKey(s)!==sourceKey(stream));
+ const ranked=diversePlayableStreams(S.streams,liveResume).filter(s=>sourceKey(s)!==sourceKey(stream));
  const found=await trySourcesInOrder(ranked,autoplay,liveResume,false);
  if(!found)toast("Não encontrei outra fonte funcional automaticamente.");
 }
@@ -1580,7 +1648,8 @@ async function copyTextSafe(text){
  }catch{return false}
 }
 function openOtherPlayerMenu(stream=S.selectedStream){
- if(!stream||stream._external||!stream.url){
+ const sourceUrl=stream?._torrent?stream.externalUrl:stream?.url;
+ if(!stream||stream._external&&!stream._torrent||!sourceUrl){
   toast("Escolha primeiro uma fonte de vídeo direta.");
   return;
  }
@@ -1602,10 +1671,10 @@ function openOtherPlayerMenu(stream=S.selectedStream){
  menu.querySelector("[data-other-share]").onclick=async()=>{
   try{
    if(navigator.share){
-    await navigator.share({title:S.streamTitle||"ResenhaFlix",text:"Abrir esta fonte em outro player",url:stream.url});
+    await navigator.share({title:S.streamTitle||"ResenhaFlix",text:"Abrir esta fonte em outro player",url:sourceUrl});
     closePlayerMenu();
    }else{
-    const ok=await copyTextSafe(stream.url);
+    const ok=await copyTextSafe(sourceUrl);
     toast(ok?"Link copiado. Cole no player externo.":"Compartilhamento indisponível.");
     closePlayerMenu();
    }
@@ -1614,11 +1683,11 @@ function openOtherPlayerMenu(stream=S.selectedStream){
   }
  };
  menu.querySelector("[data-other-tab]").onclick=()=>{
-  window.open(stream.url,"_blank","noopener,noreferrer");
+  window.open(sourceUrl,"_blank","noopener,noreferrer");
   closePlayerMenu();
  };
  menu.querySelector("[data-other-copy]").onclick=async()=>{
-  const ok=await copyTextSafe(stream.url);
+  const ok=await copyTextSafe(sourceUrl);
   toast(ok?"Link da fonte copiado.":"Não foi possível copiar o link.");
   closePlayerMenu();
  };
@@ -1797,13 +1866,29 @@ function setPrimePlayerMeta(type,title,meta){
  else sub=[meta?.year,meta?.runtime].filter(Boolean).join(" • ");
  $("#playerTitle").textContent=main||"Reprodução";$("#playerSubtitle").textContent=sub;
 }
+let playbackPerformanceActive=false,playbackSuspendedUi=[];
+function setPlaybackPerformanceMode(active){
+ if(active===playbackPerformanceActive)return;
+ playbackPerformanceActive=active;
+ if(active){
+  hideCardPreview();clearTimeout(previewTimer);clearTimeout(previewHideTimer);
+  playbackSuspendedUi=["#top","#hero","#main","#page","#detailModal","#cardPreview","#mobileBottomNav"].map(selector=>document.querySelector(selector)).filter(Boolean).map(element=>({element,visibility:element.style.visibility,pointerEvents:element.style.pointerEvents}));
+  for(const item of playbackSuspendedUi){item.element.style.visibility="hidden";item.element.style.pointerEvents="none"}
+  const video=$("#video");
+  if(video){video.style.transform="translate3d(0,0,0)";video.style.backfaceVisibility="hidden";video.style.willChange="transform"}
+ }else{
+  for(const item of playbackSuspendedUi){item.element.style.visibility=item.visibility;item.element.style.pointerEvents=item.pointerEvents}
+  playbackSuspendedUi=[];
+ }
+}
 async function playStream(type,id,title,meta,resumeEntry=null){
- $("#playerModal").classList.add("open");document.body.classList.add("playerOpen");setPrimePlayerMeta(type,title,meta);$("#playerSide").classList.remove("drawerOpen");$("#sourcePanelBackdrop").classList.remove("open");$("#primeNextFloat").classList.remove("show");
+ $("#playerModal").classList.add("open");document.body.classList.add("playerOpen");setPlaybackPerformanceMode(true);setPrimePlayerMeta(type,title,meta);$("#playerSide").classList.remove("drawerOpen");$("#sourcePanelBackdrop").classList.remove("open");$("#primeNextFloat").classList.remove("show");
  if(type!=="series"){const episodesButton=$("#episodesBtn");if(episodesButton)episodesButton.style.display="none"}
  setPlayerSideTab("fontes");
- S.streamTitle=title||"video";S.streamMeta=meta||{id,type,name:title};S.playType=type;S.playId=id;S.introSkipped=false;$("#skipIntroBtn").classList.remove("show");S.rootId=type==="series"?(S.currentShow?.id||resumeEntry?.rootId||meta?.id):(resumeEntry?.rootId||meta?.id||id);S.resumeEntry=resumeEntry;S.resumeApplied=false;S.streams=[];S.selectedStream=null;S.selectedAddon="all";S.qualityFilter="all";S.externalSubtitles=[];S.sourceHealth.clear();S.attemptedSourceKeys.clear();S._lastProgressSave=0;
+ S.streamTitle=title||"video";S.streamMeta=meta||{id,type,name:title};S.playType=type;S.playId=id;S.introSkipped=false;$("#skipIntroBtn").classList.remove("show");S.rootId=type==="series"?(S.currentShow?.id||resumeEntry?.rootId||meta?.id):(resumeEntry?.rootId||meta?.id||id);S.resumeEntry=resumeEntry;S.resumeApplied=false;S.streams=[];S.selectedStream=null;S.selectedAddon="all";S.qualityFilter="all";S.externalSubtitles=[];S.sourceHealth.clear();S.addonQueryStatus.clear();S.attemptedSourceKeys.clear();S._lastProgressSave=0;
+ configuredStreamManifests().forEach((manifest,index)=>S.addonQueryStatus.set(manifest,{name:quickAddonName(manifest,index),status:"loading",count:0,at:Date.now()}));
  resetVideo();showPlayerUI(true);
- $("#addonTabs").innerHTML="";$("#qualityFilters").innerHTML="";$("#sources").innerHTML="<div class='sourceEmpty'>Buscando fontes disponíveis...</div>";
+ $("#qualityFilters").innerHTML="";renderSourceUI();
  try{
   const loadToken=++S.streamLoadToken;let autoStarted=false,autoPromise=null,autoTimer=null,receivedAny=false;
   const streamId=await resolveStreamId(type,id,meta);
@@ -1818,8 +1903,9 @@ async function playStream(type,id,title,meta,resumeEntry=null){
   const allPromise=loadStreamsFromAddons(type,streamId,(batch)=>{
    if(loadToken!==S.streamLoadToken||!batch?.length)return;
    receivedAny=true;S.streams=mergeStreamBatches(S.streams,batch);renderSourceUI();
-   if(!autoStarted&&!autoTimer&&rankedPlayableStreams(S.streams,resumeEntry).length)autoTimer=setTimeout(()=>{autoTimer=null;startAuto()},220);
-  });
+   const hasDirect=rankedPlayableStreams(S.streams,resumeEntry).some(stream=>!stream._torrent&&stream.url);
+   if(!autoStarted&&!autoTimer&&hasDirect)autoTimer=setTimeout(()=>{autoTimer=null;startAuto()},450);
+  },()=>{if(loadToken===S.streamLoadToken)renderSourceUI()});
   const streams=await allPromise;if(loadToken!==S.streamLoadToken)return;
   clearTimeout(autoTimer);autoTimer=null;
   S.streams=mergeStreamBatches(S.streams,streams);if(S.streams.length)renderSourceUI();
@@ -1836,7 +1922,7 @@ async function playStream(type,id,title,meta,resumeEntry=null){
  }catch(e){console.error(e);$("#sources").innerHTML="<div class='sourceEmpty'>Falha ao consultar as fontes. Verifique CORS, o manifesto e a disponibilidade do addon.</div>"}
 }
 function resetVideo(){
-  stopSourceAttempt();clearPlaybackStallMonitor();disarmAutoUnmute();S._stallRecovery=false;S._stallEvents=[];
+  stopSourceAttempt();clearPlaybackStallMonitor();cleanupTorrentPlayback();disarmAutoUnmute();S._stallRecovery=false;S._stallEvents=[];
   const v=$("#video");v.pause();if(v._hls){v._hls.destroy();v._hls=null}v.removeAttribute("src");
   [...v.querySelectorAll("track[data-casaflix]")].forEach(t=>t.remove());
   if(S.externalSubtitleBlob){URL.revokeObjectURL(S.externalSubtitleBlob);S.externalSubtitleBlob=null}
@@ -1856,8 +1942,75 @@ function ensureHlsLibrary(){
  });
  return hlsLibraryPromise;
 }
+let webTorrentLibraryPromise=null,torrentClient=null,activeTorrent=null,torrentLoadGeneration=0;
+function ensureWebTorrentLibrary(){
+ if(window.WebTorrent)return Promise.resolve(window.WebTorrent);
+ if(webTorrentLibraryPromise)return webTorrentLibraryPromise;
+ webTorrentLibraryPromise=new Promise((resolve,reject)=>{
+  const script=document.createElement("script");
+  script.src="https://cdn.jsdelivr.net/npm/webtorrent@1.9.7/webtorrent.min.js";
+  script.async=true;
+  script.onload=()=>window.WebTorrent?resolve(window.WebTorrent):reject(new Error("WebTorrent não iniciou"));
+  script.onerror=()=>{webTorrentLibraryPromise=null;reject(new Error("Falha ao carregar WebTorrent"))};
+  document.head.appendChild(script);
+ });
+ return webTorrentLibraryPromise;
+}
+function cleanupTorrentPlayback(){
+ torrentLoadGeneration++;
+ const torrent=activeTorrent;activeTorrent=null;
+ if(!torrent||!torrentClient)return;
+ try{torrentClient.remove(torrent.infoHash,{destroyStore:true},()=>{})}catch{try{torrent.destroy(()=>{})}catch{}}
+}
+function torrentVideoFile(torrent,stream){
+ const files=Array.isArray(torrent?.files)?torrent.files:[];
+ const requested=Number.isInteger(Number(stream?.fileIdx))?files[Number(stream.fileIdx)]:null;
+ if(requested&&/\.(?:mp4|m4v|mov|webm|mkv)$/i.test(requested.name||""))return requested;
+ const firefox=/firefox/i.test(navigator.userAgent||"");
+ return files.filter(file=>/\.(?:mp4|m4v|mov|webm|mkv)$/i.test(file.name||"")).sort((a,b)=>{
+  const score=file=>{const name=String(file.name||"").toLowerCase();let value=/\.mp4$/.test(name)?1000:/\.webm$/.test(name)?900:/\.(m4v|mov)$/.test(name)?800:/\.mkv$/.test(name)?(firefox?-900:500):0;return value+Math.min(300,Number(file.length||0)/50e6)};
+  return score(b)-score(a);
+ })[0]||null;
+}
+async function loadTorrentVideo(stream,autoplay=true,resumeEntry=null){
+ clearPlaybackStallMonitor();cleanupTorrentPlayback();
+ const WebTorrent=await ensureWebTorrentLibrary();
+ if(!WebTorrent.WEBRTC_SUPPORT)throw new Error("WebRTC indisponível neste navegador");
+ if(!torrentClient)torrentClient=new WebTorrent({dht:false});
+ const magnet=stream.externalUrl||magnetFromStream(stream);
+ if(!magnet)throw new Error("Magnet inválido");
+ const generation=++torrentLoadGeneration,v=$("#video");
+ if(v._hls){v._hls.destroy();v._hls=null}
+ v.pause();v.removeAttribute("src");v.preload="auto";v.load();$("#buffering").classList.add("show");
+ S.resumeEntry=resumeEntry||null;S.resumeApplied=false;
+ toast("Torrentio: conectando aos pares para reprodução online…");
+ await new Promise((resolve,reject)=>{
+  let settled=false,torrent=null;
+  const finish=error=>{if(settled)return;settled=true;clearTimeout(timer);if(error)reject(error);else resolve()};
+  const timer=setTimeout(()=>finish(new Error("Torrent sem resposta")),15000);
+  try{
+   torrent=torrentClient.add(magnet,{announce:["wss://tracker.openwebtorrent.com","wss://tracker.webtorrent.dev"]},readyTorrent=>{
+    if(generation!==torrentLoadGeneration){finish(new Error("Torrent cancelado"));return}
+    activeTorrent=readyTorrent;
+    const file=torrentVideoFile(readyTorrent,stream);
+    if(!file){finish(new Error("Torrent sem arquivo de vídeo compatível"));return}
+    const onMetadata=async()=>{
+     applyAspectMode(S.aspectMode,false);
+     const pos=Number(S.resumeEntry?.currentTime||0);
+     if(pos>3&&isFinite(v.duration)&&v.duration>0)try{v.currentTime=Math.min(pos,Math.max(0,v.duration-2))}catch{}
+     S.resumeApplied=true;
+     await fetchExternalSubtitles(S.playType,S.playId,stream);await applyPreferredSubtitle();updateTrackStatus();
+     $("#buffering").classList.remove("show");if(autoplay)startPlayback();
+    };
+    v.addEventListener("loadedmetadata",onMetadata,{once:true});
+    try{file.renderTo(v,{autoplay:false,controls:false},error=>finish(error||null))}catch(error){finish(error)}
+   });
+   torrent.on("error",error=>finish(error));
+  }catch(error){finish(error)}
+ });
+}
 async function loadVideo(url,autoplay=true,stream=null,resumeEntry=null){
-  clearPlaybackStallMonitor();
+  clearPlaybackStallMonitor();cleanupTorrentPlayback();
   const v=$("#video");if(v._hls){v._hls.destroy();v._hls=null}v.pause();v.removeAttribute("src");v.preload="auto";v.load();$("#buffering").classList.add("show");
   S.resumeEntry=resumeEntry||null;S.resumeApplied=false;
   const applyResume=()=>{
@@ -2003,7 +2156,7 @@ async function recoverFromUnstableSource(reason="buffering"){
  try{
   S.attemptedSourceKeys.clear();
   S.attemptedSourceKeys.add(sourceKey(current));
-  const ranked=rankedPlayableStreams(S.streams,resume)
+  const ranked=diversePlayableStreams(S.streams,resume)
    .filter(s=>sourceKey(s)!==sourceKey(current))
    .slice(0,5);
   const found=await trySourcesInOrder(ranked,true,resume,false);
@@ -2054,11 +2207,12 @@ function hidePlayerUI(force=false){
  setPlayerUIAccessibility(true);
 }
 function showPlayerUI(sticky=false){
- clearTimeout(S._ctlTimer);$("#playerControls").classList.add("show");$("#videoShell").classList.remove("uiHidden");$(".playerStage").classList.remove("uiHidden");
- setPlayerUIAccessibility(false);
+ clearTimeout(S._ctlTimer);
+ const alreadyVisible=$("#playerControls").classList.contains("show")&&!$(".playerStage").classList.contains("uiHidden");
+ if(!alreadyVisible){$("#playerControls").classList.add("show");$("#videoShell").classList.remove("uiHidden");$(".playerStage").classList.remove("uiHidden");setPlayerUIAccessibility(false)}
  if(!sticky&&!$("#video").paused){
   const coarse=window.matchMedia?.("(hover: none), (pointer: coarse)").matches;
-  S._ctlTimer=setTimeout(hidePlayerUI,coarse?3800:7000);
+  S._ctlTimer=setTimeout(hidePlayerUI,coarse?3200:3500);
  }
 }
 function togglePlayerUIVisibility(){
@@ -3878,7 +4032,7 @@ $("#mangaPrevChapter").onclick=()=>nextNativeChapter(-1);$("#mangaNextChapter").
 $("#mangaReaderCanvas").onclick=e=>{if(e.target.closest(".nativeReaderTapZone"))return;showReaderUi()};
 $("#mangaReaderModal").onclick=e=>{if(e.target.id==="mangaReaderModal")closeMangaReader()};
 $("#closeDetail").onclick=()=>{$("#detailModal").classList.remove("open");document.body.classList.remove("detailOpen");unlockMobileDocument()};
-$("#closePlayer").onclick=()=>{$("#playerSide")?.classList.remove("drawerOpen");$("#sourcePanelBackdrop")?.classList.remove("open");$("#skipIntroBtn").classList.remove("show");stopSourceAttempt();clearPlaybackStallMonitor();persistPlaybackProgress(true);clearTimeout(S._ctlTimer);$("#playerMenu").classList.remove("open");$("#playerMenuBackdrop").classList.remove("open");S.playerMenuKind=null;resetVideo();$("#playerModal").classList.remove("open");document.body.classList.remove("playerOpen")};
+$("#closePlayer").onclick=()=>{S.streamLoadToken++;$("#playerSide")?.classList.remove("drawerOpen");$("#sourcePanelBackdrop")?.classList.remove("open");$("#skipIntroBtn").classList.remove("show");stopSourceAttempt();clearPlaybackStallMonitor();persistPlaybackProgress(true);clearTimeout(S._ctlTimer);$("#playerMenu").classList.remove("open");$("#playerMenuBackdrop").classList.remove("open");S.playerMenuKind=null;resetVideo();$("#playerModal").classList.remove("open");document.body.classList.remove("playerOpen");setPlaybackPerformanceMode(false)};
 $("#bigPlay").onclick=togglePlayback;$("#playPause").onclick=togglePlayback;
 $("#back10").onclick=()=>{$("#video").currentTime=Math.max(0,$("#video").currentTime-10);showPlayerUI()};
 $("#forward10").onclick=()=>{const v=$("#video");v.currentTime=Math.min(v.duration||Infinity,v.currentTime+10);showPlayerUI()};
@@ -3938,10 +4092,10 @@ $("#video").addEventListener("canplay",()=>{if(!$("#video").paused)onPlaybackSta
 $("#video").addEventListener("seeking",clearPlaybackStallMonitor);
 $("#video").addEventListener("seeked",()=>{if(!$("#video").paused)S._stallCooldownUntil=Date.now()+2500});
 $("#video").addEventListener("dblclick",()=>$("#fullBtn").click());
-let playerMoveRAF=0;
+let lastPlayerMoveUiAt=0;
 $("#videoShell").addEventListener("mousemove",()=>{
- if(playerMoveRAF)return;
- playerMoveRAF=requestAnimationFrame(()=>{playerMoveRAF=0;showPlayerUI()});
+ const now=performance.now();if(now-lastPlayerMoveUiAt<120)return;
+ lastPlayerMoveUiAt=now;showPlayerUI();
 },{passive:true});
 $("#videoShell").addEventListener("pointerup",e=>{
  if(e.pointerType==="mouse"&&e.button!==0)return;
@@ -4003,7 +4157,7 @@ $("#installAppBtn").onclick=async()=>{
 };
 window.addEventListener("appinstalled",()=>{deferredInstallPrompt=null;$("#installAppBtn").style.display="none";toast("ResenhaFlix instalado como aplicativo.")});
 if("serviceWorker" in navigator){
- window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js?v=51",{updateViaCache:"none"}).catch(e=>console.warn("Service Worker",e)));
+ window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js?v=52",{updateViaCache:"none"}).catch(e=>console.warn("Service Worker",e)));
 }
 window.addEventListener("scroll",()=>hideCardPreview(),{passive:true,capture:true});
 window.addEventListener("resize",()=>hideCardPreview());

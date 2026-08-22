@@ -14,7 +14,7 @@ const context = {
   },
   caches: {
     async keys() {
-      return ["resenhaflix-shell-v34", "resenhaflix-shell-v50", "resenhaflix-shell-v51", "outro-projeto-cache"];
+      return ["resenhaflix-shell-v34", "resenhaflix-shell-v50", "resenhaflix-shell-v51", "resenhaflix-shell-v52", "outro-projeto-cache"];
     },
     async delete(key) { deleted.push(key); return true; }
   }
@@ -26,8 +26,8 @@ let activation = null;
 listeners.get("activate")({ waitUntil(promise) { activation = promise; } });
 await activation;
 
-assert.deepEqual(deleted.sort(), ["resenhaflix-shell-v34", "resenhaflix-shell-v50"]);
+assert.deepEqual(deleted.sort(), ["resenhaflix-shell-v34", "resenhaflix-shell-v50", "resenhaflix-shell-v51"]);
 assert.equal(claimed, true);
 assert.equal(deleted.includes("outro-projeto-cache"), false, "activation must preserve unrelated GitHub Pages caches");
 
-console.log("service worker v51: cleanup is restricted to ResenhaFlix shell caches");
+console.log("service worker v52: cleanup is restricted to ResenhaFlix shell caches");
