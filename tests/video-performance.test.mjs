@@ -48,7 +48,7 @@ assert.match(app, /function loadTorrentVideo/);
 assert.match(app, /function playableSeriesEpisodes/);
 assert.match(app, /official\\s\+podcast/);
 assert.match(app, /function setPlaybackPerformanceMode/);
-assert.match(worker, /resenhaflix-shell-v53/);
+assert.match(worker, /resenhaflix-shell-v54/);
 assert.match(worker, /\.\/app\.js\?v=53/);
 
-console.log("video v53: smooth layout, progressive sources, six parallel addons and torrent download OK");
+console.log("video v54: v53 playback logic preserved with the new visual shell");

@@ -1,5 +1,12 @@
 # ResenhaFlix
 
+Atualização visual v54:
+
+- nova paleta oficial aplicada em todo o site: `#6B5E90`, `#100502`, `#B5D0EC`, `#204995` e `#4B75FF`;
+- nova identidade aplicada ao cabeçalho, destaques, cards, player, fontes, busca, configurações, mangás, livros e navegação móvel;
+- todos os arquivos da pasta `icons` substituídos pelo novo ícone, mantendo os nomes e dimensões usados pelo site e pelo PWA;
+- funcionalidades e lógica de reprodução da v53 preservadas sem alterações.
+
 Atualização v53 focada em fluidez, navegação e fontes:
 
 - tela inicial reorganizada em hero, Continuar assistindo, Top 10 e prateleiras de recomendações, usando as classes visuais já existentes;
@@ -14,8 +21,7 @@ Atualização v53 focada em fluidez, navegação e fontes:
 - cards de fonte inteiros clicáveis e abas centralizadas por rolagem suave;
 - remoção de podcasts, trailers e outros extras promocionais da lista de episódios;
 - modo de reprodução leve que suspende a pintura da interface escondida atrás do player;
-- remoção da aba, player e integrações de música;
-- CSS original preservado.
+- remoção da aba, player e integrações de música.
 
 ## Testes
 
