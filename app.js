@@ -5,14 +5,18 @@ const CORE_STREAM_MANIFESTS=[
   "https://fenixflix.fenixhub.online/manifest.json"
 ];
 const TORRENTIO_MANIFEST="https://torrentio.strem.fun/manifest.json";
-const REQUIRED_STREAM_MANIFESTS=[...CORE_STREAM_MANIFESTS,TORRENTIO_MANIFEST];
+const COMET_MANIFEST="https://comet.elfhosted.com/manifest.json";
+const MEDIAFUSION_MANIFEST="https://mediafusion.elfhosted.com/manifest.json";
+const TORRENT_STREAM_MANIFESTS=[TORRENTIO_MANIFEST,COMET_MANIFEST,MEDIAFUSION_MANIFEST];
+const REQUIRED_STREAM_MANIFESTS=[...CORE_STREAM_MANIFESTS,...TORRENT_STREAM_MANIFESTS];
+const REQUIRED_CATALOG_MANIFESTS=[
+  "https://v3-cinemeta.strem.io/manifest.json",
+  "https://7a82163c306e-stremio-netflix-catalog-addon.baby-beamup.club/manifest.json"
+];
 const CFG_DEFAULT={
   frost:REQUIRED_STREAM_MANIFESTS.join("\n"),
   meta:"https://v3-cinemeta.strem.io/manifest.json",
-  catalogs:[
-    "https://v3-cinemeta.strem.io/manifest.json",
-    "https://7a82163c306e-stremio-netflix-catalog-addon.baby-beamup.club/manifest.json"
-  ].join("\n"),
+  catalogs:REQUIRED_CATALOG_MANIFESTS.join("\n"),
   subtitleAddon:"https://opensubtitles-v3.strem.io/manifest.json",
   audioPref:"jpn",
   subtitlePref:"pob",
@@ -23,11 +27,11 @@ const CFG_DEFAULT={
   lang:"pt-BR"
 };
 let savedStreams=localStorage.getItem("cf2_frost")||CFG_DEFAULT.frost;
-if(!localStorage.getItem("rf52_parallel_sources_migrated")){
+if(!localStorage.getItem("rf53_parallel_sources_migrated")){
   const current=String(savedStreams||"").split(/[\n,]+/).map(x=>x.trim()).filter(Boolean);
   const formerDefaults=new Set(["https://watchhub.strem.io/manifest.json"]);
   savedStreams=[...new Set([...REQUIRED_STREAM_MANIFESTS,...current.filter(url=>!formerDefaults.has(url))])].join("\n");
-  localStorage.setItem("cf2_frost",savedStreams);localStorage.setItem("rf52_parallel_sources_migrated","1");
+  localStorage.setItem("cf2_frost",savedStreams);localStorage.setItem("rf53_parallel_sources_migrated","1");
 }
 const cfg={
   frost:savedStreams,
@@ -44,7 +48,7 @@ if(!localStorage.getItem("rf30_manga_repo_defaults")){
   const merged=[...new Set([...String(cfg.mangaRepos||"").split(/\n+/),...String(CFG_DEFAULT.mangaRepos).split(/\n+/)].map(x=>x.trim()).filter(Boolean))];
  cfg.mangaRepos=merged.join("\n");localStorage.setItem("rf15_manga_repos",cfg.mangaRepos);localStorage.setItem("rf30_manga_repo_defaults","1")
 }
-const S={hero:null,current:null,currentShow:null,currentEpisode:null,nextEpisode:null,season:1,currentPage:"home",streams:[],selectedStream:null,selectedAddon:"all",qualityFilter:"all",streamTitle:"",streamMeta:null,playType:null,playId:null,rootId:null,resumeEntry:null,resumeApplied:false,searchFilter:"all",searchItems:[],searchQuery:"",searchToken:0,manifestCache:new Map(),catalogCache:new Map(),itemCache:new Map(),externalSubtitles:[],externalSubtitleBlob:null,playerMenuKind:null,aspectMode:localStorage.getItem("cf9_aspect")||"smart",introSkipped:false,introSkipSeconds:90,autoFallback:localStorage.getItem("cf11_auto_fallback")!=="0",sourceHealth:new Map(),sourceAttemptToken:0,attemptedSourceKeys:new Set(),streamCache:new Map(),streamLoadToken:0,addonNameCache:new Map(),addonQueryStatus:new Map(),primaryManifest:localStorage.getItem("rf17_primary_manifest")||"",sourceToolsOpen:false,pageCategory:"all",pageItems:[],pageTypeForCategories:"",mangaRepoItems:[],mangaRepoLoadedAt:0,mangaTab:"explore",mangaQuery:"",mangaExtensionQuery:"",mangaLang:"pt",mangaReaderUrl:"",mangaCatalog:[],mangaCatalogPage:1,mangaCatalogHasNext:true,mangaSearchToken:0,mangaPickerMedia:null,mangaSearchCandidates:[],mangaSearchCandidateIndex:0,mangaNativeResults:[],mangaDetail:null,mangaDetailSource:null,mangaChapters:[],mangaChapterOrder:"desc",mangaReaderManga:null,mangaReaderSource:null,mangaReaderChapter:null,mangaReaderPages:[],mangaReaderPageIndex:0,mangaReaderObserver:null,mangaReaderUiTimer:null,mangaRepoStats:[],mangaExploreCatalogCache:new Map(),mangaProgressiveToken:0,mangaProgressiveResults:[],mangaMatchMedia:null,mangaMatchResults:[],mangaMatchToken:0,mangaSearchLang:localStorage.getItem("rf16_manga_search_lang")||"both",mangaWebSource:null,mangaWebQuery:"",mangaWebCandidates:[],mangaWebCandidateIndex:0,mangaWebCurrentUrl:"",_sourceTimer:null,_ctlTimer:null,_lastProgressSave:0,_stallTimer:null,_stallStartedAt:0,_stallEvents:[],_stallRecovery:false,_stallCooldownUntil:0,_lastStablePlaybackAt:0,mangaSourceLimit:Number(localStorage.getItem("rf24_manga_source_limit")||5),mangaRepoV24:null,booksTab:"all",booksQuery:"",bookResults:[],bookReaderBook:null,bookReaderRendition:null,bookReaderEpub:null,mediaSourceTab:"books"};
+const S={hero:null,current:null,currentShow:null,currentEpisode:null,nextEpisode:null,season:1,currentPage:"home",streams:[],selectedStream:null,selectedAddon:"all",qualityFilter:"all",streamTitle:"",streamMeta:null,playType:null,playId:null,rootId:null,resumeEntry:null,resumeApplied:false,searchFilter:"all",searchItems:[],searchQuery:"",searchToken:0,manifestCache:new Map(),catalogCache:new Map(),itemCache:new Map(),externalSubtitles:[],externalSubtitleBlob:null,playerMenuKind:null,aspectMode:localStorage.getItem("cf9_aspect")||"smart",introSkipped:false,introSkipSeconds:90,autoFallback:localStorage.getItem("cf11_auto_fallback")!=="0",sourceHealth:new Map(),sourceAttemptToken:0,attemptedSourceKeys:new Set(),streamCache:new Map(),streamLoadToken:0,addonNameCache:new Map(),addonQueryStatus:new Map(),primaryManifest:localStorage.getItem("rf17_primary_manifest")||"",sourceToolsOpen:false,sourceVisibleLimit:18,sourceResetScroll:true,pageCategory:"all",pageItems:[],pageTypeForCategories:"",pageVisibleLimit:18,pageInfiniteObserver:null,mangaRepoItems:[],mangaRepoLoadedAt:0,mangaTab:"explore",mangaQuery:"",mangaExtensionQuery:"",mangaLang:"pt",mangaReaderUrl:"",mangaCatalog:[],mangaCatalogPage:1,mangaCatalogHasNext:true,mangaSearchToken:0,mangaPickerMedia:null,mangaSearchCandidates:[],mangaSearchCandidateIndex:0,mangaNativeResults:[],mangaDetail:null,mangaDetailSource:null,mangaChapters:[],mangaChapterOrder:"desc",mangaReaderManga:null,mangaReaderSource:null,mangaReaderChapter:null,mangaReaderPages:[],mangaReaderPageIndex:0,mangaReaderObserver:null,mangaReaderUiTimer:null,mangaRepoStats:[],mangaExploreCatalogCache:new Map(),mangaProgressiveToken:0,mangaProgressiveResults:[],mangaMatchMedia:null,mangaMatchResults:[],mangaMatchToken:0,mangaSearchLang:localStorage.getItem("rf16_manga_search_lang")||"both",mangaWebSource:null,mangaWebQuery:"",mangaWebCandidates:[],mangaWebCandidateIndex:0,mangaWebCurrentUrl:"",_sourceTimer:null,_sourceUiTimer:null,_ctlTimer:null,_lastProgressSave:0,_stallTimer:null,_stallStartedAt:0,_stallEvents:[],_stallRecovery:false,_stallCooldownUntil:0,_lastStablePlaybackAt:0,mangaSourceLimit:Number(localStorage.getItem("rf24_manga_source_limit")||5),mangaRepoV24:null,booksTab:"all",booksQuery:"",bookResults:[],bookReaderBook:null,bookReaderRendition:null,bookReaderEpub:null,mediaSourceTab:"books"};
 
 const $=s=>document.querySelector(s);
 const $$=s=>document.querySelectorAll(s);
@@ -215,9 +219,12 @@ function catalogURL(type,id="top",params=""){return catalogURLFor(cfg.meta,type,
 function streamURLFor(manifest,type,id){return api(manifest,`stream/${type}/${encodeURIComponent(id)}.json`)}
 function configuredStreamManifests(){
  const saved=String(cfg.frost||"").split(/[\n,]+/).map(x=>x.trim()).filter(Boolean);
- return [...new Set([...REQUIRED_STREAM_MANIFESTS,...saved])].slice(0,8)
+ return [...new Set([...REQUIRED_STREAM_MANIFESTS,...saved])].slice(0,10)
 }
-function configuredCatalogManifests(){return [...new Set(String(cfg.catalogs||CFG_DEFAULT.catalogs).split(/[\n,]+/).map(x=>x.trim()).filter(Boolean))]}
+function configuredCatalogManifests(){
+ const saved=String(cfg.catalogs||CFG_DEFAULT.catalogs).split(/[\n,]+/).map(x=>x.trim()).filter(Boolean);
+ return [...new Set([...REQUIRED_CATALOG_MANIFESTS,...saved])]
+}
 function subtitleURLFor(manifest,type,id){return api(manifest,`subtitles/${type}/${encodeURIComponent(id)}.json`)}
 function normLang(x){return String(x||"").toLowerCase().replace("_","-")}
 function langFamily(x){
@@ -380,7 +387,8 @@ function healthOf(s){return S.sourceHealth.get(sourceKey(s))||""}
 function setHealth(s,status,reason=""){
  if(!s)return;
  S.sourceHealth.set(sourceKey(s),{status,reason,at:Date.now()});
- renderSourceUI();
+ const patched=patchSourceCardHealth(s);
+ if(!patched||status!=="testing")scheduleSourceUIRender();
 }
 function getHealthStatus(s){return healthOf(s)?.status||""}
 function rememberSourceResult(s,ok,reason=""){
@@ -508,8 +516,8 @@ function sourceReliabilityScore(s,resumeEntry=null){
  if(s._mismatch)score-=900;
  return score;
 }
-function rankedPlayableStreams(streams,resumeEntry=null){
- return streams.filter(s=>!s._external&&(s.url||s._torrent)&&!s._mismatch).slice().sort((a,b)=>sourceReliabilityScore(b,resumeEntry)-sourceReliabilityScore(a,resumeEntry));
+function rankedPlayableStreams(streams,resumeEntry=null,{includeTorrent=false}={}){
+ return streams.filter(s=>!s._external&&!s._mismatch&&(s.url||(includeTorrent&&s._torrent))&&(includeTorrent||!s._torrent)).slice().sort((a,b)=>sourceReliabilityScore(b,resumeEntry)-sourceReliabilityScore(a,resumeEntry));
 }
 function diversePlayableStreams(streams,resumeEntry=null){
  const ranked=rankedPlayableStreams(streams,resumeEntry),first=[],rest=[],seen=new Set();
@@ -628,8 +636,9 @@ let previewTimer=null,previewHideTimer=null,previewToken=0;
 function schedulePreview(cardEl){
  if(!$("#cardPreview"))return;
  if(!window.matchMedia||!window.matchMedia("(hover:hover) and (pointer:fine)").matches)return;
+ if(document.body.classList.contains("fastScrolling")||document.body.classList.contains("playerOpen"))return;
  clearTimeout(previewTimer);clearTimeout(previewHideTimer);
- previewTimer=setTimeout(()=>showCardPreview(cardEl),500);
+ previewTimer=setTimeout(()=>showCardPreview(cardEl),750);
 }
 function cancelPreview(){
  clearTimeout(previewTimer);
@@ -691,7 +700,7 @@ async function fetchPreviewMeta(type,id,token){
 }
 function hideCardPreview(){
  const box=$("#cardPreview");
- if(!box)return;
+ if(!box||!box.classList.contains("show"))return;
  box.classList.remove("show");box.setAttribute("aria-hidden","true");
  $("#cardPreviewVideoWrap").innerHTML="";
  previewToken++;
@@ -730,7 +739,13 @@ function row(title,items,sub="",opts={}){
  return `<section class="section" ${opts.key?`data-section="${esc(opts.key)}"`:""} aria-label="${esc(title)}"><div class="sectionHead"><div class="sectionHeadText"><div class="sectionTitle">${esc(title)}</div><div class="sectionSub">${esc(sub||"")}</div></div><div class="carouselControls" aria-label="Navegar em ${esc(title)}"><button type="button" class="carouselArrow" data-carousel-dir="-1" aria-label="Ver itens anteriores">‹</button><button type="button" class="carouselArrow" data-carousel-dir="1" aria-label="Ver próximos itens">›</button></div></div><div class="row" data-carousel tabindex="0" aria-label="${esc(title)}; deslize para ver mais">${items.map(card).join("")}</div></section>`
 }
 
-const carouselResizeObserver=typeof ResizeObserver==="function"?new ResizeObserver(entries=>entries.forEach(entry=>updateCarouselControls(entry.target))):null;
+const carouselControlFrames=new WeakMap();
+function scheduleCarouselControls(scroller){
+ if(!scroller||carouselControlFrames.has(scroller))return;
+ const frame=requestAnimationFrame(()=>{carouselControlFrames.delete(scroller);updateCarouselControls(scroller)});
+ carouselControlFrames.set(scroller,frame);
+}
+const carouselResizeObserver=typeof ResizeObserver==="function"?new ResizeObserver(entries=>entries.forEach(entry=>scheduleCarouselControls(entry.target))):null;
 function updateCarouselControls(scroller){
  if(!scroller)return;
  const section=scroller.closest(".section,.globalSearchSection"),max=Math.max(0,scroller.scrollWidth-scroller.clientWidth),slack=3;
@@ -746,14 +761,14 @@ function initCarousels(root=document){
  carousels.forEach(scroller=>{
   if(scroller.dataset.carouselReady!=="1"){
    scroller.dataset.carouselReady="1";
-   scroller.addEventListener("scroll",()=>updateCarouselControls(scroller),{passive:true});
+   scroller.addEventListener("scroll",()=>scheduleCarouselControls(scroller),{passive:true});
    scroller.addEventListener("keydown",e=>{
     if(e.key!=="ArrowLeft"&&e.key!=="ArrowRight")return;
     e.preventDefault();scrollCarousel(scroller,e.key==="ArrowLeft"?-1:1);
    });
    carouselResizeObserver?.observe(scroller);
   }
-  requestAnimationFrame(()=>updateCarouselControls(scroller));
+  scheduleCarouselControls(scroller);
  });
 }
 function scrollCarousel(scroller,direction){
@@ -761,7 +776,7 @@ function scrollCarousel(scroller,direction){
  const distance=Math.max(220,Math.round(scroller.clientWidth*.82));
  const reduceMotion=window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
  scroller.scrollBy({left:distance*Number(direction||1),behavior:reduceMotion?"auto":"smooth"});
- requestAnimationFrame(()=>updateCarouselControls(scroller));
+ scheduleCarouselControls(scroller);
 }
 document.addEventListener("click",e=>{
  const button=e.target.closest("[data-carousel-dir]");if(!button)return;
@@ -927,15 +942,17 @@ async function home(){
   
   const allAnime = Array.from(new Map([...animeSeries,...animeMovies].map(x=>[x.id,x])).values());
   const top10Brasil = [...series.slice(0, 5), ...movies.slice(0, 5)];
+  const recommended=Array.from(new Map(movies.flatMap((movie,index)=>[movie,series[index]]).filter(Boolean).map(item=>[`${item.type}|${item.id}`,item])).values());
 
   $("#main").innerHTML=[
    row("Continuar assistindo",continueItems,"Retome exatamente de onde parou",{key:"continue"}),
    top10Row("Top 10 no Brasil hoje", top10Brasil, "Os filmes e séries mais assistidos"),
-   row("Filmes populares",movies,"Atualizado automaticamente"),
-   row("Séries populares",series,"Atualizado automaticamente"),
+   row("Escolhas para você",recommended.slice(0,18),"Filmes e séries reunidos como nos grandes streamings"),
+   row("Filmes em destaque",movies,"Atualizado automaticamente"),
+   row("Séries para maratonar",series,"Temporadas e episódios em sequência"),
    row("Animes em destaque",allAnime,"Animação japonesa e novidades"),
-   row("Mais filmes para você",movies.slice(8),"Sucessos de audiência"),
-   row("Mais séries imperdíveis",series.slice(8),"Maratone agora")
+   row("Só mais um filme",movies.slice(8),"Sucessos de audiência"),
+   row("Só mais um episódio",series.slice(8),"Continue a maratona")
   ].join("")||'<div class="empty">Nenhum catálogo retornado.</div>';
   bindCards($("#main"));initCarousels($("#main"));
   runWhenIdle(appendExternalHomeRows);
@@ -1167,6 +1184,8 @@ function quickAddonName(manifest,index){
  else if(low.includes("froststream"))name="FrostStream";
  else if(low.includes("fenixflix"))name="FenixFlix";
  else if(low.includes("torrentio"))name="Torrentio";
+ else if(low.includes("comet"))name="Comet";
+ else if(low.includes("mediafusion"))name="MediaFusion";
  else if(low.includes("watchhub"))name="WatchHub";
  else{
   try{name=new URL(manifest).hostname.replace(/^www\./,"").split(".")[0]||`Fonte ${index+1}`}catch{name=`Fonte ${index+1}`}
@@ -1208,6 +1227,8 @@ function streamRequestTimeout(manifest){
  if(value.includes("froststream"))return 18000;
  if(value.includes("fenixflix"))return 14000;
  if(value.includes("torrentio"))return 12000;
+ if(value.includes("comet"))return 14000;
+ if(value.includes("mediafusion"))return 15000;
  if(value.includes("bestcine"))return 10000;
  return 8000;
 }
@@ -1289,6 +1310,28 @@ function sourceStatusIcon(s){
 function sourceSortedFiltered(streams){
  return streams.slice().sort((a,b)=>sourceHealthRank(a)-sourceHealthRank(b)||sourceReliabilityScore(b,S.resumeEntry)-sourceReliabilityScore(a,S.resumeEntry));
 }
+function sourceUiKey(s){return `${s?._manifest||""}|${s?._idx??""}`}
+function sourceForUiKey(key){return (S.streams||[]).find(s=>sourceUiKey(s)===String(key||""))||null}
+function resetSourceWindow(){S.sourceVisibleLimit=18;S.sourceResetScroll=true}
+function scheduleSourceUIRender({reset=false,immediate=false}={}){
+ if(reset)resetSourceWindow();
+ clearTimeout(S._sourceUiTimer);
+ if(immediate){renderSourceUI();return}
+ const video=$("#video"),delay=video&&!video.paused?180:45;
+ S._sourceUiTimer=setTimeout(()=>requestAnimationFrame(renderSourceUI),delay);
+}
+function patchSourceCardHealth(s){
+ const root=$("#sources");if(!root)return false;
+ const card=[...root.querySelectorAll("[data-source-key]")].find(x=>x.dataset.sourceKey===sourceUiKey(s));
+ if(!card)return false;
+ const status=getHealthStatus(s),statusNode=card.querySelector(".sourceStatus"),sub=card.querySelector(".sourceCompactSub");
+ card.classList.remove("testing","working","failed");if(status)card.classList.add(status);
+ card.classList.toggle("active",S.selectedStream===s);
+ if(statusNode){statusNode.className=`sourceStatus ${status||"idle"}`;statusNode.textContent=sourceStatusIcon(s)}
+ if(sub)sub.textContent=`${s._addon||"Fonte"} • ${sourceStatusLabel(s)}`;
+ renderSourceSelectedBar();
+ return true;
+}
 function renderSourceSelectedBar(){
  const bar=$("#sourceSelectedBar"),s=S.selectedStream;
  if(!bar)return;
@@ -1296,16 +1339,18 @@ function renderSourceSelectedBar(){
  const provider=detectProvider(s),torrent=!!s._torrent,external=!!s._external&&!torrent;
  bar.innerHTML=`<div class="selectedSourceInfo"><small>SELECIONADA</small><b>${esc(provider)}</b><span>${esc(s._addon||"")} • ${esc(s._quality||"Outro")}</span></div>
   <div class="selectedSourceActions">
-   <button type="button" class="selectedSecondary" data-selected-other ${external?"style='display:none'":""}>↗</button>
-   <button type="button" class="selectedSecondary" data-selected-download ${(torrent||(!external&&isDirectDownloadable(s.url)))?"":"disabled"}>⇩</button>
-   <button type="button" class="selectedPlay" data-selected-play>${external?"Abrir provedor":torrent?"▶ Assistir torrent":"▶ Assistir"}</button>
+   <button type="button" class="selectedSecondary" data-selected-other title="Abrir em outro player" ${external?"style='display:none'":""}>↗</button>
+   <button type="button" class="selectedSecondary" data-selected-download title="${torrent?"Baixar por magnet":"Baixar arquivo"}" ${(torrent||(!external&&isDirectDownloadable(s.url)))?"":"disabled"}>⇩</button>
+   <button type="button" class="selectedPlay" data-selected-play>${external?"Abrir provedor":torrent?"Tentar online":"▶ Assistir"}</button>
   </div>`;
  bar.querySelector("[data-selected-play]").onclick=()=>external?openExternalSource(s.externalUrl):selectStream(s,true);
  const other=bar.querySelector("[data-selected-other]");if(other)other.onclick=()=>openOtherPlayerMenu(s);
- const dl=bar.querySelector("[data-selected-download]");if(dl)dl.onclick=()=>{if(torrent)openExternalSource(s.externalUrl);else if(!external)browserDownload(s)};
+ const dl=bar.querySelector("[data-selected-download]");if(dl)dl.onclick=()=>{if(!external)browserDownload(s)};
 }
 function renderSourceUI(){
  const streams=S.streams||[];
+ const sourceList=$("#sources"),previousScroll=S.sourceResetScroll?0:Number(sourceList?.scrollTop||0);
+ S.sourceResetScroll=false;
  const configured=configuredStreamManifests();
  const manifests=configured.map((manifest,index)=>[manifest,S.addonQueryStatus.get(manifest)?.name||quickAddonName(manifest,index)]);
  const addons=["all",...new Set(manifests.map(([,name])=>name))];
@@ -1313,24 +1358,23 @@ function renderSourceUI(){
  if(prefSel){
   const current=S.primaryManifest;
   prefSel.innerHTML='<option value="">Automática</option>'+manifests.map(([m,n])=>`<option value="${esc(m)}" ${current===m?"selected":""}>${esc(n)}</option>`).join("");
-  prefSel.onchange=()=>{S.primaryManifest=prefSel.value;localStorage.setItem("rf17_primary_manifest",S.primaryManifest);renderSourceUI();};
+  prefSel.onchange=()=>{S.primaryManifest=prefSel.value;localStorage.setItem("rf17_primary_manifest",S.primaryManifest);scheduleSourceUIRender({immediate:true});};
  }
  const states=[...S.addonQueryStatus.values()],finished=states.filter(x=>x.status!=="loading").length,failed=states.filter(x=>x.status==="failed").length;
  const count=$("#sourceCountText");if(count)count.textContent=streams.length?`${streams.length} opção(ões) • ${finished}/${configured.length} fontes consultadas${failed?` • ${failed} indisponível(is)`:""}`:`Consultando ${configured.length} fontes ao mesmo tempo…`;
  const drawerLabel=$("#sourceDrawerLabel");if(drawerLabel)drawerLabel.textContent=streams.length?`Fontes • ${streams.length}`:"Fontes";
 
- $("#addonTabs").innerHTML=addons.map(a=>`<button class="${S.selectedAddon===a?"active":""}" data-addon="${esc(a)}">${a==="all"?"Todas":esc(a)}</button>`).join("");
- $("#addonTabs").querySelectorAll("[data-addon]").forEach(b=>b.onclick=()=>{S.selectedAddon=b.dataset.addon;renderSourceUI()});
+ const addonTabs=$("#addonTabs"),addonScroll=addonTabs?.scrollLeft||0;
+ addonTabs.innerHTML=addons.map(a=>`<button class="${S.selectedAddon===a?"active":""}" data-addon="${esc(a)}">${a==="all"?"Todas":esc(a)}</button>`).join("");
  const qualities=["all",...new Set(streams.map(s=>s._quality))].sort((a,b)=>a==="all"?-1:b==="all"?1:qualityScore(b)-qualityScore(a));
  $("#qualityFilters").innerHTML=qualities.map(q=>`<button class="${S.qualityFilter===q?"active":""}" data-q="${esc(q)}">${q==="all"?"Qualidade":esc(q)}</button>`).join("");
- $("#qualityFilters").querySelectorAll("[data-q]").forEach(b=>b.onclick=()=>{S.qualityFilter=b.dataset.q;renderSourceUI()});
 
  const filtered=sourceSortedFiltered(streams.filter(s=>(S.selectedAddon==="all"||s._addon===S.selectedAddon)&&(S.qualityFilter==="all"||s._quality===S.qualityFilter)));
- const rec=filtered.find(s=>!s._external&&getHealthStatus(s)!=="failed")||filtered[0];
+ const rec=filtered.find(s=>!s._external&&!s._torrent&&getHealthStatus(s)!=="failed")||filtered.find(s=>s._torrent&&getHealthStatus(s)!=="failed")||filtered.find(s=>s._external&&getHealthStatus(s)!=="failed")||null;
  const recommend=$("#sourceRecommend");
  if(recommend){
-  recommend.innerHTML=rec?`<button type="button" class="recommendCard"><span class="recommendIcon">★</span><span class="recommendText"><small>RECOMENDADA AGORA</small><b>${esc(detectProvider(rec))}</b><span>${esc(rec._addon)} • ${esc(rec._quality)}</span></span><span class="recommendUse">Usar</span></button>`:"";
-  if(rec)recommend.querySelector("button").onclick=()=>{S.selectedStream=rec;renderSourceUI();if(rec._external)openExternalSource(rec.externalUrl);else selectStream(rec,true);if(innerWidth<=900)$("#playerSide")?.classList.remove("drawerOpen")};
+  recommend.innerHTML=rec?`<button type="button" class="recommendCard"><span class="recommendIcon">★</span><span class="recommendText"><small>${rec._torrent?"TORRENT — ONLINE OU DOWNLOAD":"RECOMENDADA AGORA"}</small><b>${esc(detectProvider(rec))}</b><span>${esc(rec._addon)} • ${esc(rec._quality)}</span></span><span class="recommendUse">Usar</span></button>`:"";
+  if(rec)recommend.querySelector("button").onclick=()=>{S.selectedStream=rec;scheduleSourceUIRender({immediate:true});if(rec._external)openExternalSource(rec.externalUrl);else selectStream(rec,true);if(innerWidth<=900)setSourceDrawer(false)};
  }
  if(!filtered.length){
   const selectedState=[...S.addonQueryStatus.values()].find(x=>x.name===S.selectedAddon);
@@ -1338,25 +1382,42 @@ function renderSourceUI(){
   $("#sources").innerHTML=`<div class="sourceEmpty">${message}</div>`;renderSourceSelectedBar();return
  }
 
- $("#sources").innerHTML=filtered.map((s,i)=>{
+ const directAvailable=streams.some(s=>!s._external&&!s._torrent&&s.url&&!s._mismatch),visible=filtered.slice(0,S.sourceVisibleLimit);
+ const torrentHint=!directAvailable&&streams.some(s=>s._torrent)?'<div class="sourceEmpty">Torrents encontrados: toque no card para tentar online ou use ⇩ para baixar por magnet.</div>':"";
+ $("#sources").innerHTML=torrentHint+visible.map((s,i)=>{
   const selected=S.selectedStream===s,provider=detectProvider(s),badges=sourceBadgeList(s),status=getHealthStatus(s);
-  return `<article class="sourceCard compact ${selected?"active":""} ${s._external?"external":""} ${status}" data-source-key="${esc(s._manifest+"|"+s._idx)}">
+  const failedTorrent=s._torrent&&status==="failed",action=s._torrent?"⇩":s._external?"↗":"▶";
+  return `<article class="sourceCard compact ${selected?"active":""} ${s._external?"external":""} ${status}" data-source-key="${esc(sourceUiKey(s))}" role="button" tabindex="0" aria-label="${esc(failedTorrent?`Baixar ${provider} por magnet`:`Usar ${provider}`)}">
    <div class="sourceStatus ${status||"idle"}">${sourceStatusIcon(s)}</div>
    <div class="sourceCompactMain">
     <div class="sourceCompactTitle"><b>${esc(provider)}</b>${S.primaryManifest&&S.primaryManifest===s._manifest?'<span class="primarySourceBadge">PRINCIPAL</span>':""}</div>
     <div class="sourceCompactSub">${esc(s._addon||"Fonte")} • ${esc(sourceStatusLabel(s))}</div>
     <div class="sourceCompactBadges"><span>${esc(s._quality||"Outro")}</span>${badges.map(x=>`<span>${esc(x)}</span>`).join("")}${getCachedStreamBatch(s._manifest,S.playType,S.playId)?'<span>⚡ cache</span>':""}</div>
    </div>
-   <button type="button" class="sourceQuickPlay" data-play aria-label="Reproduzir">${s._external&&!s._torrent?"↗":"▶"}</button>
+   <button type="button" class="sourceQuickPlay" ${s._torrent?"data-source-download":"data-source-play"} aria-label="${s._torrent?"Baixar por magnet":"Reproduzir"}" title="${s._torrent?"Baixar por magnet":"Reproduzir"}">${action}</button>
   </article>`;
- }).join("");
-
- $("#sources").querySelectorAll(".sourceCard").forEach(card=>{
-  const s=filtered.find(x=>`${x._manifest}|${x._idx}`===card.dataset.sourceKey);if(!s)return;
-  card.onclick=e=>{if(e.target.closest("[data-play]"))return;S.selectedStream=s;renderSourceUI()};
-  card.querySelector("[data-play]").onclick=e=>{e.stopPropagation();S.selectedStream=s;renderSourceSelectedBar();if(s._external&&!s._torrent)openExternalSource(s.externalUrl);else selectStream(s,true)};
- });
+ }).join("")+(visible.length<filtered.length?`<div class="sourceEmpty" data-source-more>Role para carregar mais • ${visible.length}/${filtered.length}</div>`:"");
+ requestAnimationFrame(()=>{if(addonTabs)addonTabs.scrollLeft=addonScroll;if(sourceList)sourceList.scrollTop=previousScroll});
  renderSourceSelectedBar();
+}
+function useSourceCard(stream,{download=false}={}){
+ if(!stream)return;
+ S.selectedStream=stream;renderSourceSelectedBar();
+ const torrentFallback=stream._torrent&&getHealthStatus(stream)==="failed";
+ if(download||torrentFallback){browserDownload(stream);scheduleSourceUIRender();return}
+ if(stream._external&&!stream._torrent)openExternalSource(stream.externalUrl);else selectStream(stream,true);
+ scheduleSourceUIRender();
+ if(innerWidth<=900)setSourceDrawer(false);
+}
+function bindSourceUiEvents(){
+ const tabs=$("#addonTabs"),qualities=$("#qualityFilters"),sources=$("#sources");
+ tabs?.addEventListener("click",event=>{const button=event.target.closest("[data-addon]");if(!button)return;S.selectedAddon=button.dataset.addon;resetSourceWindow();renderSourceUI();requestAnimationFrame(()=>[...tabs.querySelectorAll("[data-addon]")].find(item=>item.dataset.addon===S.selectedAddon)?.scrollIntoView({behavior:window.matchMedia?.("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"nearest",inline:"center"}))});
+ tabs?.addEventListener("wheel",event=>{if(Math.abs(event.deltaY)<=Math.abs(event.deltaX))return;event.preventDefault();tabs.scrollLeft+=event.deltaY},{passive:false});
+ qualities?.addEventListener("click",event=>{const button=event.target.closest("[data-q]");if(!button)return;S.qualityFilter=button.dataset.q;resetSourceWindow();renderSourceUI();requestAnimationFrame(()=>[...qualities.querySelectorAll("[data-q]")].find(item=>item.dataset.q===S.qualityFilter)?.scrollIntoView({behavior:window.matchMedia?.("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"nearest",inline:"center"}))});
+ const activate=event=>{const card=event.target.closest("[data-source-key]");if(!card)return;const stream=sourceForUiKey(card.dataset.sourceKey);useSourceCard(stream,{download:!!event.target.closest("[data-source-download]")})};
+ sources?.addEventListener("click",activate);
+ sources?.addEventListener("keydown",event=>{if(event.key!=="Enter"&&event.key!==" ")return;event.preventDefault();activate(event)});
+ sources?.addEventListener("scroll",()=>{if(sources.scrollTop+sources.clientHeight<sources.scrollHeight-160)return;const total=sourceSortedFiltered((S.streams||[]).filter(s=>(S.selectedAddon==="all"||s._addon===S.selectedAddon)&&(S.qualityFilter==="all"||s._quality===S.qualityFilter))).length;if(S.sourceVisibleLimit>=total)return;S.sourceVisibleLimit+=18;scheduleSourceUIRender({immediate:true})},{passive:true});
 }
 function rememberedStreamMatch(streams,entry){
  const ranked=rankedPlayableStreams(streams,entry);
@@ -1397,7 +1458,7 @@ async function attemptSource(stream,autoplay=true,resumeEntry=null){
  S.selectedStream=stream;
  S.attemptedSourceKeys.add(sourceKey(stream));
  setHealth(stream,"testing");
- renderSourceUI();
+ scheduleSourceUIRender();
  
  try{
   if(stream._torrent)await loadTorrentVideo(stream,autoplay,resumeEntry);
@@ -1409,7 +1470,7 @@ async function attemptSource(stream,autoplay=true,resumeEntry=null){
   return false;
  }
  // Aguarda o HLS/arquivo realmente ficar pronto para reproduzir.
- const result=await waitForSourceReady(stream,token,stream._torrent?28000:9000);
+ const result=await waitForSourceReady(stream,token,stream._torrent?18000:9000);
  if(token!==S.sourceAttemptToken)return false;
  if(result.ok){
   setHealth(stream,"working");
@@ -1455,6 +1516,7 @@ async function selectStream(stream,autoplay=true,resumeEntry=null){
 
  const ok=await attemptSource(stream,autoplay,liveResume);
  if(ok)return;
+ if(stream._torrent){toast("A reprodução online deste torrent não iniciou. Toque em ⇩ ou no card marcado como falho para baixar por magnet.");scheduleSourceUIRender({immediate:true});return}
  if(!S.autoFallback){
   toast("Essa fonte não iniciou. Selecione outra fonte.");
   return;
@@ -1885,7 +1947,7 @@ async function playStream(type,id,title,meta,resumeEntry=null){
  $("#playerModal").classList.add("open");document.body.classList.add("playerOpen");setPlaybackPerformanceMode(true);setPrimePlayerMeta(type,title,meta);$("#playerSide").classList.remove("drawerOpen");$("#sourcePanelBackdrop").classList.remove("open");$("#primeNextFloat").classList.remove("show");
  if(type!=="series"){const episodesButton=$("#episodesBtn");if(episodesButton)episodesButton.style.display="none"}
  setPlayerSideTab("fontes");
- S.streamTitle=title||"video";S.streamMeta=meta||{id,type,name:title};S.playType=type;S.playId=id;S.introSkipped=false;$("#skipIntroBtn").classList.remove("show");S.rootId=type==="series"?(S.currentShow?.id||resumeEntry?.rootId||meta?.id):(resumeEntry?.rootId||meta?.id||id);S.resumeEntry=resumeEntry;S.resumeApplied=false;S.streams=[];S.selectedStream=null;S.selectedAddon="all";S.qualityFilter="all";S.externalSubtitles=[];S.sourceHealth.clear();S.addonQueryStatus.clear();S.attemptedSourceKeys.clear();S._lastProgressSave=0;
+ S.streamTitle=title||"video";S.streamMeta=meta||{id,type,name:title};S.playType=type;S.playId=id;S.introSkipped=false;$("#skipIntroBtn").classList.remove("show");S.rootId=type==="series"?(S.currentShow?.id||resumeEntry?.rootId||meta?.id):(resumeEntry?.rootId||meta?.id||id);S.resumeEntry=resumeEntry;S.resumeApplied=false;S.streams=[];S.selectedStream=null;S.selectedAddon="all";S.qualityFilter="all";resetSourceWindow();S.externalSubtitles=[];S.sourceHealth.clear();S.addonQueryStatus.clear();S.attemptedSourceKeys.clear();S._lastProgressSave=0;
  configuredStreamManifests().forEach((manifest,index)=>S.addonQueryStatus.set(manifest,{name:quickAddonName(manifest,index),status:"loading",count:0,at:Date.now()}));
  resetVideo();showPlayerUI(true);
  $("#qualityFilters").innerHTML="";renderSourceUI();
@@ -1902,13 +1964,13 @@ async function playStream(type,id,title,meta,resumeEntry=null){
   };
   const allPromise=loadStreamsFromAddons(type,streamId,(batch)=>{
    if(loadToken!==S.streamLoadToken||!batch?.length)return;
-   receivedAny=true;S.streams=mergeStreamBatches(S.streams,batch);renderSourceUI();
+   receivedAny=true;S.streams=mergeStreamBatches(S.streams,batch);scheduleSourceUIRender();
    const hasDirect=rankedPlayableStreams(S.streams,resumeEntry).some(stream=>!stream._torrent&&stream.url);
    if(!autoStarted&&!autoTimer&&hasDirect)autoTimer=setTimeout(()=>{autoTimer=null;startAuto()},450);
-  },()=>{if(loadToken===S.streamLoadToken)renderSourceUI()});
+  },()=>{if(loadToken===S.streamLoadToken)scheduleSourceUIRender()});
   const streams=await allPromise;if(loadToken!==S.streamLoadToken)return;
   clearTimeout(autoTimer);autoTimer=null;
-  S.streams=mergeStreamBatches(S.streams,streams);if(S.streams.length)renderSourceUI();
+  S.streams=mergeStreamBatches(S.streams,streams);if(S.streams.length)scheduleSourceUIRender({immediate:true});
   if(!autoStarted)startAuto();
   let found=autoPromise?await autoPromise:null;
   // Se o primeiro addon chegou rápido mas todas as fontes dele falharam,
@@ -1918,7 +1980,7 @@ async function playStream(type,id,title,meta,resumeEntry=null){
    if(found)await fetchExternalSubtitles(type,streamId,found);
   }
   if(!receivedAny&&!S.streams.length){$("#sources").innerHTML="<div class='sourceEmpty'>Nenhuma fonte foi retornada pelos addons configurados.</div>";return}
-  if(!rankedPlayableStreams(S.streams,resumeEntry).length&&S.streams.length)$("#sources").insertAdjacentHTML("afterbegin","<div class='sourceEmpty'>As opções disponíveis abrem provedores externos; escolha uma delas na lista.</div>");
+  if(!rankedPlayableStreams(S.streams,resumeEntry).length&&S.streams.some(stream=>stream._torrent))toast("Há torrents disponíveis: tente online manualmente ou use ⇩ para baixar.");
  }catch(e){console.error(e);$("#sources").innerHTML="<div class='sourceEmpty'>Falha ao consultar as fontes. Verifique CORS, o manifesto e a disponibilidade do addon.</div>"}
 }
 function resetVideo(){
@@ -1983,11 +2045,11 @@ async function loadTorrentVideo(stream,autoplay=true,resumeEntry=null){
  if(v._hls){v._hls.destroy();v._hls=null}
  v.pause();v.removeAttribute("src");v.preload="auto";v.load();$("#buffering").classList.add("show");
  S.resumeEntry=resumeEntry||null;S.resumeApplied=false;
- toast("Torrentio: conectando aos pares para reprodução online…");
+ toast(`${stream._addon||"Torrent"}: conectando aos pares para reprodução online…`);
  await new Promise((resolve,reject)=>{
   let settled=false,torrent=null;
   const finish=error=>{if(settled)return;settled=true;clearTimeout(timer);if(error)reject(error);else resolve()};
-  const timer=setTimeout(()=>finish(new Error("Torrent sem resposta")),15000);
+  const timer=setTimeout(()=>finish(new Error("Torrent sem resposta")),10000);
   try{
    torrent=torrentClient.add(magnet,{announce:["wss://tracker.openwebtorrent.com","wss://tracker.webtorrent.dev"]},readyTorrent=>{
     if(generation!==torrentLoadGeneration){finish(new Error("Torrent cancelado"));return}
@@ -3273,9 +3335,21 @@ function renderPageCatalogResults(items){
    <div class="categoryMediaRow">${popular.map(card).join("")}</div>
    ${news.length?`<div class="categorySectionHead"><h3>Novidades</h3><span>Descubra mais</span></div><div class="categoryMediaRow">${news.map(card).join("")}</div>`:""}`;
  }else{
-  target.innerHTML=`<div class="grid">${items.map(card).join("")}</div>`;
+  const visible=items.slice(0,S.pageVisibleLimit);
+  target.innerHTML=`<div class="grid">${visible.map(card).join("")}</div>${visible.length<items.length?`<div class="loading" id="pageInfiniteSentinel">Carregando mais títulos…</div>`:""}`;
  }
  bindCards(target);
+ bindPageInfinite(items);
+}
+function bindPageInfinite(items){
+ S.pageInfiniteObserver?.disconnect?.();S.pageInfiniteObserver=null;
+ const sentinel=$("#pageInfiniteSentinel");if(!sentinel)return;
+ const reveal=()=>{if(S.pageVisibleLimit>=items.length)return;S.pageVisibleLimit+=18;renderPageCatalogResults(items)};
+ sentinel.onclick=reveal;
+ if(typeof IntersectionObserver==="function"){
+  S.pageInfiniteObserver=new IntersectionObserver(entries=>{if(entries.some(entry=>entry.isIntersecting))reveal()},{rootMargin:"500px 0px"});
+  S.pageInfiniteObserver.observe(sentinel);
+ }
 }
 
 async function aniListTrendingMedia(type="ANIME",perPage=18){
@@ -3648,6 +3722,7 @@ async function page(type,initialCategory="all"){
  if(type==="manga")return mangaPage();
  if(type==="books")return booksPage();
  S.currentPage=type;S.pageTypeForCategories=type;S.pageCategory=initialCategory||"all";
+ S.pageVisibleLimit=18;S.pageInfiniteObserver?.disconnect?.();S.pageInfiniteObserver=null;
  setActiveNav(type);unlockMobileDocument();scrollPageTop();toggleCategoryMega(false);
  $("#page").classList.remove("searchPage","mangaPageModern","mangaPageV24","booksPageModern","hk-manga-page");
  $("#hero").classList.add("hidden");$("#main").classList.add("hidden");$("#page").classList.remove("hidden");
@@ -3886,7 +3961,8 @@ function unlockMobileDocument(){
  }
 }
 function scrollPageTop(){
- requestAnimationFrame(()=>{try{window.scrollTo({top:0,left:0,behavior:"auto"})}catch{window.scrollTo(0,0)}});
+ const reduced=window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+ requestAnimationFrame(()=>{try{window.scrollTo({top:0,left:0,behavior:reduced?"auto":"smooth"})}catch{window.scrollTo(0,0)}});
 }
 function repairTouchState(){
  const body=document.body;
@@ -4032,7 +4108,7 @@ $("#mangaPrevChapter").onclick=()=>nextNativeChapter(-1);$("#mangaNextChapter").
 $("#mangaReaderCanvas").onclick=e=>{if(e.target.closest(".nativeReaderTapZone"))return;showReaderUi()};
 $("#mangaReaderModal").onclick=e=>{if(e.target.id==="mangaReaderModal")closeMangaReader()};
 $("#closeDetail").onclick=()=>{$("#detailModal").classList.remove("open");document.body.classList.remove("detailOpen");unlockMobileDocument()};
-$("#closePlayer").onclick=()=>{S.streamLoadToken++;$("#playerSide")?.classList.remove("drawerOpen");$("#sourcePanelBackdrop")?.classList.remove("open");$("#skipIntroBtn").classList.remove("show");stopSourceAttempt();clearPlaybackStallMonitor();persistPlaybackProgress(true);clearTimeout(S._ctlTimer);$("#playerMenu").classList.remove("open");$("#playerMenuBackdrop").classList.remove("open");S.playerMenuKind=null;resetVideo();$("#playerModal").classList.remove("open");document.body.classList.remove("playerOpen");setPlaybackPerformanceMode(false)};
+$("#closePlayer").onclick=()=>{S.streamLoadToken++;clearTimeout(S._sourceUiTimer);$("#playerSide")?.classList.remove("drawerOpen");$("#sourcePanelBackdrop")?.classList.remove("open");$("#skipIntroBtn").classList.remove("show");stopSourceAttempt();clearPlaybackStallMonitor();persistPlaybackProgress(true);clearTimeout(S._ctlTimer);$("#playerMenu").classList.remove("open");$("#playerMenuBackdrop").classList.remove("open");S.playerMenuKind=null;resetVideo();$("#playerModal").classList.remove("open");document.body.classList.remove("playerOpen");setPlaybackPerformanceMode(false)};
 $("#bigPlay").onclick=togglePlayback;$("#playPause").onclick=togglePlayback;
 $("#back10").onclick=()=>{$("#video").currentTime=Math.max(0,$("#video").currentTime-10);showPlayerUI()};
 $("#forward10").onclick=()=>{const v=$("#video");v.currentTime=Math.min(v.duration||Infinity,v.currentTime+10);showPlayerUI()};
@@ -4043,6 +4119,7 @@ $("#seek").oninput=e=>{const v=$("#video"),n=Number(e.target.value);e.target.sty
 $("#fullBtn").onclick=()=>{const el=$("#videoShell");if(!document.fullscreenElement)el.requestFullscreen?.();else document.exitFullscreen?.();showPlayerUI()};
 $("#pipBtn").onclick=async()=>{const v=$("#video");try{if(document.pictureInPictureElement)await document.exitPictureInPicture();else if(document.pictureInPictureEnabled)await v.requestPictureInPicture()}catch{toast("Picture-in-Picture não disponível neste navegador.")}showPlayerUI()};
 $("#downloadCurrent").onclick=()=>S.selectedStream?browserDownload(S.selectedStream):toast("Escolha uma fonte primeiro.");
+bindSourceUiEvents();
 $("#skipIntroBtn").onclick=skipIntro;
 $("#sourceToolsToggle").onclick=()=>{S.sourceToolsOpen=!S.sourceToolsOpen;$("#sourceTools").classList.toggle("open",S.sourceToolsOpen);$("#sourceToolsToggle").classList.toggle("active",S.sourceToolsOpen)};
 function setSourceDrawer(open){$("#playerSide").classList.toggle("drawerOpen",!!open);$("#sourcePanelBackdrop").classList.toggle("open",!!open);showPlayerUI(!!open)}
@@ -4092,10 +4169,10 @@ $("#video").addEventListener("canplay",()=>{if(!$("#video").paused)onPlaybackSta
 $("#video").addEventListener("seeking",clearPlaybackStallMonitor);
 $("#video").addEventListener("seeked",()=>{if(!$("#video").paused)S._stallCooldownUntil=Date.now()+2500});
 $("#video").addEventListener("dblclick",()=>$("#fullBtn").click());
-let lastPlayerMoveUiAt=0;
+let lastPlayerMoveUiAt=0,playerMoveUiFrame=0;
 $("#videoShell").addEventListener("mousemove",()=>{
- const now=performance.now();if(now-lastPlayerMoveUiAt<120)return;
- lastPlayerMoveUiAt=now;showPlayerUI();
+ const now=performance.now();if(now-lastPlayerMoveUiAt<180||playerMoveUiFrame)return;
+ lastPlayerMoveUiAt=now;playerMoveUiFrame=requestAnimationFrame(()=>{playerMoveUiFrame=0;showPlayerUI()});
 },{passive:true});
 $("#videoShell").addEventListener("pointerup",e=>{
  if(e.pointerType==="mouse"&&e.button!==0)return;
