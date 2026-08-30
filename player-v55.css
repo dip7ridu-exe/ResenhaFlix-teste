@@ -215,3 +215,64 @@ body.playerOpen .categoryMegaBackdrop{display:none!important}
 @media(prefers-reduced-motion:reduce){
   .mobileSearchPanel,#playerModal .playerSide,#playerModal .playerControls,#playerModal .primeCenterControls{transition:none!important}
 }
+
+/* v56 — navegação móvel sem cabeçalho duplicado e caminho de pintura leve. */
+body.playerOpen>#top,
+body.playerOpen>#hero,
+body.playerOpen>#main,
+body.playerOpen>#page,
+body.playerOpen>#detailModal,
+body.playerOpen>#mobileBottomNav{display:none!important}
+
+#playerModal .videoShell{contain:layout paint!important}
+
+@media(max-width:760px){
+  :root{--mobile-top-h:0px!important}
+
+  /* No celular, todas as ações ficam na barra inferior e no menu “Mais”. */
+  #top{display:none!important}
+  .categoryMega,.categoryMegaBackdrop{display:none!important}
+  .hero{padding-top:calc(28px + env(safe-area-inset-top))!important}
+  .page{
+    padding-top:calc(16px + env(safe-area-inset-top))!important;
+    padding-bottom:calc(24px + var(--mobile-nav-h) + env(safe-area-inset-bottom))!important
+  }
+  .searchPage{padding-top:calc(12px + env(safe-area-inset-top))!important}
+
+  .mobileBottomNav{
+    background:#100502!important;
+    border-top-color:rgba(181,208,236,.18)!important;
+    box-shadow:0 -8px 22px rgba(0,0,0,.34)!important;
+    backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+    contain:layout paint style!important
+  }
+  .mobileBottomNav button{transition:none!important}
+  .mobileBottomNav [data-mobile-search] .rfIcon,
+  .mobileNavDestination .rfIcon{width:21px!important;height:21px!important;margin:auto}
+
+  /* Snap, blur e animações simultâneas causavam engasgos durante o gesto. */
+  .row,.top10Row,.globalSearchRow,.categoryBar{
+    scroll-snap-type:none!important;
+    scroll-behavior:auto!important;
+    contain:layout paint style!important
+  }
+  .card,.poster,.top10Card,.section,.globalSearchSection,.carouselArrow,
+  .heroContent,.resumeBadge,.mobileNavMenuBackdrop,.mobileNavMenuPanel{
+    transition:none!important;
+    animation:none!important;
+    backdrop-filter:none!important;-webkit-backdrop-filter:none!important
+  }
+  #cardPreview{display:none!important}
+}
+
+@media(max-width:900px),(pointer:coarse){
+  #playerModal .playerTop,
+  #playerModal .playerControls,
+  #playerModal .primeCenterControls,
+  #playerModal .skipIntroBtn,
+  #playerModal .primeTopBtn,
+  #playerModal .primeClose{
+    backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+    will-change:auto!important
+  }
+}

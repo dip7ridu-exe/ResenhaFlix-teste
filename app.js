@@ -75,7 +75,8 @@ S.globalVideoResults=[];
 S.globalVideosExpanded=false;
 
 const MOBILE_NAV_STORAGE="rf33_mobile_nav";
-const MOBILE_NAV_DEFAULT=["home","trending","movies","manga"];
+const MOBILE_NAV_MAX_SHORTCUTS=3;
+const MOBILE_NAV_DEFAULT=["home","trending","movies"];
 const MOBILE_NAV_ITEMS=[
  {id:"home",label:"Início",icon:"⌂"},
  {id:"trending",label:"Em alta",icon:"↗"},
@@ -91,7 +92,7 @@ function loadMobileNavPreferences(){
  try{
   const saved=JSON.parse(localStorage.getItem(MOBILE_NAV_STORAGE)||"null");
   if(Array.isArray(saved)){
-   const valid=[...new Set(saved.map(String).filter(id=>MOBILE_NAV_IDS.has(id)))].slice(0,4);
+   const valid=[...new Set(saved.map(String).filter(id=>MOBILE_NAV_IDS.has(id)))].slice(0,MOBILE_NAV_MAX_SHORTCUTS);
    if(valid.length)return valid;
   }
  }catch{}
@@ -107,12 +108,12 @@ function mobileNavItem(id){return MOBILE_NAV_ITEMS.find(item=>item.id===id)}
 function renderMobileBottomNav(){
  const nav=$("#mobileBottomNav");if(!nav)return;
  const current=S.currentPage;
- nav.style.setProperty("--mobile-nav-count",String(Math.min(5,mobileNavPreferences.length+1)));
+ nav.style.setProperty("--mobile-nav-count",String(Math.min(5,mobileNavPreferences.length+2)));
  nav.innerHTML=mobileNavPreferences.map(id=>{
   const item=mobileNavItem(id);if(!item)return"";
   const active=current===id;
   return `<button type="button" class="${active?"active":""}" data-mobile-page="${esc(id)}"${active?' aria-current="page"':""}><span aria-hidden="true">${item.icon}</span><small>${esc(item.label)}</small></button>`;
- }).join("")+`<button type="button" id="mobileNavMore" data-mobile-more aria-haspopup="dialog" aria-controls="mobileNavMenu" aria-expanded="false"><span aria-hidden="true">•••</span><small>Mais</small></button>`;
+ }).join("")+`<button type="button" class="${current==="search"?"active":""}" data-mobile-search${current==="search"?' aria-current="page"':""} aria-label="Buscar"><span aria-hidden="true"><svg class="rfIcon"><use href="#rf-icon-search"></use></svg></span><small>Buscar</small></button><button type="button" id="mobileNavMore" data-mobile-more aria-haspopup="dialog" aria-controls="mobileNavMenu" aria-expanded="false"><span aria-hidden="true">•••</span><small>Mais</small></button>`;
  const more=$("#mobileNavMore");
  if(more&&MOBILE_NAV_IDS.has(current)&&!mobileNavPreferences.includes(current)){
   more.classList.add("active");more.setAttribute("aria-current","page");
@@ -124,7 +125,7 @@ function renderMobileNavMenu(){
  destinations.innerHTML=MOBILE_NAV_ITEMS.map(item=>{
   const preferred=mobileNavPreferences.includes(item.id),active=S.currentPage===item.id;
   return `<button type="button" class="mobileNavDestination ${preferred?"preferred":""} ${active?"active":""}" data-mobile-destination="${esc(item.id)}"${active?' aria-current="page"':""}><span aria-hidden="true">${item.icon}</span><b>${esc(item.label)}</b><small>${preferred?"Na barra":"Abrir"}</small></button>`;
- }).join("");
+ }).join("")+`<button type="button" class="mobileNavDestination" data-mobile-settings><span aria-hidden="true"><svg class="rfIcon"><use href="#rf-icon-settings"></use></svg></span><b>Ajustes</b><small>Abrir</small></button>`;
  list.innerHTML=MOBILE_NAV_ITEMS.map(item=>{
   const order=mobileNavPreferences.indexOf(item.id),selected=order>=0;
   return `<div class="mobileNavEditRow"><label class="mobileNavEditChoice"><input type="checkbox" data-mobile-preference="${esc(item.id)}" ${selected?"checked":""}><span>${item.icon} ${esc(item.label)}</span></label><div class="mobileNavOrder"><button type="button" data-mobile-nav-move="-1" data-mobile-nav-id="${esc(item.id)}" aria-label="Mover ${esc(item.label)} para a esquerda" ${!selected||order===0?"disabled":""}>←</button><button type="button" data-mobile-nav-move="1" data-mobile-nav-id="${esc(item.id)}" aria-label="Mover ${esc(item.label)} para a direita" ${!selected||order===mobileNavPreferences.length-1?"disabled":""}>→</button></div></div>`;
@@ -153,7 +154,7 @@ function updateMobileNavPreference(id,selected){
  if(!MOBILE_NAV_IDS.has(id))return;
  if(selected){
   if(mobileNavPreferences.includes(id))return;
-  if(mobileNavPreferences.length>=4){toast("Escolha no máximo quatro atalhos.");renderMobileNavMenu();return}
+  if(mobileNavPreferences.length>=MOBILE_NAV_MAX_SHORTCUTS){toast(`Escolha no máximo ${MOBILE_NAV_MAX_SHORTCUTS} atalhos.`);renderMobileNavMenu();return}
   mobileNavPreferences.push(id);
  }else{
   if(mobileNavPreferences.length<=1){toast("Mantenha pelo menos um atalho na barra.");renderMobileNavMenu();return}
@@ -1278,7 +1279,18 @@ function prefetchStreams(type,id){
  });
 }
 function prefetchNextEpisodeSources(){
- if(S.playType==="series"&&S.nextEpisode?.id)prefetchStreams("series",S.nextEpisode.id);
+ const connection=navigator.connection||navigator.mozConnection||navigator.webkitConnection;
+ const video=$("#video");
+ const lowPower=(navigator.hardwareConcurrency||8)<=4||(navigator.deviceMemory||8)<=4;
+ const constrained=connection?.saveData||/2g|3g/i.test(connection?.effectiveType||"");
+ const mobile=window.matchMedia?.("(max-width: 900px), (pointer: coarse)").matches;
+ if(mobile||lowPower||constrained||document.hidden)return;
+ if(video&&!video.paused){
+  if(!video.buffered?.length)return;
+  const bufferedAhead=video.buffered.end(video.buffered.length-1)-Number(video.currentTime||0);
+  if(bufferedAhead<90)return;
+ }
+ if(S.playType==="series"&&S.nextEpisode?.id)runWhenIdle(()=>prefetchStreams("series",S.nextEpisode.id));
 }
 function sourceHealthRank(s){
  const h=getHealthStatus(s);
@@ -2094,15 +2106,16 @@ async function loadVideo(url,autoplay=true,stream=null,resumeEntry=null){
     try{
      await ensureHlsLibrary();
      if(window.Hls&&Hls.isSupported()){
+      const lightweightPlayback=innerWidth<=900||(navigator.deviceMemory||8)<=4||(navigator.hardwareConcurrency||8)<=4;
       v._hls=new Hls({
        enableWorker:true,
        lowLatencyMode:false,
-       backBufferLength:30,
-       maxBufferLength:55,
-       maxMaxBufferLength:110,
-       maxBufferSize:80*1000*1000,
+       backBufferLength:lightweightPlayback?15:30,
+       maxBufferLength:lightweightPlayback?30:55,
+       maxMaxBufferLength:lightweightPlayback?60:110,
+       maxBufferSize:(lightweightPlayback?40:80)*1000*1000,
        capLevelToPlayerSize:true,
-       startFragPrefetch:true,
+       startFragPrefetch:!lightweightPlayback,
        abrBandWidthFactor:.82,
        abrBandWidthUpFactor:.68,
        maxBufferHole:.5,
@@ -2257,6 +2270,7 @@ function onPlaybackStable(){
  }
  clearPlaybackStallMonitor();
  S._lastStablePlaybackAt=Date.now();
+ showPlayerUI();
 }
 function togglePlayback(){const v=$("#video");if(!v.src&&!v._hls)return;if(v.paused)v.play().catch(()=>{});else v.pause()}
 function setPlayerUIAccessibility(hidden){
@@ -2278,8 +2292,7 @@ function showPlayerUI(sticky=false){
  const alreadyVisible=$("#playerControls").classList.contains("show")&&!$(".playerStage").classList.contains("uiHidden");
  if(!alreadyVisible){$("#playerControls").classList.add("show");$("#videoShell").classList.remove("uiHidden");$(".playerStage").classList.remove("uiHidden");setPlayerUIAccessibility(false)}
  if(!sticky&&!$("#video").paused){
-  const coarse=window.matchMedia?.("(hover: none), (pointer: coarse)").matches;
-  S._ctlTimer=setTimeout(hidePlayerUI,coarse?3200:3500);
+  S._ctlTimer=setTimeout(hidePlayerUI,1000);
  }
 }
 function togglePlayerUIVisibility(){
@@ -3902,7 +3915,7 @@ async function search(rawQuery,force=false){
  const raw=String(rawQuery||""),q=raw.trim(),sourceId=document.activeElement?.id||"";
  S.currentPage="search";S.searchQuery=q;
  $("#hero").classList.add("hidden");$("#main").classList.add("hidden");$("#page").classList.remove("hidden");
- $("#page").classList.add("searchPage");setActiveNav("");ensureSearchShell();
+ $("#page").classList.add("searchPage");setActiveNav("search");ensureSearchShell();
  const displayValue=(sourceId==="pageSearchInput"||sourceId==="search")?raw:q;
  syncSearchField($("#pageSearchInput"),displayValue);
  syncSearchField($("#search"),displayValue);
@@ -3967,7 +3980,7 @@ function unlockMobileDocument(){
 }
 function scrollPageTop(){
  const reduced=window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
- requestAnimationFrame(()=>{try{window.scrollTo({top:0,left:0,behavior:reduced?"auto":"smooth"})}catch{window.scrollTo(0,0)}});
+ requestAnimationFrame(()=>{try{window.scrollTo({top:0,left:0,behavior:reduced||innerWidth<=760?"auto":"smooth"})}catch{window.scrollTo(0,0)}});
 }
 function repairTouchState(){
  const body=document.body;
@@ -3998,6 +4011,11 @@ function setActiveNav(target){
   const active=x.dataset.mobileDestination===target;x.classList.toggle("active",active);
   if(active)x.setAttribute("aria-current","page");else x.removeAttribute("aria-current");
  });
+ const mobileSearch=$("[data-mobile-search]");
+ if(mobileSearch){
+  const active=target==="search";mobileSearch.classList.toggle("active",active);
+  if(active)mobileSearch.setAttribute("aria-current","page");else mobileSearch.removeAttribute("aria-current");
+ }
  const more=$("#mobileNavMore"),moreActive=MOBILE_NAV_IDS.has(target)&&!mobileNavPreferences.includes(target);
  if(more){more.classList.toggle("active",moreActive);if(moreActive)more.setAttribute("aria-current","page");else more.removeAttribute("aria-current")}
 }
@@ -4020,6 +4038,7 @@ $$("[data-page]").forEach(b=>b.onclick=()=>{closeTransientUI();setActiveNav(b.da
 $("#mobileBottomNav").onclick=e=>{
  const destination=e.target.closest("[data-mobile-page]");
  if(destination){navigateMobileDestination(destination.dataset.mobilePage);return}
+ if(e.target.closest("[data-mobile-search]")){openMobileSearch();return}
  if(e.target.closest("[data-mobile-more]"))openMobileNavMenu();
 };
 $("#mobileNavMenuBackdrop").onclick=()=>closeMobileNavMenu();
@@ -4028,6 +4047,7 @@ $("#mobileNavEditToggle").onclick=()=>{mobileNavEditorOpen=!mobileNavEditorOpen;
 $("#mobileNavMenu").onclick=e=>{
  const destination=e.target.closest("[data-mobile-destination]");
  if(destination){navigateMobileDestination(destination.dataset.mobileDestination);return}
+ if(e.target.closest("[data-mobile-settings]")){closeMobileNavMenu(false);$("#settingsBtn").click();return}
  const move=e.target.closest("[data-mobile-nav-move]");
  if(move)moveMobileNavPreference(move.dataset.mobileNavId,move.dataset.mobileNavMove);
 };
@@ -4212,6 +4232,7 @@ $$("[data-settings-tab]").forEach(b=>b.onclick=()=>openSettingsTab(b.dataset.set
 $("#resetSettings").onclick=()=>{$("#frostUrl").value=CFG_DEFAULT.frost;$("#metaUrl").value=CFG_DEFAULT.meta;$("#catalogUrls").value=CFG_DEFAULT.catalogs;$("#subtitleAddon").value=CFG_DEFAULT.subtitleAddon;$("#audioPref").value=CFG_DEFAULT.audioPref;$("#subtitlePref").value=CFG_DEFAULT.subtitlePref;$("#skipIntroEnabled").value="1";$("#mangaRepoUrls").value=CFG_DEFAULT.mangaRepos;$("#mangaBridgeUrl").value=CFG_DEFAULT.mangaBridge;if($("#corsProxyUrl"))$("#corsProxyUrl").value="";$("#lang").value=CFG_DEFAULT.lang};
 let scrollRAF=0,scrollEndTimer=0;
 window.addEventListener("scroll",()=>{
+ if(innerWidth<=760)return;
  document.body.classList.add("fastScrolling");
  clearTimeout(scrollEndTimer);
  scrollEndTimer=setTimeout(()=>document.body.classList.remove("fastScrolling"),110);
@@ -4244,7 +4265,7 @@ $("#installAppBtn").onclick=async()=>{
 };
 window.addEventListener("appinstalled",()=>{deferredInstallPrompt=null;$("#installAppBtn").style.display="none";toast("ResenhaFlix instalado como aplicativo.")});
 if("serviceWorker" in navigator){
- window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js?v=52",{updateViaCache:"none"}).catch(e=>console.warn("Service Worker",e)));
+ window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js?v=56",{updateViaCache:"none"}).catch(e=>console.warn("Service Worker",e)));
 }
 window.addEventListener("scroll",()=>hideCardPreview(),{passive:true,capture:true});
 window.addEventListener("resize",()=>hideCardPreview());

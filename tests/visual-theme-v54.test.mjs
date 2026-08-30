@@ -19,8 +19,8 @@ for (const color of ["#6B5E90", "#100502", "#B5D0EC", "#204995", "#4B75FF"]) {
 
 const uiPolishIndex = html.indexOf('./ui-polish.css?v=50');
 const themeIndex = html.indexOf('./theme-v54.css?v=54');
-const playerIndex = html.indexOf('./player-v55.css?v=55');
-assert.ok(uiPolishIndex >= 0 && themeIndex > uiPolishIndex && playerIndex > themeIndex, "v55 player theme must load last");
+const playerIndex = html.indexOf('./player-v55.css?v=56');
+assert.ok(uiPolishIndex >= 0 && themeIndex > uiPolishIndex && playerIndex > themeIndex, "v56 player theme must load last");
 assert.match(player, /--rf-player-accent:#36b7f4/);
 assert.match(player, /width:100vw!important;height:100dvh!important/);
 assert.match(html, /id="rf-icon-play"/);
@@ -31,9 +31,9 @@ assert.equal(parsedManifest.background_color, "#100502");
 assert.equal(parsedManifest.theme_color, "#4B75FF");
 assert.ok(parsedManifest.icons.every(icon => icon.src.endsWith("?v=54")), "PWA icons must bypass older caches");
 assert.match(html, /\.\/icons\/resenhaflix-logo\.png\?v=54/);
-assert.match(worker, /resenhaflix-shell-v55/);
+assert.match(worker, /resenhaflix-shell-v56/);
 assert.match(worker, /\.\/theme-v54\.css\?v=54/);
-assert.match(worker, /\.\/player-v55\.css\?v=55/);
+assert.match(worker, /\.\/player-v55\.css\?v=56/);
 
 const iconSizes = new Map([
   ["icons/icon-192.png", [192, 192]],
@@ -49,4 +49,4 @@ for (const [path, [expectedWidth, expectedHeight]] of iconSizes) {
   assert.equal(png.readUInt32BE(20), expectedHeight, `${path} height`);
 }
 
-console.log("visual v55: original palette, local SVG controls and full-screen player OK");
+console.log("visual v56: original palette, local SVG controls and full-screen player OK");

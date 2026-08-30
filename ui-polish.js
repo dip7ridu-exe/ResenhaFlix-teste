@@ -8,7 +8,9 @@
  var fine=mm("(hover:hover) and (pointer:fine)").matches;
  var small=mm("(max-width:900px)").matches;
  var weak=(navigator.hardwareConcurrency||8)<=4||(navigator.deviceMemory||8)<=4;
- if(reduce)return;
+ // Em celulares e aparelhos modestos, não registramos observers nem efeitos
+ // contínuos: a rolagem e o vídeo ficam com prioridade total.
+ if(reduce||small||weak)return;
 
  var idle=window.requestIdleCallback||function(fn){return setTimeout(fn,1)};
 
