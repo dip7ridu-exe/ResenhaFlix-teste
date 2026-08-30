@@ -9,7 +9,7 @@ const [app, html, worker, playerCss] = await Promise.all([
   readFile(new URL("player-v55.css", root), "utf8")
 ]);
 
-assert.match(html, /<script src="\.\/app\.js\?v=55">\s*<\/script>/);
+assert.match(html, /<script src="\.\/app\.js\?v=56">\s*<\/script>/);
 const markup = html.slice(html.indexOf("</style>") + 8);
 assert.doesNotMatch(markup, /data-page="music"|id="musicMiniPlayer"|data-media-source-pane="music"/i);
 assert.doesNotMatch(app, /SoundCloud|Audius|iTunes|musicPage|globalMusic/i);
@@ -44,18 +44,22 @@ assert.doesNotMatch(app, /data-source-download/);
 assert.doesNotMatch(html, /id="downloadCurrent"/);
 assert.match(app, /function bindSourceUiEvents/);
 assert.match(app, /function bindPageInfinite/);
-assert.match(app, /behavior:reduced\?"auto":"smooth"/);
+assert.match(app, /behavior:reduced\|\|innerWidth<=760\?"auto":"smooth"/);
 assert.match(app, /if\(s&&!s\.url&&!s\.externalUrl&&s\.infoHash\)return null/);
 assert.match(app, /skipIntroEnabled:localStorage\.getItem\("rf55_skip_intro_enabled"\)/);
 assert.match(app, /function setSkipIntroEnabled/);
 assert.match(app, /function playableSeriesEpisodes/);
 assert.match(app, /official\\s\+podcast/);
 assert.match(app, /function setPlaybackPerformanceMode/);
+assert.match(app, /setTimeout\(hidePlayerUI,1000\)/);
+assert.match(app, /data-mobile-search/);
+assert.match(app, /MOBILE_NAV_MAX_SHORTCUTS=3/);
 assert.match(playerCss, /content-visibility:auto/);
+assert.match(playerCss, /#top\{display:none!important\}/);
 assert.match(playerCss, /\.mobileSearchPanel\.open/);
 assert.match(playerCss, /#playerModal \.playerSide\.drawerOpen/);
-assert.match(worker, /resenhaflix-shell-v55/);
-assert.match(worker, /\.\/app\.js\?v=55/);
-assert.match(worker, /\.\/player-v55\.css\?v=55/);
+assert.match(worker, /resenhaflix-shell-v56/);
+assert.match(worker, /\.\/app\.js\?v=56/);
+assert.match(worker, /\.\/player-v55\.css\?v=56/);
 
-console.log("video v55: full-screen player, mobile search, source cleanup and performance mode OK");
+console.log("video v56: mobile navigation, 1s player controls and lightweight playback OK");
