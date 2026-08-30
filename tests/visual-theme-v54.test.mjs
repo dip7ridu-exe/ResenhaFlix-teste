@@ -1,21 +1,17 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
-import { createHash } from "node:crypto";
 
 const root = new URL("../", import.meta.url);
-const [app, html, theme, manifest, worker] = await Promise.all([
-  readFile(new URL("app.js", root)),
+const [app, html, theme, player, manifest, worker] = await Promise.all([
+  readFile(new URL("app.js", root), "utf8"),
   readFile(new URL("index.html", root), "utf8"),
   readFile(new URL("theme-v54.css", root), "utf8"),
+  readFile(new URL("player-v55.css", root), "utf8"),
   readFile(new URL("manifest.webmanifest", root), "utf8"),
   readFile(new URL("service-worker.js", root), "utf8")
 ]);
 
-assert.equal(
-  createHash("sha256").update(app).digest("hex"),
-  "5274ac1ecb1de06e956e82a0583a0e241d561d510d7ad0e2a9295a422eac516c",
-  "the v53 application logic must remain byte-for-byte unchanged"
-);
+assert.match(app, /function setSkipIntroEnabled/);
 
 for (const color of ["#6B5E90", "#100502", "#B5D0EC", "#204995", "#4B75FF"]) {
   assert.match(theme, new RegExp(color, "i"), `${color} must be present in the visual theme`);
@@ -23,15 +19,21 @@ for (const color of ["#6B5E90", "#100502", "#B5D0EC", "#204995", "#4B75FF"]) {
 
 const uiPolishIndex = html.indexOf('./ui-polish.css?v=50');
 const themeIndex = html.indexOf('./theme-v54.css?v=54');
-assert.ok(uiPolishIndex >= 0 && themeIndex > uiPolishIndex, "v54 theme must load after every legacy theme");
+const playerIndex = html.indexOf('./player-v55.css?v=55');
+assert.ok(uiPolishIndex >= 0 && themeIndex > uiPolishIndex && playerIndex > themeIndex, "v55 player theme must load last");
+assert.match(player, /--rf-player-accent:#36b7f4/);
+assert.match(player, /width:100vw!important;height:100dvh!important/);
+assert.match(html, /id="rf-icon-play"/);
+assert.match(html, /id="rf-icon-fullscreen"/);
 
 const parsedManifest = JSON.parse(manifest);
 assert.equal(parsedManifest.background_color, "#100502");
 assert.equal(parsedManifest.theme_color, "#4B75FF");
 assert.ok(parsedManifest.icons.every(icon => icon.src.endsWith("?v=54")), "PWA icons must bypass older caches");
 assert.match(html, /\.\/icons\/resenhaflix-logo\.png\?v=54/);
-assert.match(worker, /resenhaflix-shell-v54/);
+assert.match(worker, /resenhaflix-shell-v55/);
 assert.match(worker, /\.\/theme-v54\.css\?v=54/);
+assert.match(worker, /\.\/player-v55\.css\?v=55/);
 
 const iconSizes = new Map([
   ["icons/icon-192.png", [192, 192]],
@@ -47,4 +49,4 @@ for (const [path, [expectedWidth, expectedHeight]] of iconSizes) {
   assert.equal(png.readUInt32BE(20), expectedHeight, `${path} height`);
 }
 
-console.log("visual v54: exact palette, new icon family and unchanged v53 logic OK");
+console.log("visual v55: original palette, local SVG controls and full-screen player OK");

@@ -1,0 +1,217 @@
+/* ResenhaFlix v55 — player inspirado em apps de streaming, busca mobile e modo leve */
+:root{
+  --rf-player-accent:#36b7f4;
+  --rf-player-accent-strong:#1399dc;
+  --rf-player-panel:#0b1018;
+  --rf-player-line:rgba(255,255,255,.12);
+}
+
+.rfIconSprite{position:absolute!important;width:0!important;height:0!important;overflow:hidden!important}
+.rfIcon{width:21px;height:21px;display:block;fill:none;stroke:currentColor;stroke-width:1.85;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+.rfIconPlay{stroke:none;fill:currentColor}
+.iconbtn .rfIcon{width:20px;height:20px}
+
+/* Menos trabalho de pintura fora da tela. */
+.section,.globalSearchSection,.detailSimilarSection{
+  content-visibility:auto;
+  contain-intrinsic-size:320px;
+}
+.row,.top10Row,.globalSearchRow,.categoryBar{
+  overscroll-behavior-inline:contain;
+  -webkit-overflow-scrolling:touch;
+}
+body.fastScrolling .card,
+body.fastScrolling .poster,
+body.fastScrolling .top,
+body.fastScrolling .mobileBottomNav{
+  transition:none!important;
+  animation:none!important;
+  box-shadow:none!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+}
+body.playerOpen #cardPreview,
+body.playerOpen .categoryMega,
+body.playerOpen .categoryMegaBackdrop{display:none!important}
+
+/* Busca mobile: um único campo visível, sem conflito com o campo da página. */
+@media(max-width:760px){
+  .mobileSearchPanel{
+    display:flex!important;position:fixed!important;z-index:420!important;
+    inset:0 0 auto 0!important;min-height:calc(70px + env(safe-area-inset-top))!important;
+    padding:calc(10px + env(safe-area-inset-top)) 12px 10px!important;
+    align-items:flex-end!important;background:#0a0d14!important;
+    border-bottom:1px solid rgba(54,183,244,.28)!important;
+    box-shadow:0 18px 44px rgba(0,0,0,.62)!important;
+    transform:translateY(-115%)!important;opacity:0!important;pointer-events:none!important;
+    transition:transform .2s ease,opacity .16s ease!important;
+  }
+  .mobileSearchPanel.open{transform:translateY(0)!important;opacity:1!important;pointer-events:auto!important}
+  .mobileSearchInner{
+    width:100%!important;height:48px!important;display:flex!important;align-items:center!important;gap:10px!important;
+    padding:0 8px 0 14px!important;background:#151c28!important;border:1px solid rgba(255,255,255,.12)!important;
+    border-radius:10px!important;box-shadow:0 0 0 1px rgba(54,183,244,.08) inset!important;
+  }
+  .mobileSearchInner:focus-within{border-color:var(--rf-player-accent)!important;box-shadow:0 0 0 3px rgba(54,183,244,.16)!important}
+  .mobileSearchIcon{font-size:0!important;width:20px;height:20px;position:relative;flex:none}
+  .mobileSearchIcon:before{content:"";position:absolute;inset:1px 4px 4px 1px;border:2px solid #aeb9c7;border-radius:50%}
+  .mobileSearchIcon:after{content:"";position:absolute;width:7px;height:2px;background:#aeb9c7;right:0;bottom:2px;transform:rotate(45deg);border-radius:9px}
+  .mobileSearchInner input{font-size:16px!important;color:#fff!important;min-width:0!important;flex:1!important;border:0!important;background:transparent!important;outline:0!important;padding:0!important}
+  .mobileSearchInner input::-webkit-search-cancel-button{display:none}
+  .mobileSearchInner button{width:38px!important;height:38px!important;border-radius:50%!important;background:#ffffff0d!important;color:#dce6f2!important;border:0!important;font-size:18px!important}
+  .searchPage .crSearchBar{display:none!important}
+  .searchPage{padding-top:76px!important}
+  #mobileSearchBtn{display:grid!important;place-items:center!important;background:#151c28!important;border:1px solid rgba(255,255,255,.12)!important}
+}
+
+/* Player ocupa a tela; fontes abrem como gaveta, sem reduzir o vídeo. */
+#playerModal{padding:0!important;background:#000!important;align-items:stretch!important;justify-content:stretch!important}
+#playerModal .playerWrap{
+  width:100vw!important;height:100dvh!important;max-width:none!important;max-height:none!important;
+  border:0!important;border-radius:0!important;background:#000!important;box-shadow:none!important;
+}
+#playerModal .playerLayout{display:block!important;width:100%!important;height:100%!important;min-height:0!important}
+#playerModal .playerStage{width:100%!important;height:100%!important;min-height:0!important;background:#000!important}
+#playerModal .videoShell{width:100%!important;height:100%!important;min-height:0!important;aspect-ratio:auto!important;background:#000!important}
+#playerModal .videoShell video{width:100%!important;height:100%!important;max-height:none!important;background:#000!important;transform:translateZ(0)}
+#playerModal .bigPlay{display:none!important}
+
+#playerModal .playerTop{
+  min-height:94px!important;padding:24px 30px 32px!important;align-items:flex-start!important;
+  background:linear-gradient(180deg,rgba(0,0,0,.9),rgba(0,0,0,.48) 52%,transparent)!important;
+}
+#playerModal .primePlayerTitleWrap{position:static!important;transform:none!important;width:auto!important;max-width:min(70vw,820px)!important;text-align:left!important;margin:0!important}
+#playerModal .playerTitle{font-size:21px!important;line-height:1.2!important;font-weight:760!important;letter-spacing:-.2px!important}
+#playerModal .primePlayerSubtitle{font-size:13px!important;color:rgba(255,255,255,.7)!important;margin-top:5px!important}
+#playerModal .primeTopActions{gap:9px!important}
+#playerModal .primeTopBtn,#playerModal .primeClose{
+  position:static!important;width:44px!important;height:44px!important;border-radius:50%!important;
+  border:1px solid rgba(255,255,255,.17)!important;background:rgba(8,12,18,.78)!important;color:#fff!important;
+  box-shadow:0 8px 24px rgba(0,0,0,.3)!important;backdrop-filter:none!important;
+}
+#playerModal .primeTopBtn:hover,#playerModal .primeClose:hover{background:var(--rf-player-accent)!important;border-color:var(--rf-player-accent)!important;color:#00131e!important}
+#playerModal .primeClose .rfIcon{width:23px;height:23px}
+
+#playerModal .primeCenterControls{gap:54px!important;z-index:18!important}
+#playerModal .primePlay{
+  width:78px!important;height:78px!important;padding:0!important;border:2px solid rgba(255,255,255,.82)!important;
+  background:rgba(5,9,14,.6)!important;color:#fff!important;box-shadow:0 14px 42px rgba(0,0,0,.5)!important;
+  backdrop-filter:none!important;transition:transform .14s ease,background .14s ease!important;
+}
+#playerModal .primePlay:hover{transform:scale(1.06)!important;background:var(--rf-player-accent)!important;color:#00131e!important;border-color:var(--rf-player-accent)!important}
+#playerModal .primePlay .rfIcon{width:34px;height:34px}
+#playerModal .primeJump{width:68px!important;height:68px!important;color:#fff!important;filter:drop-shadow(0 4px 12px rgba(0,0,0,.5))}
+#playerModal .jumpSvg{width:58px!important;height:58px!important}
+
+#playerModal .playerControls{
+  bottom:0!important;padding:66px 28px 22px!important;
+  background:linear-gradient(0deg,rgba(0,0,0,.94),rgba(0,0,0,.62) 54%,transparent)!important;
+  opacity:0!important;pointer-events:none!important;transition:opacity .18s ease!important;
+}
+#playerModal .playerControls.show{opacity:1!important;pointer-events:auto!important}
+#playerModal .seek{
+  height:18px!important;margin:0!important;background:transparent!important;accent-color:var(--rf-player-accent)!important;
+}
+#playerModal .seek::-webkit-slider-runnable-track{height:4px;border-radius:99px;background:linear-gradient(90deg,var(--rf-player-accent) var(--seek-fill,0%),rgba(255,255,255,.28) var(--seek-fill,0%))}
+#playerModal .seek::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;margin-top:-5.5px;border:0;border-radius:50%;background:#fff;box-shadow:0 0 0 4px rgba(54,183,244,.2)}
+#playerModal .seek::-moz-range-track{height:4px;border-radius:99px;background:rgba(255,255,255,.28)}
+#playerModal .seek::-moz-range-progress{height:4px;border-radius:99px;background:var(--rf-player-accent)}
+#playerModal .seek::-moz-range-thumb{width:15px;height:15px;border:0;border-radius:50%;background:#fff}
+#playerModal .controlRow{gap:7px!important;margin-top:7px!important}
+#playerModal .ctl{
+  width:42px!important;min-width:42px!important;height:42px!important;padding:0!important;display:grid!important;place-items:center!important;
+  border:1px solid transparent!important;border-radius:50%!important;background:transparent!important;color:#fff!important;
+  transition:background .14s ease,color .14s ease,transform .14s ease!important;
+}
+#playerModal .ctl:hover{background:rgba(255,255,255,.14)!important;color:var(--rf-player-accent)!important;transform:scale(1.05)!important}
+#playerModal .ctl .rfIcon{width:22px;height:22px}
+#playerModal .ctlWide{width:auto!important;min-width:96px!important;padding:0 12px!important;display:flex!important;gap:8px!important;border-radius:22px!important}
+#playerModal .time{font-size:12px!important;color:rgba(255,255,255,.82)!important;margin-left:2px!important;font-variant-numeric:tabular-nums}
+#playerModal .volume{width:86px!important;accent-color:#fff!important}
+#playerModal .speed{height:38px!important;border:1px solid rgba(255,255,255,.16)!important;border-radius:20px!important;background:#111720!important;color:#fff!important;padding:0 11px!important}
+
+#playerModal .skipIntroBtn{
+  right:28px!important;bottom:104px!important;min-height:43px!important;display:none;align-items:center!important;gap:10px!important;
+  padding:0 16px!important;border:1px solid rgba(255,255,255,.6)!important;border-radius:4px!important;
+  background:rgba(5,9,14,.82)!important;color:#fff!important;font-size:13px!important;font-weight:760!important;
+  letter-spacing:.1px!important;box-shadow:0 8px 26px rgba(0,0,0,.45)!important;
+}
+#playerModal .skipIntroBtn.show{display:flex!important}
+#playerModal .skipIntroBtn:hover{background:#fff!important;color:#08101a!important;border-color:#fff!important}
+#playerModal .skipIntroBtn .rfIcon{width:18px;height:18px}
+#playerModal .skipIntroBtn.learned:after{color:var(--rf-player-accent)!important}
+
+/* Fontes: gaveta lateral no desktop, bottom sheet no celular. */
+#playerModal .sourcePanelBackdrop{z-index:232!important;background:rgba(0,0,0,.55)!important}
+#playerModal .playerSide{
+  position:fixed!important;z-index:240!important;top:0!important;right:0!important;bottom:0!important;left:auto!important;
+  width:min(430px,94vw)!important;height:100dvh!important;max-height:none!important;padding:0!important;
+  border:0!important;border-left:1px solid var(--rf-player-line)!important;border-radius:0!important;
+  background:var(--rf-player-panel)!important;box-shadow:-24px 0 60px rgba(0,0,0,.55)!important;
+  transform:translateX(102%)!important;transition:transform .22s cubic-bezier(.2,.8,.2,1)!important;
+  will-change:transform!important;
+}
+#playerModal .playerSide.drawerOpen{transform:translateX(0)!important}
+#playerModal .sourceDrawerHandle{display:none!important}
+#playerModal .sourceHead,#playerModal .sourceFilters,#playerModal .sourceRecommend{background:var(--rf-player-panel)!important}
+#playerModal .sourceHead{padding:24px 20px 12px!important}
+#playerModal .sourceTools{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+#playerModal .sourceEyebrow,#playerModal .recommendUse,#playerModal .sourceDrawerChevron{color:var(--rf-player-accent)!important}
+#playerModal .sourceToolsToggle.active,#playerModal .addonTabs button.active,#playerModal .filterChips button.active,
+#playerModal .selectedSourceActions .selectedPlay,#playerModal .sourceCard.active .sourceQuickPlay{
+  background:var(--rf-player-accent)!important;border-color:var(--rf-player-accent)!important;color:#00131e!important;
+}
+#playerModal .sourceList{contain:content!important;overscroll-behavior:contain!important}
+#playerModal .sourceCard.compact{background:#111823!important;border-color:transparent!important}
+#playerModal .sourceCard.compact:hover{background:#172230!important;border-color:rgba(54,183,244,.34)!important}
+#playerModal .sourceCard.compact.active{background:#102536!important;border-color:var(--rf-player-accent)!important;box-shadow:none!important}
+#playerModal .sourceSelectedBar{background:#0e151f!important;border-top-color:var(--rf-player-line)!important}
+#playerModal .introToggleItem.active{background:rgba(54,183,244,.13)!important;color:#fff!important}
+#playerModal #introSetupBtn{display:flex!important;align-items:center!important;justify-content:center!important;gap:6px!important}
+#playerModal #introSetupBtn.on{border-color:rgba(54,183,244,.5)!important;color:#a9e2ff!important}
+
+@media(max-width:900px){
+  #playerModal .playerTop{min-height:76px!important;padding:calc(13px + env(safe-area-inset-top)) 12px 22px!important}
+  #playerModal .primePlayerTitleWrap{max-width:calc(100vw - 116px)!important}
+  #playerModal .playerTitle{font-size:15px!important}
+  #playerModal .primePlayerSubtitle{font-size:10px!important;margin-top:3px!important}
+  #playerModal .primeTopBtn,#playerModal .primeClose{width:40px!important;height:40px!important}
+  #playerModal .primeCenterControls{gap:24px!important}
+  #playerModal .primePlay{width:64px!important;height:64px!important}
+  #playerModal .primePlay .rfIcon{width:28px;height:28px}
+  #playerModal .primeJump{width:54px!important;height:54px!important}
+  #playerModal .jumpSvg{width:48px!important;height:48px!important}
+  #playerModal .playerControls{padding:50px 9px calc(8px + env(safe-area-inset-bottom))!important}
+  #playerModal .controlRow{gap:1px!important}
+  #playerModal .ctl{width:38px!important;min-width:38px!important;height:38px!important}
+  #playerModal .ctlWide{display:none!important}
+  #playerModal .volume,#playerModal .trackStatus,#playerModal #pipBtn{display:none!important}
+  #playerModal .time{font-size:10px!important;min-width:76px!important}
+  #playerModal .speed{height:34px!important;max-width:58px!important;padding:0 5px!important;font-size:10px!important}
+  #playerModal .skipIntroBtn{right:12px!important;bottom:82px!important;min-height:40px!important;padding:0 13px!important}
+  #playerModal .playerSide{
+    top:auto!important;left:0!important;right:0!important;bottom:0!important;width:100%!important;
+    height:min(76dvh,690px)!important;max-height:76dvh!important;border-left:0!important;border-top:1px solid var(--rf-player-line)!important;
+    border-radius:20px 20px 0 0!important;transform:translateY(102%)!important;box-shadow:0 -24px 64px rgba(0,0,0,.66)!important;
+  }
+  #playerModal .playerSide.drawerOpen{transform:translateY(0)!important}
+  #playerModal .sourceDrawerHandle{display:flex!important;height:56px!important;min-height:56px!important;background:#111923!important}
+  #playerModal .sourceHead{padding:10px 14px 8px!important}
+}
+
+@media(max-width:520px){
+  #playerModal .controlRow #back10,#playerModal .controlRow #forward10{display:none!important}
+  #playerModal .playerControls{padding-left:7px!important;padding-right:7px!important}
+  #playerModal .ctl{width:36px!important;min-width:36px!important}
+  #playerModal .time{font-size:9px!important;min-width:70px!important}
+  #playerModal .skipIntroBtn{bottom:78px!important}
+}
+
+@media(hover:none),(pointer:coarse){
+  .card:hover,.card:hover .poster,.top10Card:hover{transform:none!important;filter:none!important;box-shadow:none!important}
+  .card,.poster,.top10Card{transition:none!important}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .mobileSearchPanel,#playerModal .playerSide,#playerModal .playerControls,#playerModal .primeCenterControls{transition:none!important}
+}
