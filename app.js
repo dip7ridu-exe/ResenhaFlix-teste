@@ -48,7 +48,7 @@ if(!localStorage.getItem("rf30_manga_repo_defaults")){
   const merged=[...new Set([...String(cfg.mangaRepos||"").split(/\n+/),...String(CFG_DEFAULT.mangaRepos).split(/\n+/)].map(x=>x.trim()).filter(Boolean))];
  cfg.mangaRepos=merged.join("\n");localStorage.setItem("rf15_manga_repos",cfg.mangaRepos);localStorage.setItem("rf30_manga_repo_defaults","1")
 }
-const S={hero:null,current:null,currentShow:null,currentEpisode:null,nextEpisode:null,season:1,currentPage:"home",streams:[],selectedStream:null,selectedAddon:"all",qualityFilter:"all",streamTitle:"",streamMeta:null,playType:null,playId:null,rootId:null,resumeEntry:null,resumeApplied:false,searchFilter:"all",searchItems:[],searchQuery:"",searchToken:0,manifestCache:new Map(),catalogCache:new Map(),itemCache:new Map(),externalSubtitles:[],externalSubtitleBlob:null,playerMenuKind:null,aspectMode:localStorage.getItem("cf9_aspect")||"smart",introSkipped:false,introSkipSeconds:90,skipIntroEnabled:localStorage.getItem("rf55_skip_intro_enabled")!=="0",autoFallback:localStorage.getItem("cf11_auto_fallback")!=="0",sourceHealth:new Map(),sourceAttemptToken:0,attemptedSourceKeys:new Set(),streamCache:new Map(),streamLoadToken:0,addonNameCache:new Map(),addonQueryStatus:new Map(),primaryManifest:localStorage.getItem("rf17_primary_manifest")||"",sourceToolsOpen:false,sourceVisibleLimit:18,sourceResetScroll:true,pageCategory:"all",pageItems:[],pageTypeForCategories:"",pageVisibleLimit:18,pageInfiniteObserver:null,mangaRepoItems:[],mangaRepoLoadedAt:0,mangaTab:"explore",mangaQuery:"",mangaExtensionQuery:"",mangaLang:"pt",mangaReaderUrl:"",mangaCatalog:[],mangaCatalogPage:1,mangaCatalogHasNext:true,mangaSearchToken:0,mangaPickerMedia:null,mangaSearchCandidates:[],mangaSearchCandidateIndex:0,mangaNativeResults:[],mangaDetail:null,mangaDetailSource:null,mangaChapters:[],mangaChapterOrder:"desc",mangaReaderManga:null,mangaReaderSource:null,mangaReaderChapter:null,mangaReaderPages:[],mangaReaderPageIndex:0,mangaReaderObserver:null,mangaRepoStats:[],mangaExploreCatalogCache:new Map(),mangaProgressiveToken:0,mangaProgressiveResults:[],mangaMatchMedia:null,mangaMatchResults:[],mangaMatchToken:0,mangaSearchLang:localStorage.getItem("rf16_manga_search_lang")||"both",mangaWebSource:null,mangaWebQuery:"",mangaWebCandidates:[],mangaWebCandidateIndex:0,mangaWebCurrentUrl:"",_sourceTimer:null,_sourceUiTimer:null,_ctlTimer:null,_lastProgressSave:0,_stallTimer:null,_stallStartedAt:0,_stallEvents:[],_stallRecovery:false,_stallCooldownUntil:0,_lastStablePlaybackAt:0,mangaSourceLimit:Number(localStorage.getItem("rf24_manga_source_limit")||5),mangaRepoV24:null,booksTab:"all",booksQuery:"",bookResults:[],bookReaderBook:null,bookReaderRendition:null,bookReaderEpub:null,mediaSourceTab:"books"};
+const S={hero:null,current:null,currentShow:null,currentEpisode:null,nextEpisode:null,season:1,currentPage:"home",streams:[],selectedStream:null,selectedAddon:"all",qualityFilter:"all",streamTitle:"",streamMeta:null,playType:null,playId:null,rootId:null,resumeEntry:null,resumeApplied:false,searchFilter:"all",searchItems:[],searchQuery:"",searchToken:0,listQuery:"",manifestCache:new Map(),catalogCache:new Map(),itemCache:new Map(),externalSubtitles:[],externalSubtitleBlob:null,playerMenuKind:null,aspectMode:localStorage.getItem("cf9_aspect")||"smart",introSkipped:false,introSkipSeconds:90,skipIntroEnabled:localStorage.getItem("rf55_skip_intro_enabled")!=="0",autoFallback:localStorage.getItem("cf11_auto_fallback")!=="0",sourceHealth:new Map(),sourceAttemptToken:0,attemptedSourceKeys:new Set(),streamCache:new Map(),streamLoadToken:0,addonNameCache:new Map(),addonQueryStatus:new Map(),primaryManifest:localStorage.getItem("rf17_primary_manifest")||"",sourceToolsOpen:false,sourceVisibleLimit:18,sourceResetScroll:true,pageCategory:"all",pageItems:[],pageTypeForCategories:"",pageVisibleLimit:18,pageInfiniteObserver:null,mangaRepoItems:[],mangaRepoLoadedAt:0,mangaTab:"explore",mangaQuery:"",mangaExtensionQuery:"",mangaLang:"pt",mangaReaderUrl:"",mangaCatalog:[],mangaCatalogPage:1,mangaCatalogHasNext:true,mangaSearchToken:0,mangaPickerMedia:null,mangaSearchCandidates:[],mangaSearchCandidateIndex:0,mangaNativeResults:[],mangaDetail:null,mangaDetailSource:null,mangaChapters:[],mangaChapterOrder:"desc",mangaReaderManga:null,mangaReaderSource:null,mangaReaderChapter:null,mangaReaderPages:[],mangaReaderPageIndex:0,mangaReaderObserver:null,mangaRepoStats:[],mangaExploreCatalogCache:new Map(),mangaProgressiveToken:0,mangaProgressiveResults:[],mangaMatchMedia:null,mangaMatchResults:[],mangaMatchToken:0,mangaSearchLang:localStorage.getItem("rf16_manga_search_lang")||"both",mangaWebSource:null,mangaWebQuery:"",mangaWebCandidates:[],mangaWebCandidateIndex:0,mangaWebCurrentUrl:"",_sourceTimer:null,_sourceUiTimer:null,_ctlTimer:null,_lastProgressSave:0,_stallTimer:null,_stallStartedAt:0,_stallEvents:[],_stallRecovery:false,_stallCooldownUntil:0,_lastStablePlaybackAt:0,mangaSourceLimit:Number(localStorage.getItem("rf24_manga_source_limit")||5),mangaRepoV24:null,booksTab:"all",booksQuery:"",bookResults:[],bookReaderBook:null,bookReaderRendition:null,bookReaderEpub:null,mediaSourceTab:"books"};
 S.mangaReaderUiTimer=null;
 
 const $=s=>document.querySelector(s);
@@ -728,7 +728,7 @@ function toggleListById(id,type,btn){
  }
  saveList(a);animateListButton(btn,added);
  if(S.current?.id===id)updateDetailListButton(S.current);
- if(S.currentPage==="list"&&!added)setTimeout(()=>page("list"),280);
+ if(S.currentPage==="list"&&!added)setTimeout(()=>{S.pageItems=lists();renderMyListWorkspace(S.pageItems)},280);
 }
 function updateDetailListButton(m){
  const added=lists().some(x=>x.id===m.id&&String(x.type||"movie")===String(m.type||"movie"));
@@ -3257,12 +3257,7 @@ function categoryLabel(value){
 }
 function listCategories(items){
  const cats=[["all","Todos"],["movie","Filmes"],["series","Séries"],["anime","Animes"]];
- const present=new Set();
- for(const m of items)for(const g of (m.genres||[])){
-  const def=PAGE_GENRES.find(x=>normText(x[0])===normText(g));
-  if(def)present.add(def[0]);
- }
- for(const def of PAGE_GENRES.slice(1))if(present.has(def[0]))cats.push(def);
+ for(const def of PAGE_GENRES.slice(1))if(items.some(item=>metaHasGenre(item,def[0])))cats.push(def);
  return cats;
 }
 function categoriesForPage(type,items){
@@ -3323,6 +3318,47 @@ function filterListCategory(items,value){
  if(value==="series")return items.filter(x=>x.type==="series"&&!isAnimeLike(x));
  if(value==="anime")return items.filter(isAnimeLike);
  return items.filter(x=>metaHasGenre(x,value));
+}
+function listSearchText(item){
+ return normText([item.name,item.title,item.originalName,item.year,item.type,...(item.genres||[])].filter(Boolean).join(" "));
+}
+function filterMyList(items,category=S.pageCategory,query=S.listQuery){
+ const byCategory=filterListCategory(items,category||"all");
+ const tokens=normText(query).split(/\s+/).filter(Boolean);
+ if(!tokens.length)return byCategory;
+ return byCategory.filter(item=>{const text=listSearchText(item);return tokens.every(token=>text.includes(token))});
+}
+function listCategoryCount(items,category){return filterListCategory(items,category).length}
+function renderMyListResults(){
+ const all=Array.isArray(S.pageItems)?S.pageItems:lists();
+ const shown=filterMyList(all);
+ $$("[data-list-category]").forEach(button=>{
+  const active=button.dataset.listCategory===S.pageCategory;
+  button.classList.toggle("active",active);
+  if(active)button.setAttribute("aria-pressed","true");else button.setAttribute("aria-pressed","false");
+ });
+ const summary=$("#listResultsSummary");
+ if(summary)summary.textContent=`${shown.length} de ${all.length} título(s)`;
+ const target=$("#pageCatalogResults");if(!target)return;
+ if(!all.length){target.innerHTML='<div class="listEmpty"><b>Sua lista está vazia.</b><span>Use o botão ＋ nos filmes, séries e animes que quiser guardar.</span></div>';return}
+ if(!shown.length){target.innerHTML='<div class="listEmpty"><b>Nada encontrado na sua lista.</b><span>Tente outro nome, tipo ou gênero.</span></div>';return}
+ renderPageCatalogResults(shown);
+}
+function renderMyListWorkspace(items){
+ const categories=listCategories(items);
+ $("#pageBody").innerHTML=`<section class="listLibraryTools" aria-label="Organizar minha lista">
+  <div class="listLibraryHead"><div><small>MINHA BIBLIOTECA</small><h3>Encontre o que você salvou</h3></div><strong>${items.length}</strong></div>
+  <label class="listSearchBox"><svg class="rfIcon" aria-hidden="true"><use href="#rf-icon-search"></use></svg><input id="listSearchInput" type="search" inputmode="search" value="${esc(S.listQuery)}" placeholder="Pesquisar em Minha Lista…" autocomplete="off" aria-label="Pesquisar somente em Minha Lista"><button type="button" id="listSearchClear" aria-label="Limpar pesquisa">×</button></label>
+  <div class="listFilterChips" aria-label="Filtrar Minha Lista">${categories.map(([value,label])=>`<button type="button" data-list-category="${esc(value)}" class="${S.pageCategory===value?"active":""}" aria-pressed="${S.pageCategory===value?"true":"false"}">${esc(label)} <span>${listCategoryCount(items,value)}</span></button>`).join("")}</div>
+  <div class="listResultsSummary" id="listResultsSummary"></div>
+ </section><div id="pageCatalogResults"></div>`;
+ const input=$("#listSearchInput"),clear=$("#listSearchClear");let frame=0;
+ const update=()=>{S.listQuery=input.value;S.pageVisibleLimit=18;cancelAnimationFrame(frame);frame=requestAnimationFrame(renderMyListResults)};
+ input.addEventListener("input",update);
+ input.addEventListener("keydown",event=>{if(event.key==="Escape"){event.preventDefault();input.value="";update();input.blur()}});
+ clear.onclick=()=>{input.value="";update();input.focus({preventScroll:true})};
+ $$("[data-list-category]").forEach(button=>button.onclick=()=>{S.pageCategory=button.dataset.listCategory;S.pageVisibleLimit=18;renderMyListResults()});
+ renderMyListResults();
 }
 async function fetchCatalogPageItems(type,category="all"){
  if(type==="list")return lists();
@@ -3750,10 +3786,12 @@ async function page(type,initialCategory="all"){
  try{
   const allItems=await fetchCatalogPageItems(type,S.pageCategory);
   if(S.currentPage!==type)return;
-  S.pageItems=type==="list"?allItems:allItems;
-  const shown=type==="list"?filterListCategory(allItems,S.pageCategory):allItems;
-  $("#pageBody").innerHTML=renderCategoryBar(type,allItems)+`<div id="pageCatalogResults"></div>`;
-  renderPageCatalogResults(shown);bindCategoryBar();renderCategoryMega();
+  S.pageItems=allItems;
+  if(type==="list")renderMyListWorkspace(allItems);
+  else{
+   $("#pageBody").innerHTML=renderCategoryBar(type,allItems)+`<div id="pageCatalogResults"></div>`;
+   renderPageCatalogResults(allItems);bindCategoryBar();renderCategoryMega();
+  }
  }catch(e){
   console.error(e);$("#pageBody").innerHTML='<div class="empty">Não foi possível carregar esta página.</div>';
  }
@@ -3783,7 +3821,7 @@ function ensureSearchShell(){
    <div class="crSearchBar">
     <div class="crSearchInputWrap">
      <span class="crSearchIcon">⌕</span>
-     <input id="pageSearchInput" placeholder="Buscar filmes, séries, animes, mangás e livros..." autocomplete="off" inputmode="search" aria-label="Buscar em todo o ResenhaFlix">
+     <input id="pageSearchInput" placeholder="Buscar filmes, séries, animes e livros..." autocomplete="off" inputmode="search" aria-label="Buscar filmes, séries, animes e livros">
      <button type="button" class="crSearchClose" id="pageSearchClose" aria-label="Fechar busca">✕</button>
     </div>
    </div>
@@ -3890,20 +3928,6 @@ function renderGlobalVideoResults(){
  if(items.length)bindCards(el);
  initCarousels(el);
 }
-function globalEngineMangaCard(manga){
- const key=`${manga.connector||"mangadex"}|${manga.id||""}`,cover=safeHttpUrl(manga.cover||"");
- return `<article class="m24Card" data-global-hk-manga="${esc(key)}"><div class="m24Cover" style="background-image:url('${esc(cover)}')"></div><div class="m24CardTitle">${esc(manga.title||"Mangá")}</div><div class="m24CardMeta">${esc(manga.source||"MangaDex")}${manga.year?` • ${esc(manga.year)}`:""}</div><div class="m24Actions"><button type="button" class="find" data-global-hk-open>Capítulos</button></div></article>`
-}
-function bindGlobalEngineMangaCards(root,items){
- const byKey=new Map(items.map(item=>[`${item.connector||"mangadex"}|${item.id||""}`,item]));
- root.querySelectorAll("[data-global-hk-manga]").forEach(card=>{
-  const manga=byKey.get(card.dataset.globalHkManga);if(!manga)return;
-  card.querySelector("[data-global-hk-open]")?.addEventListener("click",()=>window.ResenhaMangaEngine?.openManga(manga));
- });
-}
-function globalSearchMangaHtml(items){
- return items.length?`<div class="globalSearchRow" data-carousel tabindex="0" aria-label="Resultados de mangás; deslize para ver mais">${items.slice(0,12).map(globalEngineMangaCard).join("")}</div>`:'<div class="mediaEmpty">Nenhum mangá encontrado.</div>'
-}
 function globalSearchBooksHtml(items){
  return items.length?`<div class="globalBookGrid">${items.slice(0,8).map(bookCardHtml).join("")}</div>`:'<div class="mediaEmpty">Nenhum livro encontrado.</div>'
 }
@@ -3923,7 +3947,7 @@ async function search(rawQuery,force=false){
   ++S.searchToken;
   S.lastGlobalSearchQuery="";
   $("#searchTabs").innerHTML="";$("#searchMeta").textContent="Pesquisa global";
-  $("#searchResultsArea").innerHTML='<div class="mediaEmpty"><b>Pesquise em todo o ResenhaFlix.</b>Filmes, séries, animes, mangás e livros aparecem juntos.</div>';
+  $("#searchResultsArea").innerHTML='<div class="mediaEmpty"><b>Pesquise em todo o ResenhaFlix.</b>Filmes, séries, animes e livros aparecem juntos. Mangás ficam na aba Mangás.</div>';
   return
  }
  if(!force&&S.lastGlobalSearchQuery===q&&$("#globalVideos"))return;
@@ -3932,30 +3956,12 @@ async function search(rawQuery,force=false){
  S.globalVideoResults=[];S.globalVideosExpanded=false;
  $("#searchTabs").innerHTML="";
  $("#searchMeta").textContent=`Resultados globais para “${q}”`;
- $("#searchResultsArea").innerHTML=`<div class="globalSearchIntro"><div><h2>${esc(q)}</h2><p>Resultados de todas as áreas do ResenhaFlix, carregados em paralelo para a tela responder mais rápido.</p></div></div>
+ $("#searchResultsArea").innerHTML=`<div class="globalSearchIntro"><div><h2>${esc(q)}</h2><p>Filmes, séries, animes e livros carregados em paralelo. Para mangás, use a pesquisa exclusiva da aba Mangás.</p></div></div>
   ${globalSectionShell("globalVideos","Filmes, séries e animes","",{carousel:true,videoToggle:true})}
-  ${globalSectionShell("globalManga","Mangás","",{carousel:true})}
   ${globalSectionShell("globalBooks","Livros")}`;
 
  const jobs=[
   (async()=>{try{const items=await searchAllCatalogs(q);if(token!==S.searchToken)return;S.globalVideoResults=items;renderGlobalVideoResults()}catch{$("#globalVideos").innerHTML='<div class="globalSearchError">Falha ao buscar vídeos.</div>'}})(),
-  (async()=>{
-   const el=$("#globalManga");
-   try{
-    const mangaEngine=window.ResenhaMangaEngine;
-    if(!mangaEngine)throw Error("Motor de mangás ainda não carregado");
-    const items=await mangaEngine.search(q,{language:"pt-br",source:"all",limit:40});
-    if(token!==S.searchToken)return;
-    el.innerHTML=globalSearchMangaHtml(items);if(items.length)bindGlobalEngineMangaCards(el,items);initCarousels(el);
-   }catch(engineError){
-    try{
-     const page=await aniListManga(q,1);if(token!==S.searchToken)return;
-     const items=(page.media||[]).map(normalizeAniMedia);
-     el.innerHTML=items.length?`<div class="globalSearchRow" data-carousel tabindex="0" aria-label="Resultados de mangás; deslize para ver mais">${items.slice(0,12).map(mangaV24Card).join("")}</div>`:'<div class="mediaEmpty">Nenhum mangá encontrado.</div>';
-     if(items.length)bindMangaV24Cards(el,items);initCarousels(el);
-    }catch{el.innerHTML='<div class="globalSearchError">Falha ao buscar mangás.</div>'}
-   }
-  })(),
   (async()=>{try{
     const [ol,gut]=await Promise.all([searchOpenLibraryBooks(q).catch(()=>[]),searchGutendexBooks(q).catch(()=>[])]);
     if(token!==S.searchToken)return;const items=dedupeBooks([...gut,...ol]);const el=$("#globalBooks");el.innerHTML=globalSearchBooksHtml(items);if(items.length){bindBookCards(el,items);runWhenIdle(()=>hydrateBookFormatsProgressively(items,el))}
@@ -4265,7 +4271,7 @@ $("#installAppBtn").onclick=async()=>{
 };
 window.addEventListener("appinstalled",()=>{deferredInstallPrompt=null;$("#installAppBtn").style.display="none";toast("ResenhaFlix instalado como aplicativo.")});
 if("serviceWorker" in navigator){
- window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js?v=56",{updateViaCache:"none"}).catch(e=>console.warn("Service Worker",e)));
+ window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js?v=57",{updateViaCache:"none"}).catch(e=>console.warn("Service Worker",e)));
 }
 window.addEventListener("scroll",()=>hideCardPreview(),{passive:true,capture:true});
 window.addEventListener("resize",()=>hideCardPreview());

@@ -9,7 +9,7 @@ const [app, html, worker, playerCss] = await Promise.all([
   readFile(new URL("player-v55.css", root), "utf8")
 ]);
 
-assert.match(html, /<script src="\.\/app\.js\?v=56">\s*<\/script>/);
+assert.match(html, /<script src="\.\/app\.js\?v=57">\s*<\/script>/);
 const markup = html.slice(html.indexOf("</style>") + 8);
 assert.doesNotMatch(markup, /data-page="music"|id="musicMiniPlayer"|data-media-source-pane="music"/i);
 assert.doesNotMatch(app, /SoundCloud|Audius|iTunes|musicPage|globalMusic/i);
@@ -54,12 +54,17 @@ assert.match(app, /function setPlaybackPerformanceMode/);
 assert.match(app, /setTimeout\(hidePlayerUI,1000\)/);
 assert.match(app, /data-mobile-search/);
 assert.match(app, /MOBILE_NAV_MAX_SHORTCUTS=3/);
+assert.match(app, /function filterMyList/);
+assert.match(app, /id="listSearchInput"/);
+assert.match(app, /data-list-category/);
+assert.doesNotMatch(app, /globalManga/);
 assert.match(playerCss, /content-visibility:auto/);
+assert.match(playerCss, /\.listLibraryTools/);
 assert.match(playerCss, /#top\{display:none!important\}/);
 assert.match(playerCss, /\.mobileSearchPanel\.open/);
 assert.match(playerCss, /#playerModal \.playerSide\.drawerOpen/);
-assert.match(worker, /resenhaflix-shell-v56/);
-assert.match(worker, /\.\/app\.js\?v=56/);
-assert.match(worker, /\.\/player-v55\.css\?v=56/);
+assert.match(worker, /resenhaflix-shell-v57/);
+assert.match(worker, /\.\/app\.js\?v=57/);
+assert.match(worker, /\.\/player-v55\.css\?v=57/);
 
-console.log("video v56: mobile navigation, 1s player controls and lightweight playback OK");
+console.log("video v57: global search cleanup and searchable personal library OK");

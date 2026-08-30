@@ -276,3 +276,42 @@ body.playerOpen>#mobileBottomNav{display:none!important}
     will-change:auto!important
   }
 }
+
+/* v57 — biblioteca pessoal pesquisável e organizada por tipo/gênero. */
+.listLibraryTools{
+  margin:0 0 24px;padding:20px;border:1px solid rgba(181,208,236,.16);border-radius:18px;
+  background:linear-gradient(135deg,rgba(32,73,149,.2),rgba(16,5,2,.94) 58%);
+  box-shadow:0 18px 44px rgba(0,0,0,.2);contain:layout style
+}
+.listLibraryHead{display:flex;align-items:center;gap:16px;margin-bottom:16px}
+.listLibraryHead>div{flex:1;min-width:0}.listLibraryHead small{color:#91b2ff;font-size:10px;font-weight:900;letter-spacing:1.5px}
+.listLibraryHead h3{margin:4px 0 0;color:#fff;font-size:24px;line-height:1.15}
+.listLibraryHead>strong{min-width:48px;height:48px;display:grid;place-items:center;border-radius:14px;background:#204995;color:#fff;font-size:16px}
+.listSearchBox{
+  height:52px;display:flex;align-items:center;gap:11px;padding:0 8px 0 15px;border:1px solid rgba(181,208,236,.2);
+  border-radius:13px;background:#0d1018;color:#aebbd0
+}
+.listSearchBox:focus-within{border-color:#4b75ff;box-shadow:0 0 0 3px rgba(75,117,255,.18)}
+.listSearchBox>.rfIcon{width:21px;height:21px;flex:none}.listSearchBox input{min-width:0;flex:1;height:100%;border:0;outline:0;background:transparent;color:#fff;font-size:15px}
+.listSearchBox button{width:38px;height:38px;flex:none;border:0;border-radius:10px;background:#ffffff0b;color:#c8d2e3;font-size:22px}
+.listSearchBox input:placeholder-shown+button{opacity:.45}
+.listFilterChips{display:flex;gap:8px;margin-top:14px;padding:1px 0 5px;overflow-x:auto;scrollbar-width:none;overscroll-behavior-inline:contain}
+.listFilterChips::-webkit-scrollbar{display:none}
+.listFilterChips button{
+  min-height:38px;display:flex;align-items:center;gap:7px;flex:none;padding:0 12px;border:1px solid rgba(181,208,236,.14);
+  border-radius:999px;background:#15151b;color:#b8b8c2;font-size:11px;font-weight:800;white-space:nowrap
+}
+.listFilterChips button span{min-width:20px;padding:2px 5px;border-radius:999px;background:#ffffff0d;color:#8fa0ba;font-size:9px;text-align:center}
+.listFilterChips button.active{border-color:#4b75ff;background:#204995;color:#fff}.listFilterChips button.active span{background:#fff;color:#204995}
+.listResultsSummary{margin-top:9px;color:#8f96a4;font-size:11px;text-align:right}
+.listEmpty{min-height:230px;display:grid;place-content:center;gap:7px;text-align:center;border:1px dashed rgba(181,208,236,.2);border-radius:16px;background:#ffffff05;padding:24px}
+.listEmpty b{color:#fff;font-size:19px}.listEmpty span{color:#9299a6;font-size:12px}
+
+@media(max-width:760px){
+  .listLibraryTools{margin:-2px 0 18px;padding:15px 13px;border-radius:15px;box-shadow:none}
+  .listLibraryHead{margin-bottom:12px}.listLibraryHead h3{font-size:19px}.listLibraryHead>strong{min-width:42px;height:42px;border-radius:12px;font-size:14px}
+  .listSearchBox{height:50px}.listSearchBox input{font-size:16px}
+  .listFilterChips{margin-left:-2px;margin-right:-2px;scroll-snap-type:none!important}
+  .listFilterChips button{min-height:40px}
+  .listResultsSummary{text-align:left}
+}
