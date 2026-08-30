@@ -4,11 +4,8 @@ const CORE_STREAM_MANIFESTS=[
   "https://froststream.cloutteam.com/manifest.json",
   "https://fenixflix.fenixhub.online/manifest.json"
 ];
-const TORRENTIO_MANIFEST="https://torrentio.strem.fun/manifest.json";
-const COMET_MANIFEST="https://comet.elfhosted.com/manifest.json";
-const MEDIAFUSION_MANIFEST="https://mediafusion.elfhosted.com/manifest.json";
-const TORRENT_STREAM_MANIFESTS=[TORRENTIO_MANIFEST,COMET_MANIFEST,MEDIAFUSION_MANIFEST];
-const REQUIRED_STREAM_MANIFESTS=[...CORE_STREAM_MANIFESTS,...TORRENT_STREAM_MANIFESTS];
+const BLOCKED_STREAM_HOSTS=new Set(["torrentio.strem.fun","comet.elfhosted.com","mediafusion.elfhosted.com"]);
+const REQUIRED_STREAM_MANIFESTS=[...CORE_STREAM_MANIFESTS];
 const REQUIRED_CATALOG_MANIFESTS=[
   "https://v3-cinemeta.strem.io/manifest.json",
   "https://7a82163c306e-stremio-netflix-catalog-addon.baby-beamup.club/manifest.json"
@@ -27,12 +24,15 @@ const CFG_DEFAULT={
   lang:"pt-BR"
 };
 let savedStreams=localStorage.getItem("cf2_frost")||CFG_DEFAULT.frost;
-if(!localStorage.getItem("rf53_parallel_sources_migrated")){
-  const current=String(savedStreams||"").split(/[\n,]+/).map(x=>x.trim()).filter(Boolean);
-  const formerDefaults=new Set(["https://watchhub.strem.io/manifest.json"]);
-  savedStreams=[...new Set([...REQUIRED_STREAM_MANIFESTS,...current.filter(url=>!formerDefaults.has(url))])].join("\n");
-  localStorage.setItem("cf2_frost",savedStreams);localStorage.setItem("rf53_parallel_sources_migrated","1");
+function isBlockedStreamManifest(value){
+ try{return BLOCKED_STREAM_HOSTS.has(new URL(String(value||"")).hostname.toLowerCase())}catch{return true}
 }
+function sanitizeStreamManifests(value){
+ const current=String(value||"").split(/[\n,]+/).map(x=>x.trim()).filter(Boolean);
+ return [...new Set([...REQUIRED_STREAM_MANIFESTS,...current.filter(url=>!isBlockedStreamManifest(url))])].slice(0,6)
+}
+savedStreams=sanitizeStreamManifests(savedStreams).join("\n");
+localStorage.setItem("cf2_frost",savedStreams);
 const cfg={
   frost:savedStreams,
   meta:localStorage.getItem("cf2_meta")||CFG_DEFAULT.meta,
@@ -48,11 +48,16 @@ if(!localStorage.getItem("rf30_manga_repo_defaults")){
   const merged=[...new Set([...String(cfg.mangaRepos||"").split(/\n+/),...String(CFG_DEFAULT.mangaRepos).split(/\n+/)].map(x=>x.trim()).filter(Boolean))];
  cfg.mangaRepos=merged.join("\n");localStorage.setItem("rf15_manga_repos",cfg.mangaRepos);localStorage.setItem("rf30_manga_repo_defaults","1")
 }
-const S={hero:null,current:null,currentShow:null,currentEpisode:null,nextEpisode:null,season:1,currentPage:"home",streams:[],selectedStream:null,selectedAddon:"all",qualityFilter:"all",streamTitle:"",streamMeta:null,playType:null,playId:null,rootId:null,resumeEntry:null,resumeApplied:false,searchFilter:"all",searchItems:[],searchQuery:"",searchToken:0,manifestCache:new Map(),catalogCache:new Map(),itemCache:new Map(),externalSubtitles:[],externalSubtitleBlob:null,playerMenuKind:null,aspectMode:localStorage.getItem("cf9_aspect")||"smart",introSkipped:false,introSkipSeconds:90,autoFallback:localStorage.getItem("cf11_auto_fallback")!=="0",sourceHealth:new Map(),sourceAttemptToken:0,attemptedSourceKeys:new Set(),streamCache:new Map(),streamLoadToken:0,addonNameCache:new Map(),addonQueryStatus:new Map(),primaryManifest:localStorage.getItem("rf17_primary_manifest")||"",sourceToolsOpen:false,sourceVisibleLimit:18,sourceResetScroll:true,pageCategory:"all",pageItems:[],pageTypeForCategories:"",pageVisibleLimit:18,pageInfiniteObserver:null,mangaRepoItems:[],mangaRepoLoadedAt:0,mangaTab:"explore",mangaQuery:"",mangaExtensionQuery:"",mangaLang:"pt",mangaReaderUrl:"",mangaCatalog:[],mangaCatalogPage:1,mangaCatalogHasNext:true,mangaSearchToken:0,mangaPickerMedia:null,mangaSearchCandidates:[],mangaSearchCandidateIndex:0,mangaNativeResults:[],mangaDetail:null,mangaDetailSource:null,mangaChapters:[],mangaChapterOrder:"desc",mangaReaderManga:null,mangaReaderSource:null,mangaReaderChapter:null,mangaReaderPages:[],mangaReaderPageIndex:0,mangaReaderObserver:null,mangaReaderUiTimer:null,mangaRepoStats:[],mangaExploreCatalogCache:new Map(),mangaProgressiveToken:0,mangaProgressiveResults:[],mangaMatchMedia:null,mangaMatchResults:[],mangaMatchToken:0,mangaSearchLang:localStorage.getItem("rf16_manga_search_lang")||"both",mangaWebSource:null,mangaWebQuery:"",mangaWebCandidates:[],mangaWebCandidateIndex:0,mangaWebCurrentUrl:"",_sourceTimer:null,_sourceUiTimer:null,_ctlTimer:null,_lastProgressSave:0,_stallTimer:null,_stallStartedAt:0,_stallEvents:[],_stallRecovery:false,_stallCooldownUntil:0,_lastStablePlaybackAt:0,mangaSourceLimit:Number(localStorage.getItem("rf24_manga_source_limit")||5),mangaRepoV24:null,booksTab:"all",booksQuery:"",bookResults:[],bookReaderBook:null,bookReaderRendition:null,bookReaderEpub:null,mediaSourceTab:"books"};
+const S={hero:null,current:null,currentShow:null,currentEpisode:null,nextEpisode:null,season:1,currentPage:"home",streams:[],selectedStream:null,selectedAddon:"all",qualityFilter:"all",streamTitle:"",streamMeta:null,playType:null,playId:null,rootId:null,resumeEntry:null,resumeApplied:false,searchFilter:"all",searchItems:[],searchQuery:"",searchToken:0,manifestCache:new Map(),catalogCache:new Map(),itemCache:new Map(),externalSubtitles:[],externalSubtitleBlob:null,playerMenuKind:null,aspectMode:localStorage.getItem("cf9_aspect")||"smart",introSkipped:false,introSkipSeconds:90,skipIntroEnabled:localStorage.getItem("rf55_skip_intro_enabled")!=="0",autoFallback:localStorage.getItem("cf11_auto_fallback")!=="0",sourceHealth:new Map(),sourceAttemptToken:0,attemptedSourceKeys:new Set(),streamCache:new Map(),streamLoadToken:0,addonNameCache:new Map(),addonQueryStatus:new Map(),primaryManifest:localStorage.getItem("rf17_primary_manifest")||"",sourceToolsOpen:false,sourceVisibleLimit:18,sourceResetScroll:true,pageCategory:"all",pageItems:[],pageTypeForCategories:"",pageVisibleLimit:18,pageInfiniteObserver:null,mangaRepoItems:[],mangaRepoLoadedAt:0,mangaTab:"explore",mangaQuery:"",mangaExtensionQuery:"",mangaLang:"pt",mangaReaderUrl:"",mangaCatalog:[],mangaCatalogPage:1,mangaCatalogHasNext:true,mangaSearchToken:0,mangaPickerMedia:null,mangaSearchCandidates:[],mangaSearchCandidateIndex:0,mangaNativeResults:[],mangaDetail:null,mangaDetailSource:null,mangaChapters:[],mangaChapterOrder:"desc",mangaReaderManga:null,mangaReaderSource:null,mangaReaderChapter:null,mangaReaderPages:[],mangaReaderPageIndex:0,mangaReaderObserver:null,mangaRepoStats:[],mangaExploreCatalogCache:new Map(),mangaProgressiveToken:0,mangaProgressiveResults:[],mangaMatchMedia:null,mangaMatchResults:[],mangaMatchToken:0,mangaSearchLang:localStorage.getItem("rf16_manga_search_lang")||"both",mangaWebSource:null,mangaWebQuery:"",mangaWebCandidates:[],mangaWebCandidateIndex:0,mangaWebCurrentUrl:"",_sourceTimer:null,_sourceUiTimer:null,_ctlTimer:null,_lastProgressSave:0,_stallTimer:null,_stallStartedAt:0,_stallEvents:[],_stallRecovery:false,_stallCooldownUntil:0,_lastStablePlaybackAt:0,mangaSourceLimit:Number(localStorage.getItem("rf24_manga_source_limit")||5),mangaRepoV24:null,booksTab:"all",booksQuery:"",bookResults:[],bookReaderBook:null,bookReaderRendition:null,bookReaderEpub:null,mediaSourceTab:"books"};
+S.mangaReaderUiTimer=null;
 
 const $=s=>document.querySelector(s);
 const $$=s=>document.querySelectorAll(s);
 const esc=x=>String(x??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+function setPlayerIcon(element,name){
+ if(!element)return;
+ element.innerHTML=`<svg class="rfIcon ${name==="play"?"rfIconPlay":""}" aria-hidden="true"><use href="#rf-icon-${name}"></use></svg>`;
+}
 const SITE_DEFAULT_VOLUME=0.3,SITE_DEFAULT_VOLUME_PCT=30;
 function attachYouTubePreviewVolume(iframe,pct){
  let ready=false;
@@ -218,8 +223,7 @@ function catalogURLFor(manifest,type,id="top",params=""){
 function catalogURL(type,id="top",params=""){return catalogURLFor(cfg.meta,type,id,params)}
 function streamURLFor(manifest,type,id){return api(manifest,`stream/${type}/${encodeURIComponent(id)}.json`)}
 function configuredStreamManifests(){
- const saved=String(cfg.frost||"").split(/[\n,]+/).map(x=>x.trim()).filter(Boolean);
- return [...new Set([...REQUIRED_STREAM_MANIFESTS,...saved])].slice(0,10)
+ return sanitizeStreamManifests(cfg.frost)
 }
 function configuredCatalogManifests(){
  const saved=String(cfg.catalogs||CFG_DEFAULT.catalogs).split(/[\n,]+/).map(x=>x.trim()).filter(Boolean);
@@ -1183,9 +1187,6 @@ function quickAddonName(manifest,index){
  if(low.includes("bestcine"))name="BestCine";
  else if(low.includes("froststream"))name="FrostStream";
  else if(low.includes("fenixflix"))name="FenixFlix";
- else if(low.includes("torrentio"))name="Torrentio";
- else if(low.includes("comet"))name="Comet";
- else if(low.includes("mediafusion"))name="MediaFusion";
  else if(low.includes("watchhub"))name="WatchHub";
  else{
   try{name=new URL(manifest).hostname.replace(/^www\./,"").split(".")[0]||`Fonte ${index+1}`}catch{name=`Fonte ${index+1}`}
@@ -1226,9 +1227,6 @@ function streamRequestTimeout(manifest){
  const value=String(manifest||"").toLowerCase();
  if(value.includes("froststream"))return 18000;
  if(value.includes("fenixflix"))return 14000;
- if(value.includes("torrentio"))return 12000;
- if(value.includes("comet"))return 14000;
- if(value.includes("mediafusion"))return 15000;
  if(value.includes("bestcine"))return 10000;
  return 8000;
 }
@@ -1240,7 +1238,7 @@ async function fetchStreamBatch(manifest,type,id,index,{fresh=false}={}){
  const data=await getJSONTimeout(streamURLFor(manifest,type,id),streamRequestTimeout(manifest));
  const officialLegal=/watchhub\.strem\.io/i.test(manifest);
  const streams=(data.streams||[]).map(s=>{
-  if(s&&!s.url&&!s.externalUrl&&s.infoHash){const magnet=magnetFromStream(s);return magnet?{...s,externalUrl:magnet,_torrent:true}:null}
+  if(s&&!s.url&&!s.externalUrl&&s.infoHash)return null;
   if(s&&!s.url&&!s.externalUrl&&s.ytId)return {...s,externalUrl:`https://www.youtube.com/watch?v=${encodeURIComponent(s.ytId)}`};
   return s;
  }).filter(x=>x&&(x.url||x.externalUrl)).map((s,i)=>{
@@ -1340,12 +1338,10 @@ function renderSourceSelectedBar(){
  bar.innerHTML=`<div class="selectedSourceInfo"><small>SELECIONADA</small><b>${esc(provider)}</b><span>${esc(s._addon||"")} • ${esc(s._quality||"Outro")}</span></div>
   <div class="selectedSourceActions">
    <button type="button" class="selectedSecondary" data-selected-other title="Abrir em outro player" ${external?"style='display:none'":""}>↗</button>
-   <button type="button" class="selectedSecondary" data-selected-download title="${torrent?"Baixar por magnet":"Baixar arquivo"}" ${(torrent||(!external&&isDirectDownloadable(s.url)))?"":"disabled"}>⇩</button>
-   <button type="button" class="selectedPlay" data-selected-play>${external?"Abrir provedor":torrent?"Tentar online":"▶ Assistir"}</button>
+   <button type="button" class="selectedPlay" data-selected-play>${external?"Abrir provedor":"▶ Assistir"}</button>
   </div>`;
  bar.querySelector("[data-selected-play]").onclick=()=>external?openExternalSource(s.externalUrl):selectStream(s,true);
  const other=bar.querySelector("[data-selected-other]");if(other)other.onclick=()=>openOtherPlayerMenu(s);
- const dl=bar.querySelector("[data-selected-download]");if(dl)dl.onclick=()=>{if(!external)browserDownload(s)};
 }
 function renderSourceUI(){
  const streams=S.streams||[];
@@ -1370,10 +1366,10 @@ function renderSourceUI(){
  $("#qualityFilters").innerHTML=qualities.map(q=>`<button class="${S.qualityFilter===q?"active":""}" data-q="${esc(q)}">${q==="all"?"Qualidade":esc(q)}</button>`).join("");
 
  const filtered=sourceSortedFiltered(streams.filter(s=>(S.selectedAddon==="all"||s._addon===S.selectedAddon)&&(S.qualityFilter==="all"||s._quality===S.qualityFilter)));
- const rec=filtered.find(s=>!s._external&&!s._torrent&&getHealthStatus(s)!=="failed")||filtered.find(s=>s._torrent&&getHealthStatus(s)!=="failed")||filtered.find(s=>s._external&&getHealthStatus(s)!=="failed")||null;
+ const rec=filtered.find(s=>!s._external&&getHealthStatus(s)!=="failed")||filtered.find(s=>s._external&&getHealthStatus(s)!=="failed")||null;
  const recommend=$("#sourceRecommend");
  if(recommend){
-  recommend.innerHTML=rec?`<button type="button" class="recommendCard"><span class="recommendIcon">★</span><span class="recommendText"><small>${rec._torrent?"TORRENT — ONLINE OU DOWNLOAD":"RECOMENDADA AGORA"}</small><b>${esc(detectProvider(rec))}</b><span>${esc(rec._addon)} • ${esc(rec._quality)}</span></span><span class="recommendUse">Usar</span></button>`:"";
+  recommend.innerHTML=rec?`<button type="button" class="recommendCard"><span class="recommendIcon">★</span><span class="recommendText"><small>RECOMENDADA AGORA</small><b>${esc(detectProvider(rec))}</b><span>${esc(rec._addon)} • ${esc(rec._quality)}</span></span><span class="recommendUse">Usar</span></button>`:"";
   if(rec)recommend.querySelector("button").onclick=()=>{S.selectedStream=rec;scheduleSourceUIRender({immediate:true});if(rec._external)openExternalSource(rec.externalUrl);else selectStream(rec,true);if(innerWidth<=900)setSourceDrawer(false)};
  }
  if(!filtered.length){
@@ -1382,30 +1378,26 @@ function renderSourceUI(){
   $("#sources").innerHTML=`<div class="sourceEmpty">${message}</div>`;renderSourceSelectedBar();return
  }
 
- const directAvailable=streams.some(s=>!s._external&&!s._torrent&&s.url&&!s._mismatch),visible=filtered.slice(0,S.sourceVisibleLimit);
- const torrentHint=!directAvailable&&streams.some(s=>s._torrent)?'<div class="sourceEmpty">Torrents encontrados: toque no card para tentar online ou use ⇩ para baixar por magnet.</div>':"";
- $("#sources").innerHTML=torrentHint+visible.map((s,i)=>{
-  const selected=S.selectedStream===s,provider=detectProvider(s),badges=sourceBadgeList(s),status=getHealthStatus(s);
-  const failedTorrent=s._torrent&&status==="failed",action=s._torrent?"⇩":s._external?"↗":"▶";
-  return `<article class="sourceCard compact ${selected?"active":""} ${s._external?"external":""} ${status}" data-source-key="${esc(sourceUiKey(s))}" role="button" tabindex="0" aria-label="${esc(failedTorrent?`Baixar ${provider} por magnet`:`Usar ${provider}`)}">
+ const visible=filtered.slice(0,S.sourceVisibleLimit);
+ $("#sources").innerHTML=visible.map((s,i)=>{
+  const selected=S.selectedStream===s,provider=detectProvider(s),badges=sourceBadgeList(s),status=getHealthStatus(s),action=s._external?"↗":"▶";
+  return `<article class="sourceCard compact ${selected?"active":""} ${s._external?"external":""} ${status}" data-source-key="${esc(sourceUiKey(s))}" role="button" tabindex="0" aria-label="${esc(`Usar ${provider}`)}">
    <div class="sourceStatus ${status||"idle"}">${sourceStatusIcon(s)}</div>
    <div class="sourceCompactMain">
     <div class="sourceCompactTitle"><b>${esc(provider)}</b>${S.primaryManifest&&S.primaryManifest===s._manifest?'<span class="primarySourceBadge">PRINCIPAL</span>':""}</div>
     <div class="sourceCompactSub">${esc(s._addon||"Fonte")} • ${esc(sourceStatusLabel(s))}</div>
     <div class="sourceCompactBadges"><span>${esc(s._quality||"Outro")}</span>${badges.map(x=>`<span>${esc(x)}</span>`).join("")}${getCachedStreamBatch(s._manifest,S.playType,S.playId)?'<span>⚡ cache</span>':""}</div>
    </div>
-   <button type="button" class="sourceQuickPlay" ${s._torrent?"data-source-download":"data-source-play"} aria-label="${s._torrent?"Baixar por magnet":"Reproduzir"}" title="${s._torrent?"Baixar por magnet":"Reproduzir"}">${action}</button>
+   <button type="button" class="sourceQuickPlay" data-source-play aria-label="Reproduzir" title="Reproduzir">${action}</button>
   </article>`;
  }).join("")+(visible.length<filtered.length?`<div class="sourceEmpty" data-source-more>Role para carregar mais • ${visible.length}/${filtered.length}</div>`:"");
  requestAnimationFrame(()=>{if(addonTabs)addonTabs.scrollLeft=addonScroll;if(sourceList)sourceList.scrollTop=previousScroll});
  renderSourceSelectedBar();
 }
-function useSourceCard(stream,{download=false}={}){
+function useSourceCard(stream){
  if(!stream)return;
  S.selectedStream=stream;renderSourceSelectedBar();
- const torrentFallback=stream._torrent&&getHealthStatus(stream)==="failed";
- if(download||torrentFallback){browserDownload(stream);scheduleSourceUIRender();return}
- if(stream._external&&!stream._torrent)openExternalSource(stream.externalUrl);else selectStream(stream,true);
+ if(stream._external)openExternalSource(stream.externalUrl);else selectStream(stream,true);
  scheduleSourceUIRender();
  if(innerWidth<=900)setSourceDrawer(false);
 }
@@ -1414,7 +1406,7 @@ function bindSourceUiEvents(){
  tabs?.addEventListener("click",event=>{const button=event.target.closest("[data-addon]");if(!button)return;S.selectedAddon=button.dataset.addon;resetSourceWindow();renderSourceUI();requestAnimationFrame(()=>[...tabs.querySelectorAll("[data-addon]")].find(item=>item.dataset.addon===S.selectedAddon)?.scrollIntoView({behavior:window.matchMedia?.("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"nearest",inline:"center"}))});
  tabs?.addEventListener("wheel",event=>{if(Math.abs(event.deltaY)<=Math.abs(event.deltaX))return;event.preventDefault();tabs.scrollLeft+=event.deltaY},{passive:false});
  qualities?.addEventListener("click",event=>{const button=event.target.closest("[data-q]");if(!button)return;S.qualityFilter=button.dataset.q;resetSourceWindow();renderSourceUI();requestAnimationFrame(()=>[...qualities.querySelectorAll("[data-q]")].find(item=>item.dataset.q===S.qualityFilter)?.scrollIntoView({behavior:window.matchMedia?.("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"nearest",inline:"center"}))});
- const activate=event=>{const card=event.target.closest("[data-source-key]");if(!card)return;const stream=sourceForUiKey(card.dataset.sourceKey);useSourceCard(stream,{download:!!event.target.closest("[data-source-download]")})};
+ const activate=event=>{const card=event.target.closest("[data-source-key]");if(!card)return;const stream=sourceForUiKey(card.dataset.sourceKey);useSourceCard(stream)};
  sources?.addEventListener("click",activate);
  sources?.addEventListener("keydown",event=>{if(event.key!=="Enter"&&event.key!==" ")return;event.preventDefault();activate(event)});
  sources?.addEventListener("scroll",()=>{if(sources.scrollTop+sources.clientHeight<sources.scrollHeight-160)return;const total=sourceSortedFiltered((S.streams||[]).filter(s=>(S.selectedAddon==="all"||s._addon===S.selectedAddon)&&(S.qualityFilter==="all"||s._quality===S.qualityFilter))).length;if(S.sourceVisibleLimit>=total)return;S.sourceVisibleLimit+=18;scheduleSourceUIRender({immediate:true})},{passive:true});
@@ -1823,7 +1815,15 @@ function openAspectMenu(){
 }
 
 function shouldOfferSkipIntro(){
- return S.playType==="series" && !S.introSkipped;
+ return S.skipIntroEnabled && S.playType==="series" && !S.introSkipped;
+}
+function setSkipIntroEnabled(enabled,{notify=true}={}){
+ S.skipIntroEnabled=!!enabled;
+ localStorage.setItem("rf55_skip_intro_enabled",S.skipIntroEnabled?"1":"0");
+ const button=$("#introSetupBtn");
+ if(button){button.classList.toggle("on",S.skipIntroEnabled);button.classList.toggle("off",!S.skipIntroEnabled);button.setAttribute("aria-pressed",S.skipIntroEnabled?"true":"false");button.querySelector("span")?.replaceChildren(document.createTextNode(`Pular abertura ${S.skipIntroEnabled?"ON":"OFF"}`))}
+ if(!S.skipIntroEnabled)$("#skipIntroBtn")?.classList.remove("show");else updateSkipIntroButton();
+ if(notify)toast(`Botão de pular abertura ${S.skipIntroEnabled?"ativado":"desativado"}.`);
 }
 function introDiscoveryEnd(){
  const v=$("#video"),dur=Number(v.duration||0);
@@ -1844,13 +1844,13 @@ function updateSkipIntroButton(){
    // Abre 20s antes do horário aprendido e permanece até 45s após o começo esperado.
    show=t>=Math.max(1,start-20)&&t<=start+45;
    b.classList.toggle("learned",show);
-   if(show)b.textContent=`Pular abertura ⏭`;
+   if(show)b.querySelector("span").textContent="Pular abertura";
   }else{
    // Sem perfil: deixa disponível até 60% do episódio (máximo 30 min).
    // Assim séries com cold open ou abertura no meio continuam funcionando.
    show=t>=5&&t<=introDiscoveryEnd();
    b.classList.remove("learned");
-   if(show)b.textContent="Pular abertura ⏭";
+   if(show)b.querySelector("span").textContent="Pular abertura";
   }
  }
  b.classList.toggle("show",show);
@@ -1886,6 +1886,7 @@ function openIntroSetupMenu(){
  const start=profile?.start;
  const len=Number(profile?.length||S.introSkipSeconds||90);
  menu.innerHTML=playerMenuHeader("Ajustar abertura")+`
+  <button class="menuItem introToggleItem ${S.skipIntroEnabled?"active":""}" data-intro-toggle aria-pressed="${S.skipIntroEnabled?"true":"false"}"><span class="check">${S.skipIntroEnabled?"✓":""}</span><span class="menuText">Mostrar “Pular abertura”<small>${S.skipIntroEnabled?"Ativado":"Desativado"} neste dispositivo.</small></span></button>
   <div class="introProfileInfo">${profile?`Aprendido para esta temporada: início em <b>${formatTime(start)}</b>, duração <b>${len}s</b>.`:"Ainda não existe um horário aprendido para esta temporada."}</div>
   <button class="menuItem" data-intro-mark><span class="check">⌖</span><span class="menuText">A abertura começa aqui<small>Salvar ${formatTime(now)} como início da abertura desta temporada.</small></span></button>
   <button class="menuItem" data-intro-60><span class="check"></span><span class="menuText">Duração: 60 segundos</span></button>
@@ -1893,6 +1894,11 @@ function openIntroSetupMenu(){
   <button class="menuItem" data-intro-120><span class="check">${len===120?"✓":""}</span><span class="menuText">Duração: 120 segundos</span></button>
   <button class="menuItem" data-intro-forget><span class="check">↺</span><span class="menuText">Esquecer abertura aprendida<small>O botão volta ao modo de descoberta ampla.</small></span></button>`;
  finishPlayerMenu("intro");
+
+ menu.querySelector("[data-intro-toggle]").onclick=()=>{
+  setSkipIntroEnabled(!S.skipIntroEnabled);
+  closePlayerMenu();
+ };
 
  menu.querySelector("[data-intro-mark]").onclick=()=>{
   saveIntroProfile({start:now,length:len,samples:Number(profile?.samples||0)+1});
@@ -1980,7 +1986,6 @@ async function playStream(type,id,title,meta,resumeEntry=null){
    if(found)await fetchExternalSubtitles(type,streamId,found);
   }
   if(!receivedAny&&!S.streams.length){$("#sources").innerHTML="<div class='sourceEmpty'>Nenhuma fonte foi retornada pelos addons configurados.</div>";return}
-  if(!rankedPlayableStreams(S.streams,resumeEntry).length&&S.streams.some(stream=>stream._torrent))toast("Há torrents disponíveis: tente online manualmente ou use ⇩ para baixar.");
  }catch(e){console.error(e);$("#sources").innerHTML="<div class='sourceEmpty'>Falha ao consultar as fontes. Verifique CORS, o manifesto e a disponibilidade do addon.</div>"}
 }
 function resetVideo(){
@@ -1988,7 +1993,7 @@ function resetVideo(){
   const v=$("#video");v.pause();if(v._hls){v._hls.destroy();v._hls=null}v.removeAttribute("src");
   [...v.querySelectorAll("track[data-casaflix]")].forEach(t=>t.remove());
   if(S.externalSubtitleBlob){URL.revokeObjectURL(S.externalSubtitleBlob);S.externalSubtitleBlob=null}
-  v.load();v.muted=false;$("#muteBtn").textContent="🔊";S.resumeEntry=null;S.resumeApplied=false;applyAspectMode(S.aspectMode,false);$("#seek").value=0;$("#seek").style.setProperty("--seek-fill","0%");$("#timeText").textContent="0:00 / 0:00";$("#bigPlay").classList.remove("hidden");$("#playPause").textContent="▶";$("#centerPlay").textContent="▶";$("#trackStatus").textContent="Áudio: auto • Legenda: auto";$("#playerMenu").classList.remove("open");$("#playerMenuBackdrop").classList.remove("open");S.playerMenuKind=null;
+  v.load();v.muted=false;setPlayerIcon($("#muteBtn"),"volume");S.resumeEntry=null;S.resumeApplied=false;applyAspectMode(S.aspectMode,false);$("#seek").value=0;$("#seek").style.setProperty("--seek-fill","0%");$("#timeText").textContent="0:00 / 0:00";$("#bigPlay").classList.remove("hidden");setPlayerIcon($("#playPause"),"play");setPlayerIcon($("#centerPlay"),"play");$("#trackStatus").textContent="Áudio: auto • Legenda: auto";$("#playerMenu").classList.remove("open");$("#playerMenuBackdrop").classList.remove("open");S.playerMenuKind=null;
 }
 let hlsLibraryPromise=null;
 function ensureHlsLibrary(){
@@ -2284,7 +2289,7 @@ function togglePlayerUIVisibility(){
 function syncPlayer(){
  const v=$("#video"),dur=isFinite(v.duration)?v.duration:0,cur=v.currentTime||0;
  const seekValue=dur?Math.round(cur/dur*1000):0;$("#seek").value=seekValue;$("#seek").style.setProperty("--seek-fill",`${seekValue/10}%`);$("#timeText").textContent=`${formatTime(cur)} / ${formatTime(dur)}`;
- $("#playPause").textContent=v.paused?"▶":"❚❚";$("#centerPlay").textContent=v.paused?"▶":"❚❚";$("#bigPlay").classList.toggle("hidden",!v.paused);
+ setPlayerIcon($("#playPause"),v.paused?"play":"pause");setPlayerIcon($("#centerPlay"),v.paused?"play":"pause");$("#bigPlay").classList.toggle("hidden",!v.paused);
  if(v.paused)showPlayerUI(true);
  if(dur&&S.streamMeta?.id)persistPlaybackProgress(false);
 }
@@ -4058,20 +4063,26 @@ $("#search").addEventListener("keydown",e=>{if(e.isComposing)return;if(e.key==="
 const mobileSearchPanel=$("#mobileSearchPanel"),mobileSearchInput=$("#mobileSearchInput");
 function openMobileSearch(){
  repairTouchState();
- search(S.searchQuery||"",false);
+ const value=S.searchQuery||"";
+ mobileSearchPanel.classList.add("open");
+ mobileSearchPanel.setAttribute("aria-hidden","false");
+ mobileSearchInput.value=value;
+ search(value,false);
  requestAnimationFrame(()=>{
-  const input=$("#pageSearchInput");
-  if(input){
-   try{input.focus({preventScroll:true})}catch{input.focus()}
-   const n=input.value.length;
-   try{input.setSelectionRange(n,n)}catch{}
-  }
+  try{mobileSearchInput.focus({preventScroll:true})}catch{mobileSearchInput.focus()}
+  const n=mobileSearchInput.value.length;
+  try{mobileSearchInput.setSelectionRange(n,n)}catch{}
  });
 }
-function closeMobileSearch(){mobileSearchPanel.classList.remove("open");mobileSearchInput.blur()}
+function closeMobileSearch(){mobileSearchPanel.classList.remove("open");mobileSearchPanel.setAttribute("aria-hidden","true");mobileSearchInput.blur()}
 $("#mobileSearchBtn").onclick=openMobileSearch;
 $("#mobileSearchClose").onclick=closeMobileSearch;
 let mobileSearchTimer;
+mobileSearchInput.addEventListener("input",e=>{
+ clearTimeout(mobileSearchTimer);
+ const value=e.target.value;
+ mobileSearchTimer=setTimeout(()=>search(value,false),value.trim().length<2?0:360);
+});
 mobileSearchInput.addEventListener("keydown",e=>{
  if(e.key==="Enter"){
   e.preventDefault();
@@ -4112,13 +4123,12 @@ $("#closePlayer").onclick=()=>{S.streamLoadToken++;clearTimeout(S._sourceUiTimer
 $("#bigPlay").onclick=togglePlayback;$("#playPause").onclick=togglePlayback;
 $("#back10").onclick=()=>{$("#video").currentTime=Math.max(0,$("#video").currentTime-10);showPlayerUI()};
 $("#forward10").onclick=()=>{const v=$("#video");v.currentTime=Math.min(v.duration||Infinity,v.currentTime+10);showPlayerUI()};
-$("#muteBtn").onclick=()=>{disarmAutoUnmute();const v=$("#video");v.muted=!v.muted;$("#muteBtn").textContent=v.muted?"🔇":"🔊";showPlayerUI()};
-$("#volume").oninput=e=>{const v=$("#video");v.volume=Number(e.target.value);v.muted=v.volume===0;$("#muteBtn").textContent=v.muted?"🔇":"🔊";showPlayerUI()};
+$("#muteBtn").onclick=()=>{disarmAutoUnmute();const v=$("#video");v.muted=!v.muted;setPlayerIcon($("#muteBtn"),v.muted?"muted":"volume");showPlayerUI()};
+$("#volume").oninput=e=>{const v=$("#video");v.volume=Number(e.target.value);v.muted=v.volume===0;setPlayerIcon($("#muteBtn"),v.muted?"muted":"volume");showPlayerUI()};
 $("#speed").onchange=e=>{$("#video").playbackRate=Number(e.target.value);showPlayerUI()};
 $("#seek").oninput=e=>{const v=$("#video"),n=Number(e.target.value);e.target.style.setProperty("--seek-fill",`${n/10}%`);if(isFinite(v.duration)&&v.duration)v.currentTime=n/1000*v.duration;showPlayerUI()};
 $("#fullBtn").onclick=()=>{const el=$("#videoShell");if(!document.fullscreenElement)el.requestFullscreen?.();else document.exitFullscreen?.();showPlayerUI()};
 $("#pipBtn").onclick=async()=>{const v=$("#video");try{if(document.pictureInPictureElement)await document.exitPictureInPicture();else if(document.pictureInPictureEnabled)await v.requestPictureInPicture()}catch{toast("Picture-in-Picture não disponível neste navegador.")}showPlayerUI()};
-$("#downloadCurrent").onclick=()=>S.selectedStream?browserDownload(S.selectedStream):toast("Escolha uma fonte primeiro.");
 bindSourceUiEvents();
 $("#skipIntroBtn").onclick=skipIntro;
 $("#sourceToolsToggle").onclick=()=>{S.sourceToolsOpen=!S.sourceToolsOpen;$("#sourceTools").classList.toggle("open",S.sourceToolsOpen);$("#sourceToolsToggle").classList.toggle("active",S.sourceToolsOpen)};
@@ -4154,7 +4164,7 @@ function updateAutoFallbackButton(){
  b.textContent=`⚡ Auto ${S.autoFallback?"ON":"OFF"}`;
  b.classList.toggle("on",S.autoFallback);b.classList.toggle("off",!S.autoFallback);
 }
-updateAspectButton();updateAutoFallbackButton();
+updateAspectButton();updateAutoFallbackButton();setSkipIntroEnabled(S.skipIntroEnabled,{notify:false});
 $("#audioBtn").onclick=e=>{e.stopPropagation();openAudioMenu()};
 $("#subsBtn").onclick=e=>{e.stopPropagation();openSubtitleMenu()};
 $("#nextBtn").onclick=()=>{persistPlaybackProgress(true);if(S.currentShow&&S.nextEpisode){const carry=nextEpisodeCarry();playEpisode(S.currentShow,S.nextEpisode,carry)}};
@@ -4190,16 +4200,16 @@ document.addEventListener("keydown",e=>{if(!$("#playerModal").classList.contains
 });
 $("#detailModal").onclick=e=>{if(e.target.id==="detailModal"){$("#detailModal").classList.remove("open");document.body.classList.remove("detailOpen")}};
 $("#playerModal").onclick=e=>{if(e.target.id==="playerModal")$("#closePlayer").click()};
-$("#settingsBtn").onclick=()=>{$("#frostUrl").value=cfg.frost;$("#metaUrl").value=cfg.meta;$("#catalogUrls").value=cfg.catalogs;$("#subtitleAddon").value=cfg.subtitleAddon;$("#audioPref").value=cfg.audioPref;$("#subtitlePref").value=cfg.subtitlePref;$("#mangaRepoUrls").value=cfg.mangaRepos;$("#mangaBridgeUrl").value=cfg.mangaBridge;if($("#corsProxyUrl"))$("#corsProxyUrl").value=localStorage.getItem("rf40_cors_proxy")||"";$("#lang").value=cfg.lang;$("#settingsModal").classList.add("open");document.body.classList.add("settingsOpen");openSettingsTab("geral")};
+$("#settingsBtn").onclick=()=>{$("#frostUrl").value=cfg.frost;$("#metaUrl").value=cfg.meta;$("#catalogUrls").value=cfg.catalogs;$("#subtitleAddon").value=cfg.subtitleAddon;$("#audioPref").value=cfg.audioPref;$("#subtitlePref").value=cfg.subtitlePref;$("#skipIntroEnabled").value=S.skipIntroEnabled?"1":"0";$("#mangaRepoUrls").value=cfg.mangaRepos;$("#mangaBridgeUrl").value=cfg.mangaBridge;if($("#corsProxyUrl"))$("#corsProxyUrl").value=localStorage.getItem("rf40_cors_proxy")||"";$("#lang").value=cfg.lang;$("#settingsModal").classList.add("open");document.body.classList.add("settingsOpen");openSettingsTab("geral")};
 $("#closeSettings").onclick=()=>{$("#settingsModal").classList.remove("open");document.body.classList.remove("settingsOpen");unlockMobileDocument()};
-$("#saveSettings").onclick=()=>{cfg.frost=$("#frostUrl").value.trim()||CFG_DEFAULT.frost;cfg.meta=$("#metaUrl").value.trim()||CFG_DEFAULT.meta;cfg.catalogs=$("#catalogUrls").value.trim()||CFG_DEFAULT.catalogs;cfg.subtitleAddon=$("#subtitleAddon").value.trim()||CFG_DEFAULT.subtitleAddon;cfg.audioPref=$("#audioPref").value;cfg.subtitlePref=$("#subtitlePref").value;cfg.mangaRepos=$("#mangaRepoUrls").value.trim()||CFG_DEFAULT.mangaRepos;cfg.mangaBridge=$("#mangaBridgeUrl").value.trim();cfg.lang=$("#lang").value;localStorage.setItem("cf2_frost",cfg.frost);localStorage.setItem("cf2_meta",cfg.meta);localStorage.setItem("cf4_catalogs",cfg.catalogs);localStorage.setItem("cf5_subtitle_addon",cfg.subtitleAddon);localStorage.setItem("cf5_audio_pref",cfg.audioPref);localStorage.setItem("cf5_subtitle_pref",cfg.subtitlePref);localStorage.setItem("rf15_manga_repos",cfg.mangaRepos);localStorage.setItem("rf14_manga_bridge",cfg.mangaBridge);localStorage.setItem("rf40_cors_proxy",($("#corsProxyUrl")?.value||"").trim());localStorage.setItem("cf2_lang",cfg.lang);S.manifestCache.clear();S.catalogCache.clear();$("#settingsModal").classList.remove("open");document.body.classList.remove("settingsOpen");toast("Configurações salvas.");home()};
+$("#saveSettings").onclick=()=>{cfg.frost=sanitizeStreamManifests($("#frostUrl").value.trim()||CFG_DEFAULT.frost).join("\n");cfg.meta=$("#metaUrl").value.trim()||CFG_DEFAULT.meta;cfg.catalogs=$("#catalogUrls").value.trim()||CFG_DEFAULT.catalogs;cfg.subtitleAddon=$("#subtitleAddon").value.trim()||CFG_DEFAULT.subtitleAddon;cfg.audioPref=$("#audioPref").value;cfg.subtitlePref=$("#subtitlePref").value;setSkipIntroEnabled($("#skipIntroEnabled").value!=="0",{notify:false});cfg.mangaRepos=$("#mangaRepoUrls").value.trim()||CFG_DEFAULT.mangaRepos;cfg.mangaBridge=$("#mangaBridgeUrl").value.trim();cfg.lang=$("#lang").value;localStorage.setItem("cf2_frost",cfg.frost);localStorage.setItem("cf2_meta",cfg.meta);localStorage.setItem("cf4_catalogs",cfg.catalogs);localStorage.setItem("cf5_subtitle_addon",cfg.subtitleAddon);localStorage.setItem("cf5_audio_pref",cfg.audioPref);localStorage.setItem("cf5_subtitle_pref",cfg.subtitlePref);localStorage.setItem("rf15_manga_repos",cfg.mangaRepos);localStorage.setItem("rf14_manga_bridge",cfg.mangaBridge);localStorage.setItem("rf40_cors_proxy",($("#corsProxyUrl")?.value||"").trim());localStorage.setItem("cf2_lang",cfg.lang);S.manifestCache.clear();S.catalogCache.clear();$("#settingsModal").classList.remove("open");document.body.classList.remove("settingsOpen");toast("Configurações salvas.");home()};
 function openSettingsTab(name="geral"){
  $$("#settingsTabs [data-settings-tab]").forEach(b=>b.classList.toggle("active",b.dataset.settingsTab===name));
  $$("#settingsBody [data-settings-pane]").forEach(p=>p.classList.toggle("active",p.dataset.settingsPane===name));
  $("#settingsBody").scrollTop=0;
 }
 $$("[data-settings-tab]").forEach(b=>b.onclick=()=>openSettingsTab(b.dataset.settingsTab));
-$("#resetSettings").onclick=()=>{$("#frostUrl").value=CFG_DEFAULT.frost;$("#metaUrl").value=CFG_DEFAULT.meta;$("#catalogUrls").value=CFG_DEFAULT.catalogs;$("#subtitleAddon").value=CFG_DEFAULT.subtitleAddon;$("#audioPref").value=CFG_DEFAULT.audioPref;$("#subtitlePref").value=CFG_DEFAULT.subtitlePref;$("#mangaRepoUrls").value=CFG_DEFAULT.mangaRepos;$("#mangaBridgeUrl").value=CFG_DEFAULT.mangaBridge;if($("#corsProxyUrl"))$("#corsProxyUrl").value="";$("#lang").value=CFG_DEFAULT.lang};
+$("#resetSettings").onclick=()=>{$("#frostUrl").value=CFG_DEFAULT.frost;$("#metaUrl").value=CFG_DEFAULT.meta;$("#catalogUrls").value=CFG_DEFAULT.catalogs;$("#subtitleAddon").value=CFG_DEFAULT.subtitleAddon;$("#audioPref").value=CFG_DEFAULT.audioPref;$("#subtitlePref").value=CFG_DEFAULT.subtitlePref;$("#skipIntroEnabled").value="1";$("#mangaRepoUrls").value=CFG_DEFAULT.mangaRepos;$("#mangaBridgeUrl").value=CFG_DEFAULT.mangaBridge;if($("#corsProxyUrl"))$("#corsProxyUrl").value="";$("#lang").value=CFG_DEFAULT.lang};
 let scrollRAF=0,scrollEndTimer=0;
 window.addEventListener("scroll",()=>{
  document.body.classList.add("fastScrolling");

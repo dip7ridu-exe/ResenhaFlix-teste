@@ -2,13 +2,14 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
 const root = new URL("../", import.meta.url);
-const [app, html, worker] = await Promise.all([
+const [app, html, worker, playerCss] = await Promise.all([
   readFile(new URL("app.js", root), "utf8"),
   readFile(new URL("index.html", root), "utf8"),
-  readFile(new URL("service-worker.js", root), "utf8")
+  readFile(new URL("service-worker.js", root), "utf8"),
+  readFile(new URL("player-v55.css", root), "utf8")
 ]);
 
-assert.match(html, /<script src="\.\/app\.js\?v=53">\s*<\/script>/);
+assert.match(html, /<script src="\.\/app\.js\?v=55">\s*<\/script>/);
 const markup = html.slice(html.indexOf("</style>") + 8);
 assert.doesNotMatch(markup, /data-page="music"|id="musicMiniPlayer"|data-media-source-pane="music"/i);
 assert.doesNotMatch(app, /SoundCloud|Audius|iTunes|musicPage|globalMusic/i);
@@ -16,10 +17,7 @@ assert.doesNotMatch(app, /SoundCloud|Audius|iTunes|musicPage|globalMusic/i);
 const sourceOrder = [
   "https://bestcine.alwaysdata.net/manifest.json",
   "https://froststream.cloutteam.com/manifest.json",
-  "https://fenixflix.fenixhub.online/manifest.json",
-  "https://torrentio.strem.fun/manifest.json",
-  "https://comet.elfhosted.com/manifest.json",
-  "https://mediafusion.elfhosted.com/manifest.json"
+  "https://fenixflix.fenixhub.online/manifest.json"
 ];
 let last = -1;
 for (const source of sourceOrder) {
@@ -28,8 +26,12 @@ for (const source of sourceOrder) {
   last = index;
 }
 
-assert.match(app, /\.\.\.REQUIRED_STREAM_MANIFESTS,\.\.\.saved/);
-assert.match(app, /\.slice\(0,10\)/);
+for (const removed of ["https://torrentio.strem.fun/manifest.json", "https://comet.elfhosted.com/manifest.json", "https://mediafusion.elfhosted.com/manifest.json"]) {
+  assert.doesNotMatch(app, new RegExp(removed.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")), `${removed} must not remain configured`);
+}
+
+assert.match(app, /function sanitizeStreamManifests/);
+assert.match(app, /\.slice\(0,6\)/);
 assert.match(app, /REQUIRED_CATALOG_MANIFESTS/);
 assert.match(app, /7a82163c306e-stremio-netflix-catalog-addon\.baby-beamup\.club\/manifest\.json/);
 assert.match(app, /"1080p":150,"4K":120/);
@@ -38,17 +40,22 @@ assert.match(app, /streamRequestTimeout\(manifest\)/);
 assert.match(app, /loadStreamsFromAddons\(type,streamId,[\s\S]*?hasDirect/);
 assert.match(app, /function scheduleSourceUIRender/);
 assert.match(app, /sourceVisibleLimit:18/);
-assert.match(app, /data-source-download/);
+assert.doesNotMatch(app, /data-source-download/);
+assert.doesNotMatch(html, /id="downloadCurrent"/);
 assert.match(app, /function bindSourceUiEvents/);
 assert.match(app, /function bindPageInfinite/);
 assert.match(app, /behavior:reduced\?"auto":"smooth"/);
-assert.match(app, /includeTorrent=false/);
-assert.match(app, /webtorrent@1\.9\.7\/webtorrent\.min\.js/);
-assert.match(app, /function loadTorrentVideo/);
+assert.match(app, /if\(s&&!s\.url&&!s\.externalUrl&&s\.infoHash\)return null/);
+assert.match(app, /skipIntroEnabled:localStorage\.getItem\("rf55_skip_intro_enabled"\)/);
+assert.match(app, /function setSkipIntroEnabled/);
 assert.match(app, /function playableSeriesEpisodes/);
 assert.match(app, /official\\s\+podcast/);
 assert.match(app, /function setPlaybackPerformanceMode/);
-assert.match(worker, /resenhaflix-shell-v54/);
-assert.match(worker, /\.\/app\.js\?v=53/);
+assert.match(playerCss, /content-visibility:auto/);
+assert.match(playerCss, /\.mobileSearchPanel\.open/);
+assert.match(playerCss, /#playerModal \.playerSide\.drawerOpen/);
+assert.match(worker, /resenhaflix-shell-v55/);
+assert.match(worker, /\.\/app\.js\?v=55/);
+assert.match(worker, /\.\/player-v55\.css\?v=55/);
 
-console.log("video v54: v53 playback logic preserved with the new visual shell");
+console.log("video v55: full-screen player, mobile search, source cleanup and performance mode OK");
