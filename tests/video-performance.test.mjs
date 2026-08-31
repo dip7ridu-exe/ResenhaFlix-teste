@@ -9,7 +9,7 @@ const [app, html, worker, playerCss] = await Promise.all([
   readFile(new URL("player-v55.css", root), "utf8")
 ]);
 
-assert.match(html, /<script src="\.\/app\.js\?v=57">\s*<\/script>/);
+assert.match(html, /<script src="\.\/app\.js\?v=58">\s*<\/script>/);
 const markup = html.slice(html.indexOf("</style>") + 8);
 assert.doesNotMatch(markup, /data-page="music"|id="musicMiniPlayer"|data-media-source-pane="music"/i);
 assert.doesNotMatch(app, /SoundCloud|Audius|iTunes|musicPage|globalMusic/i);
@@ -34,14 +34,21 @@ assert.match(app, /function sanitizeStreamManifests/);
 assert.match(app, /\.slice\(0,6\)/);
 assert.match(app, /REQUIRED_CATALOG_MANIFESTS/);
 assert.match(app, /7a82163c306e-stremio-netflix-catalog-addon\.baby-beamup\.club\/manifest\.json/);
+assert.match(app, /https:\/\/apps\.soluserv\.es\/stremio_catalog_plus\/manifest\.json/);
+assert.match(app, /CATALOG_ONLY_HOSTS=new Set\(\["apps\.soluserv\.es"\]\)/);
 assert.match(app, /"1080p":150,"4K":120/);
 assert.match(app, /function diversePlayableStreams/);
 assert.match(app, /streamRequestTimeout\(manifest\)/);
 assert.match(app, /loadStreamsFromAddons\(type,streamId,[\s\S]*?hasDirect/);
 assert.match(app, /function scheduleSourceUIRender/);
+assert.match(app, /async function fetchStreamPayload/);
+assert.match(app, /async function retryStreamSources/);
 assert.match(app, /sourceVisibleLimit:18/);
 assert.doesNotMatch(app, /data-source-download/);
-assert.doesNotMatch(html, /id="downloadCurrent"/);
+assert.match(html, /id="downloadCurrent"[^>]*disabled/);
+assert.match(html, /id="retrySourcesBtn"/);
+assert.match(app, /function authorizedDownloadUrl/);
+assert.match(app, /if\(!stream\?\._officialLegal\|\|stream\?\._torrent\)return ""/);
 assert.match(app, /function bindSourceUiEvents/);
 assert.match(app, /function bindPageInfinite/);
 assert.match(app, /behavior:reduced\|\|innerWidth<=760\?"auto":"smooth"/);
@@ -63,8 +70,8 @@ assert.match(playerCss, /\.listLibraryTools/);
 assert.match(playerCss, /#top\{display:none!important\}/);
 assert.match(playerCss, /\.mobileSearchPanel\.open/);
 assert.match(playerCss, /#playerModal \.playerSide\.drawerOpen/);
-assert.match(worker, /resenhaflix-shell-v57/);
-assert.match(worker, /\.\/app\.js\?v=57/);
-assert.match(worker, /\.\/player-v55\.css\?v=57/);
+assert.match(worker, /resenhaflix-shell-v58/);
+assert.match(worker, /\.\/app\.js\?v=58/);
+assert.match(worker, /\.\/player-v55\.css\?v=58/);
 
-console.log("video v57: global search cleanup and searchable personal library OK");
+console.log("video v58: resilient sources, catalog-only Soluserv and authorized downloads OK");

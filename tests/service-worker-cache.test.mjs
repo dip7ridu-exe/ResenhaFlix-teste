@@ -26,8 +26,8 @@ let activation = null;
 listeners.get("activate")({ waitUntil(promise) { activation = promise; } });
 await activation;
 
-assert.deepEqual(deleted.sort(), ["resenhaflix-shell-v34", "resenhaflix-shell-v50", "resenhaflix-shell-v51", "resenhaflix-shell-v52", "resenhaflix-shell-v53", "resenhaflix-shell-v54", "resenhaflix-shell-v55", "resenhaflix-shell-v56"]);
+assert.deepEqual(deleted.sort(), ["resenhaflix-shell-v34", "resenhaflix-shell-v50", "resenhaflix-shell-v51", "resenhaflix-shell-v52", "resenhaflix-shell-v53", "resenhaflix-shell-v54", "resenhaflix-shell-v55", "resenhaflix-shell-v56", "resenhaflix-shell-v57"]);
 assert.equal(claimed, true);
 assert.equal(deleted.includes("outro-projeto-cache"), false, "activation must preserve unrelated GitHub Pages caches");
 
-console.log("service worker v57: cleanup is restricted to ResenhaFlix shell caches");
+console.log("service worker v58: cleanup is restricted to ResenhaFlix shell caches");
