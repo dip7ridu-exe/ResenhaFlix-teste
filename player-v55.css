@@ -315,3 +315,17 @@ body.playerOpen>#mobileBottomNav{display:none!important}
   .listFilterChips button{min-height:40px}
   .listResultsSummary{text-align:left}
 }
+
+/* v58 — diagnóstico de fontes e download somente quando autorizado. */
+#playerModal #downloadCurrent{display:grid!important}
+#playerModal #downloadCurrent:disabled{
+  opacity:.38!important;cursor:not-allowed!important;color:rgba(255,255,255,.58)!important;
+  background:rgba(8,12,18,.58)!important;border-color:rgba(255,255,255,.1)!important
+}
+#playerModal #downloadCurrent:disabled:hover{transform:none!important;background:rgba(8,12,18,.58)!important;color:rgba(255,255,255,.58)!important}
+#playerModal .sourceTools{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+#playerModal #retrySourcesBtn:disabled{opacity:.58;cursor:wait}
+@media(max-width:900px){
+  #playerModal .primePlayerTitleWrap{max-width:calc(100vw - 164px)!important}
+  #playerModal .sourceTools button{min-width:0!important;font-size:9px!important;padding-inline:4px!important}
+}
