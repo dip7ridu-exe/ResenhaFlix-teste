@@ -1,0 +1,60 @@
+name: Gerar APK pessoal
+
+on:
+  push:
+    branches:
+      - codex/resenhaflix-android
+    paths:
+      - "android-app/**"
+      - "icons/icon-512.png"
+      - ".github/workflows/android-apk.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: resenhaflix-android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Baixar repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Configurar Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Configurar Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Instalar Android 16
+        run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
+
+      - name: Testar e gerar APK
+        working-directory: android-app
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon testDebugUnitTest assembleDebug
+
+      - name: Preparar arquivo
+        run: cp android-app/app/build/outputs/apk/debug/app-debug.apk ResenhaFlix-pessoal.apk
+
+      - name: Publicar APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: ResenhaFlix-APK-pessoal
+          path: ResenhaFlix-pessoal.apk
+          if-no-files-found: error
+          retention-days: 30
+
