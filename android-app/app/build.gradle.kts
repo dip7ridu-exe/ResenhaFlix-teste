@@ -65,7 +65,7 @@ android {
     }
 
     sourceSets {
-        getByName("main").res.srcDir(layout.buildDirectory.dir("generated/res"))
+        getByName("main").res.srcDir(layout.buildDirectory.dir("generated/resenhaflix/res"))
     }
 
     testOptions {
@@ -75,7 +75,7 @@ android {
 
 val copyBrandAssets by tasks.registering(Copy::class) {
     from(rootProject.file("../icons/icon-512.png"))
-    into(layout.buildDirectory.dir("generated/res/drawable-nodpi"))
+    into(layout.buildDirectory.dir("generated/resenhaflix/res/drawable-nodpi"))
     rename { "resenhaflix_app_icon.png" }
 }
 
