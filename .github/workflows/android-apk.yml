@@ -3,6 +3,7 @@ name: Gerar APK pessoal
 on:
   push:
     branches:
+      - main
       - codex/resenhaflix-android
     paths:
       - "android-app/**"
@@ -47,6 +48,14 @@ jobs:
           chmod +x gradlew
           ./gradlew --no-daemon testDebugUnitTest assembleDebug
 
+      - name: Validar pacote e assinatura
+        working-directory: android-app
+        run: |
+          APK_PATH="app/build/outputs/apk/debug/app-debug.apk"
+          test -f "$APK_PATH"
+          "$ANDROID_HOME/build-tools/36.0.0/aapt2" dump badging "$APK_PATH" | grep -F "package: name='com.dip7ridu.resenhaflix'"
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose "$APK_PATH"
+
       - name: Preparar arquivo
         run: cp android-app/app/build/outputs/apk/debug/app-debug.apk ResenhaFlix-pessoal.apk
 
@@ -57,4 +66,3 @@ jobs:
           path: ResenhaFlix-pessoal.apk
           if-no-files-found: error
           retention-days: 30
-
