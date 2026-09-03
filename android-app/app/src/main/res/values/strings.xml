@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ResenhaFlix</string>
+    <string name="connection_error_title">Sem conexão com o ResenhaFlix</string>
+    <string name="connection_error_message">Confira sua internet e tente carregar o site novamente.</string>
+    <string name="try_again">Tentar novamente</string>
+    <string name="no_app_for_link">Nenhum aplicativo disponível para abrir este link.</string>
+</resources>
+
