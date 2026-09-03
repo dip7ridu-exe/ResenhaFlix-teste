@@ -181,7 +181,7 @@ public final class MainActivity extends Activity {
             webView.setVisibility(View.GONE);
             root.addView(view, new FrameLayout.LayoutParams(MATCH, MATCH));
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
-            setImmersive(true);
+            applyImmersiveMode(true);
         }
 
         @Override
@@ -260,14 +260,14 @@ public final class MainActivity extends Activity {
         customView = null;
         webView.setVisibility(View.VISIBLE);
         setRequestedOrientation(previousOrientation);
-        setImmersive(false);
+        applyImmersiveMode(false);
         if (customViewCallback != null) {
             customViewCallback.onCustomViewHidden();
             customViewCallback = null;
         }
     }
 
-    private void setImmersive(boolean enabled) {
+    private void applyImmersiveMode(boolean enabled) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             WindowInsetsController controller = getWindow().getInsetsController();
             if (controller == null) return;
