@@ -1012,10 +1012,10 @@ async function renderDetailSimilar(m){
  }
 }
 async function openDetails(type,id){
- $("#detailModal").classList.add("open");document.body.classList.add("detailOpen");
+ S.current=null;$("#detailModal").classList.add("open");document.body.classList.add("detailOpen");
  $("#detailTitle").textContent="Carregando…";$("#episodes").innerHTML="";$("#detailSimilar").innerHTML='<div class="loading">Carregando recomendações…</div>';
  try{
-  const d=await getJSON(metaURL(type,id));const m=d.meta||d;S.current=m;
+  const d=await getJSON(metaURL(type,id));const m=d.meta||d;m.type=type;S.current=m;
   const anime=isAnimeLike(m);
   $("#detailType").textContent="RESENHAFLIX";
   $("#detailTitle").textContent=m.name||"Sem título";
@@ -1122,9 +1122,9 @@ async function resumeFromHistoryKey(key){
 }
 function playFirst(m){
  const saved=getHistoryEntry(historyKey(m.type,m.id));
- if(saved&&saved.currentTime>5){resumeFromHistoryKey(saved.key||historyKey(m.type,m.id));return}
- if(m.type==="series"){const ep=playableSeriesEpisodes(m)[0];if(ep)playEpisode(m,ep);else toast("Nenhum episódio encontrado.")}
- else playStream("movie",m.id,m.name,m)
+ if(saved&&saved.currentTime>5)return resumeFromHistoryKey(saved.key||historyKey(m.type,m.id));
+ if(m.type==="series"){const ep=playableSeriesEpisodes(m)[0];if(ep)return playEpisode(m,ep);toast("Nenhum episódio encontrado.");return null}
+ return playStream("movie",m.id,m.name,m)
 }
 function playEpisode(show,ep,resumeEntry=null){
  S.currentShow=show;S.currentEpisode=ep;S.playerSeason=Number(ep.season)||1;
@@ -1136,7 +1136,7 @@ function playEpisode(show,ep,resumeEntry=null){
  $("#primeNextFloat").classList.toggle("show",!!S.nextEpisode);
  if(S.playerSideTab==="episodios")renderPlayerEpisodes();
  const key=ep.id;
- playStream("series",key,`${show.name} — T${ep.season} E${ep.episode}`,{...compactMeta(show),...compactMeta(ep),id:ep.id,name:show.name,poster:show.poster,background:show.background,year:show.year},resumeEntry)
+ return playStream("series",key,`${show.name} — T${ep.season} E${ep.episode}`,{...compactMeta(show),...compactMeta(ep),id:ep.id,name:show.name,poster:show.poster,background:show.background,year:show.year},resumeEntry)
 }
 function formatTime(sec){
  sec=Number(sec)||0;const h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60),s=Math.floor(sec%60);
@@ -1542,6 +1542,7 @@ async function attemptSource(stream,autoplay=true,resumeEntry=null){
   setHealth(stream,"working");
   rememberSourceResult(stream,true);
   prefetchNextEpisodeSources();
+  window.dispatchEvent(new CustomEvent("resenhaflix:party-source",{detail:streamIdentity(stream)}));
   if(S.playType==="series")toast(`Fonte funcionando: ${detectProvider(stream)} • ${stream._quality}.`);
   return true;
  }
@@ -2028,11 +2029,12 @@ async function playStream(type,id,title,meta,resumeEntry=null){
  if(type!=="series"){const episodesButton=$("#episodesBtn");if(episodesButton)episodesButton.style.display="none"}
  setPlayerSideTab("fontes");
  S.streamTitle=title||"video";S.streamMeta=meta||{id,type,name:title};S.playType=type;S.playId=id;S.resolvedStreamId=null;S.introSkipped=false;$("#skipIntroBtn").classList.remove("show");S.rootId=type==="series"?(S.currentShow?.id||resumeEntry?.rootId||meta?.id):(resumeEntry?.rootId||meta?.id||id);S.resumeEntry=resumeEntry;S.resumeApplied=false;S.streams=[];S.selectedStream=null;S.selectedAddon="all";S.qualityFilter="all";resetSourceWindow();S.externalSubtitles=[];S.sourceHealth.clear();S.addonQueryStatus.clear();S.attemptedSourceKeys.clear();S._lastProgressSave=0;updatePlayerDownloadButton(null);
+ window.dispatchEvent(new CustomEvent("resenhaflix:party-media",{detail:partyMediaDescriptor()}));
  configuredStreamManifests().forEach((manifest,index)=>S.addonQueryStatus.set(manifest,{name:quickAddonName(manifest,index),status:"loading",count:0,at:Date.now()}));
  resetVideo();showPlayerUI(true);
  $("#qualityFilters").innerHTML="";renderSourceUI();
  try{
-  const loadToken=++S.streamLoadToken;let autoStarted=false,autoPromise=null,autoTimer=null,receivedAny=false;
+  const loadToken=++S.streamLoadToken,partyAutoplay=resumeEntry?._partyAutoplay!==false;let autoStarted=false,autoPromise=null,autoTimer=null,receivedAny=false;
   const streamId=await resolveStreamId(type,id,meta);
   if(loadToken!==S.streamLoadToken)return;
   S.resolvedStreamId=streamId;
@@ -2040,7 +2042,7 @@ async function playStream(type,id,title,meta,resumeEntry=null){
    if(autoStarted||loadToken!==S.streamLoadToken||!rankedPlayableStreams(S.streams,resumeEntry).length)return autoPromise;
    autoStarted=true;
    if(resumeEntry?.stream?.provider)toast(`Procurando novamente ${resumeEntry.stream.provider}…`);
-   autoPromise=autoChooseWorkingSource(resumeEntry,true).then(async found=>{if(found)await fetchExternalSubtitles(type,streamId,found);return found});
+   autoPromise=autoChooseWorkingSource(resumeEntry,partyAutoplay).then(async found=>{if(found)await fetchExternalSubtitles(type,streamId,found);return found});
    return autoPromise;
   };
   const allPromise=loadStreamsFromAddons(type,streamId,(batch)=>{
@@ -2057,12 +2059,78 @@ async function playStream(type,id,title,meta,resumeEntry=null){
   // Se o primeiro addon chegou rápido mas todas as fontes dele falharam,
   // tenta novamente após os addons mais lentos terminarem de chegar.
   if(!found&&rankedPlayableStreams(S.streams,resumeEntry).length){
-   found=await autoChooseWorkingSource(resumeEntry,true);
+   found=await autoChooseWorkingSource(resumeEntry,partyAutoplay);
    if(found)await fetchExternalSubtitles(type,streamId,found);
   }
   if(!receivedAny&&!S.streams.length){$("#sources").innerHTML="<div class='sourceEmpty'>Nenhuma fonte foi retornada pelos addons configurados.</div>";return}
  }catch(e){console.error(e);$("#sources").innerHTML="<div class='sourceEmpty'>Falha ao consultar as fontes. Verifique CORS, o manifesto e a disponibilidade do addon.</div>"}
 }
+function partyMediaDescriptor(){
+ if(!S.playType||!S.playId)return null;
+ const rootId=S.playType==="series"?(S.currentShow?.id||S.rootId||S.streamMeta?.id):(S.rootId||S.streamMeta?.id||S.playId);
+ return {
+  type:S.playType,rootId,playId:S.playId,title:S.streamTitle||S.streamMeta?.name||"",
+  meta:compactMeta(S.streamMeta),show:compactMeta(S.currentShow),episode:compactMeta(S.currentEpisode),
+  stream:streamIdentity(S.selectedStream)
+ };
+}
+function partyMediaKey(media){return media?[media.type||"movie",media.rootId||media.meta?.id||"",media.playId||media.episode?.id||""].join("|"):""}
+function partyCurrentContext(){
+ const playing=partyMediaDescriptor();
+ if(playing&&$("#playerModal")?.classList.contains("open"))return {source:"player",title:S.streamTitle||S.streamMeta?.name||"Reprodução",media:playing};
+ const current=S.current,type=current?.type||"movie";
+ if(current?.id&&["movie","series"].includes(type)&&$("#detailModal")?.classList.contains("open")){
+  return {source:"detail",title:current.name||current.title||"Título selecionado",media:{type,rootId:current.id,playId:null,title:current.name||current.title||"",meta:compactMeta(current),show:type==="series"?compactMeta(current):null,episode:null,stream:null}};
+ }
+ return playing?{source:"player",title:S.streamTitle||"Reprodução",media:playing}:null;
+}
+async function startPartyContext(context){
+ if(!context)return false;
+ if(context.source==="player"&&$("#playerModal")?.classList.contains("open"))return true;
+ const wanted=context.media,current=S.current;
+ let media=current&&String(current.id)===String(wanted?.rootId)?current:null;
+ if(!media){const d=await getJSON(metaURL(wanted?.type||"movie",wanted?.rootId));media=d.meta||d}
+ S.current=media;
+ await playFirst(media);
+ return true;
+}
+async function openPartyMedia(media,playback={}){
+ if(!media?.type||!media?.rootId)return false;
+ const currentKey=partyMediaKey(partyMediaDescriptor()),wantedKey=partyMediaKey(media);
+ if(currentKey===wantedKey&&$("#playerModal")?.classList.contains("open"))return true;
+ const resume={
+  currentTime:Math.max(0,Number(playback.currentTime||0)),duration:Math.max(0,Number(playback.duration||0)),
+  rootId:media.rootId,stream:media.stream||null,_partyAutoplay:!playback.paused
+ };
+ if(media.type==="series"){
+  let show=S.currentShow&&String(S.currentShow.id)===String(media.rootId)?S.currentShow:null;
+  if(!show){const d=await getJSON(metaURL("series",media.rootId));show=d.meta||d}
+  const episodes=playableSeriesEpisodes(show),episode=episodes.find(item=>String(item.id)===String(media.playId||media.episode?.id))||episodes.find(item=>Number(item.season)===Number(media.episode?.season)&&Number(item.episode)===Number(media.episode?.episode));
+  if(!episode)throw new Error("Episódio da sala não encontrado");
+  S.current=show;
+  await playEpisode(show,episode,resume);
+ }else{
+  let movie=S.current&&String(S.current.id)===String(media.rootId)?S.current:null;
+  if(!movie){const d=await getJSON(metaURL("movie",media.rootId));movie=d.meta||d}
+  S.current=movie;
+  await playStream("movie",movie.id,movie.name||media.title,movie,resume);
+ }
+ return true;
+}
+function partyPlaybackState(){
+ const video=$("#video"),media=partyMediaDescriptor();
+ return {media,currentTime:Number(video?.currentTime||0),duration:Number(video?.duration||0),paused:video?video.paused:true,playbackRate:Number(video?.playbackRate||1),ready:!!(video&&(video.src||video._hls))};
+}
+async function applyPartyPlayback(playback={}){
+ const video=$("#video");if(!video)return false;
+ const target=Math.max(0,Number(playback.targetTime??playback.currentTime??0));
+ const duration=Number(video.duration||0),safeTarget=duration>0?Math.min(target,Math.max(0,duration-.25)):target;
+ if(Number.isFinite(safeTarget)&&Math.abs(Number(video.currentTime||0)-safeTarget)>1.05)try{video.currentTime=safeTarget}catch{}
+ const rate=Math.min(2,Math.max(.5,Number(playback.playbackRate||1)));video.playbackRate=rate;
+ if(playback.paused){video.pause()}else await startPlayback();
+ return true;
+}
+window.ResenhaFlixPartyAdapter={getContext:partyCurrentContext,getPlaybackState:partyPlaybackState,mediaKey:partyMediaKey,startContext:startPartyContext,openMedia:openPartyMedia,applyPlayback:applyPartyPlayback,notify:toast};
 function resetVideo(){
   stopSourceAttempt();clearPlaybackStallMonitor();cleanupTorrentPlayback();disarmAutoUnmute();S._stallRecovery=false;S._stallEvents=[];
   const v=$("#video");v.pause();if(v._hls){v._hls.destroy();v._hls=null}v.removeAttribute("src");
@@ -4336,7 +4404,7 @@ $("#installAppBtn").onclick=async()=>{
 };
 window.addEventListener("appinstalled",()=>{deferredInstallPrompt=null;$("#installAppBtn").style.display="none";toast("ResenhaFlix instalado como aplicativo.")});
 if("serviceWorker" in navigator){
- window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js?v=57",{updateViaCache:"none"}).catch(e=>console.warn("Service Worker",e)));
+ window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js?v=59",{updateViaCache:"none"}).catch(e=>console.warn("Service Worker",e)));
 }
 window.addEventListener("scroll",()=>hideCardPreview(),{passive:true,capture:true});
 window.addEventListener("resize",()=>hideCardPreview());
