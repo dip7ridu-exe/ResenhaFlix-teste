@@ -2661,6 +2661,7 @@ input::placeholder,textarea::placeholder{color:#898294;opacity:1}
 <link rel="stylesheet" href="./ui-polish.css?v=50">
 <link rel="stylesheet" href="./theme-v54.css?v=54">
 <link rel="stylesheet" href="./player-v55.css?v=58">
+<link rel="stylesheet" href="./watch-party.css?v=59">
 </head>
 <body>
 <svg class="rfIconSprite" aria-hidden="true">
@@ -2680,6 +2681,7 @@ input::placeholder,textarea::placeholder{color:#898294;opacity:1}
  <symbol id="rf-icon-intro" viewBox="0 0 24 24"><path fill="currentColor" d="m5 5 9 7-9 7V5Zm10.5 0H18v14h-2.5V5Z"/></symbol>
  <symbol id="rf-icon-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5"/></symbol>
  <symbol id="rf-icon-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.6v-.2h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"/></symbol>
+ <symbol id="rf-icon-party" viewBox="0 0 24 24"><circle cx="8.5" cy="8" r="3"/><path d="M3 19v-1a5 5 0 0 1 5-5h1a5 5 0 0 1 5 5v1M16 6a2.7 2.7 0 0 1 0 5.4M16.2 13.5a4.5 4.5 0 0 1 4.3 4.5v1"/><path fill="currentColor" stroke="none" d="m9.5 6.2 4.2 2.55-4.2 2.55V6.2Z"/></symbol>
 </svg>
 <header class="top" id="top">
  <button type="button" class="logo" id="logoHome" aria-label="Ir para o início"><img src="./icons/resenhaflix-logo.png?v=54" alt=""><span>RESENHA<b>FLIX</b></span></button>
@@ -2697,6 +2699,7 @@ input::placeholder,textarea::placeholder{color:#898294;opacity:1}
  <div class="right">
   <label class="search" id="topSearch">⌕ <input id="search" placeholder="Buscar em todo o ResenhaFlix..." autocomplete="off"></label>
   <button class="iconbtn mobileSearchBtn" id="mobileSearchBtn" aria-label="Buscar"><svg class="rfIcon"><use href="#rf-icon-search"></use></svg></button>
+  <button type="button" class="iconbtn" id="watchPartyEntry" data-watch-party-open aria-label="Abrir sala para assistir junto"><svg class="rfIcon"><use href="#rf-icon-party"></use></svg><span class="watchPartyCount" hidden></span></button>
   <button class="iconbtn" id="settingsBtn" aria-label="Configurações"><svg class="rfIcon"><use href="#rf-icon-settings"></use></svg></button>
  </div>
 </header>
@@ -2756,6 +2759,7 @@ input::placeholder,textarea::placeholder{color:#898294;opacity:1}
     <div class="netflixHeroMeta" id="detailMeta"></div>
     <div class="netflixHeroActions">
      <button class="netflixPlayBtn" id="detailWatch">▶ <span>Assistir</span></button>
+     <button type="button" class="netflixRoundBtn" id="detailParty" data-watch-party-open title="Assistir junto" aria-label="Criar sala para assistir junto"><svg class="rfIcon"><use href="#rf-icon-party"></use></svg><span class="watchPartyCount" hidden></span></button>
      <button class="netflixRoundBtn" id="detailList" title="Minha lista">＋</button>
      <button class="netflixRoundBtn" id="detailLike" title="Gostei">♡</button>
     </div>
@@ -2793,7 +2797,8 @@ input::placeholder,textarea::placeholder{color:#898294;opacity:1}
       <div class="primePlayerSubtitle" id="playerSubtitle"></div>
      </div>
      <div class="primeTopActions">
-      <button type="button" class="primeTopBtn primeSourceOnly" id="primeSourceBtn" title="Trocar fonte" aria-label="Trocar fonte"><svg class="rfIcon"><use href="#rf-icon-source"></use></svg></button>
+     <button type="button" class="primeTopBtn primeSourceOnly" id="primeSourceBtn" title="Trocar fonte" aria-label="Trocar fonte"><svg class="rfIcon"><use href="#rf-icon-source"></use></svg></button>
+      <button type="button" class="primeTopBtn" id="playerParty" data-watch-party-open title="Assistir junto" aria-label="Abrir sala para assistir junto"><svg class="rfIcon"><use href="#rf-icon-party"></use></svg><span class="watchPartyCount" hidden></span></button>
       <button type="button" class="primeTopBtn" id="downloadCurrent" title="Download indisponível nesta fonte" aria-label="Baixar arquivo autorizado" aria-disabled="true" disabled><svg class="rfIcon"><use href="#rf-icon-download"></use></svg></button>
       <button class="close primeClose" id="closePlayer" aria-label="Fechar player"><svg class="rfIcon"><use href="#rf-icon-close"></use></svg></button>
      </div>
@@ -2890,6 +2895,42 @@ input::placeholder,textarea::placeholder{color:#898294;opacity:1}
    </aside>
   </div>
  </div>
+</div>
+
+<div class="watchPartyModal" id="watchPartyModal" aria-hidden="true">
+ <button type="button" class="watchPartyBackdrop" id="watchPartyBackdrop" aria-label="Fechar sala"></button>
+ <section class="watchPartyDialog" role="dialog" aria-modal="true" aria-labelledby="partyModalTitle">
+  <header class="watchPartyHead">
+   <span class="watchPartyHeadIcon"><svg class="rfIcon"><use href="#rf-icon-party"></use></svg></span>
+   <div class="watchPartyHeadText"><small>SALA RESENHA</small><h2 id="partyModalTitle">Assistir junto</h2></div>
+   <button type="button" class="watchPartyClose" id="closeWatchParty" aria-label="Fechar">×</button>
+  </header>
+  <div class="watchPartySetup" id="partySetup">
+   <div class="watchPartyContext empty" id="partyContext">
+    <span class="watchPartyContextIcon"><svg class="rfIcon"><use href="#rf-icon-play"></use></svg></span>
+    <div><b>Nenhum título selecionado</b><span>Abra um filme ou série para criar uma sala.</span></div>
+   </div>
+   <label class="watchPartyField"><span>Como podemos chamar você?</span><input id="partyNameInput" maxlength="20" autocomplete="nickname" placeholder="Seu nome"></label>
+   <button type="button" class="watchPartyPrimary" id="partyCreateBtn">Criar sala com este título</button>
+   <div class="watchPartyDivider"><span>ou entre com um código</span></div>
+   <label class="watchPartyField"><span>Código da sala</span><input id="partyCodeInput" class="watchPartyCodeInput" maxlength="5" autocomplete="off" autocapitalize="characters" spellcheck="false" inputmode="text" placeholder="A2B3C"></label>
+   <button type="button" class="watchPartySecondary" id="partyJoinBtn">Entrar na sala</button>
+   <p class="watchPartyError" id="partySetupError" role="alert"></p>
+   <p class="watchPartyFinePrint">Sem conta • até 8 pessoas • o dono precisa manter a sala aberta</p>
+  </div>
+  <div class="watchPartyRoom" id="partyRoom" hidden>
+   <span class="watchPartyRole" id="partyRole">Sala conectada</span>
+   <div class="watchPartyCodeCard">
+    <small>CÓDIGO DA SALA</small><strong class="watchPartyCode" id="partyRoomCode">•••••</strong>
+    <div class="watchPartyShareActions"><button type="button" id="partyCopyBtn">Copiar código</button><button type="button" id="partyShareBtn">Compartilhar link</button></div>
+   </div>
+   <h3 class="watchPartySectionTitle">Quem está assistindo</h3>
+   <ul class="watchPartyParticipants" id="partyParticipants"></ul>
+   <div class="watchPartyStatus" id="partyStatus">Preparando a sala…</div>
+   <p class="watchPartyGuestNote">O dono controla reprodução, pausa, avanço, velocidade e episódios. Volume, legenda, fonte e tela cheia continuam no seu aparelho.</p>
+   <button type="button" class="watchPartyLeave" id="partyLeaveBtn">Sair da sala</button>
+  </div>
+ </section>
 </div>
 
 <div class="modal" id="mangaReaderModal">
@@ -3170,6 +3211,7 @@ input::placeholder,textarea::placeholder{color:#898294;opacity:1}
    <button type="button" class="mobileNavMenuClose" id="mobileNavMenuClose" aria-label="Fechar">×</button>
   </header>
   <div class="mobileNavDestinations" id="mobileNavDestinations"></div>
+  <button type="button" class="watchPartyMobileEntry" id="watchPartyMobileEntry" data-watch-party-open><svg class="rfIcon"><use href="#rf-icon-party"></use></svg><span>Entrar em uma sala</span><span class="watchPartyCount" hidden></span></button>
   <button type="button" class="mobileNavEditToggle" id="mobileNavEditToggle" aria-expanded="false" aria-controls="mobileNavEditor">Editar atalhos da barra</button>
   <div class="mobileNavEditor" id="mobileNavEditor" hidden>
    <p>Escolha até três destinos. Buscar e Mais ficam sempre disponíveis.</p>
@@ -3180,8 +3222,9 @@ input::placeholder,textarea::placeholder{color:#898294;opacity:1}
 
 <div class="toast" id="toast"></div>
 
-<script src="./app.js?v=58">
+<script src="./app.js?v=59">
 </script>
+<script src="./watch-party.js?v=59"></script>
 <!-- ResenhaFlix v12 — fontes progressivas/cache + tela Mangás/Keiyoushi -->
 <!-- ResenhaFlix v28 — manga exato/rápido, livros PT-BR e detalhes estilo Netflix -->
 <!-- ResenhaFlix v34 — Manga Bridge automática, conectores HakuNeko e leitor mobile -->
