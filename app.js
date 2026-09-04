@@ -2075,6 +2075,41 @@ function partyMediaDescriptor(){
  };
 }
 function partyMediaKey(media){return media?[media.type||"movie",media.rootId||media.meta?.id||"",media.playId||media.episode?.id||""].join("|"):""}
+function partySourceIdentityKey(source){
+ if(!source)return "";
+ if(source.url)return `url:${source.url}`;
+ if(source.infoHash)return `torrent:${String(source.infoHash).toLowerCase()}`;
+ return [source.manifest||source._manifest||"",source.index??source._idx??"",source.provider||detectProvider(source),source.quality||source._quality||getQuality(source),source.name||source.title||""].join("|");
+}
+const partySourceFailures=new Map();
+let partyAppliedOwnerSourceKey="",partyAppliedLocalSourceKey="";
+function partySourceCandidate(identity){
+ if(!identity||identity.torrent)return null;
+ const streams=(S.streams||[]).filter(stream=>!stream._external&&!stream._torrent&&stream.url);
+ const exactUrl=identity.url&&streams.find(stream=>String(stream.url)===String(identity.url));if(exactUrl)return exactUrl;
+ const exactSlot=identity.manifest&&Number.isInteger(identity.index)&&streams.find(stream=>String(stream._manifest||"")===String(identity.manifest)&&stream._idx===identity.index);if(exactSlot)return exactSlot;
+ const wantedName=String(identity.name||identity.title||"").trim().toLowerCase();
+ return streams.find(stream=>detectProvider(stream)===identity.provider&&stream._quality===identity.quality&&(!wantedName||String(stream.name||stream.title||"").trim().toLowerCase()===wantedName))||null;
+}
+async function applyPartySource(identity,playback={}){
+ if(!identity||identity.torrent)return false;
+ const wantedKey=partySourceIdentityKey(identity),currentKey=partySourceIdentityKey(streamIdentity(S.selectedStream));
+ if(wantedKey&&wantedKey===currentKey)return true;
+ if(wantedKey===partyAppliedOwnerSourceKey&&currentKey===partyAppliedLocalSourceKey)return true;
+ const failedAt=partySourceFailures.get(wantedKey)||0;if(failedAt&&Date.now()-failedAt<120000)return false;
+ const candidate=partySourceCandidate(identity);if(!candidate){partySourceFailures.set(wantedKey,Date.now());return false}
+ if(S.selectedStream&&sourceKey(candidate)===sourceKey(S.selectedStream)){partyAppliedOwnerSourceKey=wantedKey;partyAppliedLocalSourceKey=currentKey;return true}
+ const previous=S.selectedStream,rawTarget=playback.targetTime??playback.currentTime??$("#video")?.currentTime??0;
+ const resume={currentTime:Math.max(0,Number(rawTarget||0)),duration:Math.max(0,Number(playback.duration||0)),rootId:S.rootId,stream:identity,_partyAutoplay:!playback.paused};
+ const matched=await attemptSource(candidate,!playback.paused,resume);
+ if(matched){partySourceFailures.delete(wantedKey);partyAppliedOwnerSourceKey=wantedKey;partyAppliedLocalSourceKey=partySourceIdentityKey(streamIdentity(S.selectedStream));return true}
+ partySourceFailures.set(wantedKey,Date.now());
+ partyAppliedOwnerSourceKey="";partyAppliedLocalSourceKey="";
+ if(previous&&partySourceIdentityKey(streamIdentity(previous))!==wantedKey&&await attemptSource(previous,!playback.paused,{...resume,stream:streamIdentity(previous)}))return false;
+ const alternatives=diversePlayableStreams(S.streams,{...resume,stream:null}).filter(stream=>partySourceIdentityKey(streamIdentity(stream))!==wantedKey);
+ await trySourcesInOrder(alternatives,!playback.paused,{...resume,stream:null},false);
+ return false;
+}
 function partyCurrentContext(){
  const playing=partyMediaDescriptor();
  if(playing&&$("#playerModal")?.classList.contains("open"))return {source:"player",title:S.streamTitle||S.streamMeta?.name||"Reprodução",media:playing};
@@ -2130,7 +2165,7 @@ async function applyPartyPlayback(playback={}){
  if(playback.paused){video.pause()}else await startPlayback();
  return true;
 }
-window.ResenhaFlixPartyAdapter={getContext:partyCurrentContext,getPlaybackState:partyPlaybackState,mediaKey:partyMediaKey,startContext:startPartyContext,openMedia:openPartyMedia,applyPlayback:applyPartyPlayback,notify:toast};
+window.ResenhaFlixPartyAdapter={getContext:partyCurrentContext,getPlaybackState:partyPlaybackState,mediaKey:partyMediaKey,startContext:startPartyContext,openMedia:openPartyMedia,applySource:applyPartySource,applyPlayback:applyPartyPlayback,notify:toast};
 function resetVideo(){
   stopSourceAttempt();clearPlaybackStallMonitor();cleanupTorrentPlayback();disarmAutoUnmute();S._stallRecovery=false;S._stallEvents=[];
   const v=$("#video");v.pause();if(v._hls){v._hls.destroy();v._hls=null}v.removeAttribute("src");
@@ -4404,7 +4439,7 @@ $("#installAppBtn").onclick=async()=>{
 };
 window.addEventListener("appinstalled",()=>{deferredInstallPrompt=null;$("#installAppBtn").style.display="none";toast("ResenhaFlix instalado como aplicativo.")});
 if("serviceWorker" in navigator){
- window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js?v=59",{updateViaCache:"none"}).catch(e=>console.warn("Service Worker",e)));
+ window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js?v=60",{updateViaCache:"none"}).catch(e=>console.warn("Service Worker",e)));
 }
 window.addEventListener("scroll",()=>hideCardPreview(),{passive:true,capture:true});
 window.addEventListener("resize",()=>hideCardPreview());
