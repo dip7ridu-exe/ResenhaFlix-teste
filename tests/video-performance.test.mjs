@@ -9,9 +9,9 @@ const [app, html, worker, playerCss] = await Promise.all([
   readFile(new URL("player-v55.css", root), "utf8")
 ]);
 
-assert.match(html, /<script src="\.\/app\.js\?v=59">\s*<\/script>/);
-assert.match(html, /<script src="\.\/watch-party\.js\?v=59"><\/script>/);
-assert.match(html, /<link rel="stylesheet" href="\.\/watch-party\.css\?v=59">/);
+assert.match(html, /<script src="\.\/app\.js\?v=60">\s*<\/script>/);
+assert.match(html, /<script src="\.\/watch-party\.js\?v=60"><\/script>/);
+assert.match(html, /<link rel="stylesheet" href="\.\/watch-party\.css\?v=60">/);
 const markup = html.slice(html.indexOf("</style>") + 8);
 assert.doesNotMatch(markup, /data-page="music"|id="musicMiniPlayer"|data-media-source-pane="music"/i);
 assert.doesNotMatch(app, /SoundCloud|Audius|iTunes|musicPage|globalMusic/i);
@@ -72,10 +72,10 @@ assert.match(playerCss, /\.listLibraryTools/);
 assert.match(playerCss, /#top\{display:none!important\}/);
 assert.match(playerCss, /\.mobileSearchPanel\.open/);
 assert.match(playerCss, /#playerModal \.playerSide\.drawerOpen/);
-assert.match(worker, /resenhaflix-shell-v59/);
-assert.match(worker, /\.\/app\.js\?v=59/);
-assert.match(worker, /\.\/watch-party\.js\?v=59/);
-assert.match(worker, /\.\/watch-party\.css\?v=59/);
+assert.match(worker, /resenhaflix-shell-v60/);
+assert.match(worker, /\.\/app\.js\?v=60/);
+assert.match(worker, /\.\/watch-party\.js\?v=60/);
+assert.match(worker, /\.\/watch-party\.css\?v=60/);
 assert.match(worker, /\.\/player-v55\.css\?v=58/);
 
-console.log("video v59: resilient sources, watch party and authorized downloads OK");
+console.log("video v60: resilient sources, faster watch party and authorized downloads OK");

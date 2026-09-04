@@ -22,6 +22,18 @@
  }
  function roomPeerId(code){return OWNER_PEER_PREFIX+normalizeCode(code).toLowerCase()}
  function mediaKey(media){return media?[media.type||"movie",media.rootId||media.meta?.id||"",media.playId||media.episode?.id||""].join("|"):""}
+ function sourceIdentityKey(source){
+  if(!source)return "";
+  if(source.url)return `url:${source.url}`;
+  if(source.infoHash)return `torrent:${String(source.infoHash).toLowerCase()}`;
+  return [source.manifest||"",source.index??"",source.provider||"",source.quality||"",source.name||source.title||""].join("|");
+ }
+ function roomUrl(href,code){
+  const url=new URL(href);if(code)url.searchParams.set("sala",normalizeCode(code));else url.searchParams.delete("sala");return url.toString();
+ }
+ function safeReplaceState(historyApi,url){
+  try{if(typeof historyApi?.replaceState!=="function")return false;historyApi.replaceState(historyApi.state??null,"",String(url));return true}catch{return false}
+ }
  function expectedTime(playback,now=Date.now()){
   const current=Math.max(0,Number(playback?.currentTime||0));
   if(playback?.paused)return current;
@@ -42,7 +54,7 @@
    modal:$("#watchPartyModal"),backdrop:$("#watchPartyBackdrop"),close:$("#closeWatchParty"),setup:$("#partySetup"),room:$("#partyRoom"),
    title:$("#partyModalTitle"),context:$("#partyContext"),name:$("#partyNameInput"),code:$("#partyCodeInput"),create:$("#partyCreateBtn"),join:$("#partyJoinBtn"),
    error:$("#partySetupError"),roomCode:$("#partyRoomCode"),role:$("#partyRole"),participants:$("#partyParticipants"),status:$("#partyStatus"),
-   copy:$("#partyCopyBtn"),share:$("#partyShareBtn"),leave:$("#partyLeaveBtn")
+   copy:$("#partyCopyBtn"),share:$("#partyShareBtn"),choose:$("#partyChooseBtn"),leave:$("#partyLeaveBtn")
   };
   const party={
    role:"",code:"",name:"",peer:null,hostConnection:null,guests:new Map(),participants:[],context:null,
@@ -57,11 +69,7 @@
    party.connectionStatus=tone;nodes.status.textContent=message;nodes.status.dataset.tone=tone;
   }
   function roomLink(){const url=new URL(window.location.href);url.searchParams.set("sala",party.code);url.hash="";return url.toString()}
-  function updateRoomUrl(code){
-   const url=new URL(window.location.href);
-   if(code)url.searchParams.set("sala",normalizeCode(code));else url.searchParams.delete("sala");
-   window.history.replaceState(window.history.state,"",url);
-  }
+  function updateRoomUrl(code){return safeReplaceState(window.history,roomUrl(window.location.href,code))}
   function storedName(){try{return sanitizeName(window.localStorage.getItem("rf59_party_name")||"")}catch{return""}}
   function saveName(name){try{window.localStorage.setItem("rf59_party_name",name)}catch{}}
   function readName(){
@@ -71,11 +79,12 @@
   }
   function refreshContext(){
    party.context=adapter()?.getContext?.()||null;
-   const title=party.context?.title||"Nenhum título selecionado";
+   const title=party.context?.title||"Sala livre";
    nodes.context.querySelector("b").textContent=title;
-   nodes.context.querySelector("span").textContent=party.context?"A sala começará com este título.":"Abra um filme ou série para criar uma sala.";
+   nodes.context.querySelector("span").textContent=party.context?"A sala começará com este título.":"Crie agora e escolha o que assistir depois.";
    nodes.context.classList.toggle("empty",!party.context);
-   nodes.create.disabled=!party.context;
+   nodes.create.textContent=party.context?"Criar sala com este título":"Criar sala agora";
+   nodes.create.disabled=false;
   }
   function showSetup({code="",message=""}={}){
    nodes.setup.hidden=false;nodes.room.hidden=true;nodes.title.textContent="Assistir junto";
@@ -84,11 +93,12 @@
   function openModal(options={}){
    showSetup(options);nodes.modal.classList.add("open");nodes.modal.setAttribute("aria-hidden","false");document.body.classList.add("partyModalOpen");
    $("#mobileNavMenuClose")?.click();
-   window.requestAnimationFrame(()=>{const target=options.code?nodes.name:(party.context?nodes.create:nodes.code);try{target.focus({preventScroll:true})}catch{target.focus()}});
+   void ensurePeerLibrary().catch(()=>{});
+   window.requestAnimationFrame(()=>{const target=options.code?nodes.name:nodes.create;try{target.focus({preventScroll:true})}catch{target.focus()}});
   }
   function closeModal(){nodes.modal.classList.remove("open");nodes.modal.setAttribute("aria-hidden","true");document.body.classList.remove("partyModalOpen")}
   function setBusy(busy,label="Conectando à sala…"){
-   nodes.create.disabled=busy||!party.context;nodes.join.disabled=busy;nodes.name.disabled=busy;nodes.code.disabled=busy;
+   nodes.create.disabled=busy;nodes.join.disabled=busy;nodes.name.disabled=busy;nodes.code.disabled=busy;
    if(busy)setSetupError(label);
   }
   function participantRoster(){
@@ -117,6 +127,7 @@
    nodes.setup.hidden=true;nodes.room.hidden=false;nodes.title.textContent="Sala ativa";nodes.roomCode.textContent=party.code;
    nodes.role.textContent=party.role==="owner"?"Você é o dono":"Você entrou como convidado";
    nodes.role.dataset.role=party.role;document.body.classList.toggle("partyGuest",party.role==="guest");document.body.classList.add("partyRoomActive");
+   nodes.choose.hidden=party.role!=="owner";
    party.participants=party.role==="owner"?participantRoster():party.participants;renderParticipants();
   }
   function peerScript(url){
@@ -133,6 +144,10 @@
    peerLibraryPromise=peerScript("https://cdn.jsdelivr.net/npm/peerjs@1.5.5/dist/peerjs.min.js").catch(()=>peerScript("https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js")).catch(error=>{peerLibraryPromise=null;throw error});
    return peerLibraryPromise;
   }
+  function schedulePeerWarmup(){
+   const warm=()=>void ensurePeerLibrary().catch(()=>{});
+   if(typeof window.requestIdleCallback==="function")window.requestIdleCallback(warm,{timeout:1600});else window.setTimeout(warm,500);
+  }
   function waitForPeer(peer,timeout=12000){
    return new Promise((resolve,reject)=>{
     const timer=window.setTimeout(()=>finish(new Error("O serviço da sala demorou para responder.")),timeout);
@@ -146,7 +161,7 @@
     setStatus("Reconectando…","waiting");
     window.setTimeout(()=>{if(generation===party.peerGeneration&&!peer.destroyed&&peer.disconnected)try{peer.reconnect()}catch{}},900);
    });
-   peer.on("open",()=>{if(generation===party.peerGeneration&&party.role)setStatus(party.role==="owner"?"Sala pronta":"Sincronizado","working")});
+   peer.on("open",()=>{if(generation===party.peerGeneration&&party.role)setStatus(party.role==="owner"?(playbackSnapshot()?"Sala pronta":"Sala pronta. Escolha o que assistir."):"Conectado à sala","working")});
    peer.on("error",error=>{
     if(generation!==party.peerGeneration||party.leaving)return;
     if(error?.type==="peer-unavailable")return disconnectToSetup("Sala não encontrada. Confira o código e tente novamente.");
@@ -156,7 +171,7 @@
   function safeSend(connection,message){try{if(connection?.open)connection.send({...message,protocol:PROTOCOL_VERSION,code:party.code})}catch(error){console.warn("Sala Resenha",error)}}
   function playbackSnapshot(){
    const playback=adapter()?.getPlaybackState?.();
-   if(!playback)return null;
+   if(!playback?.media)return null;
    return {...playback,sentAt:Date.now()};
   }
   function broadcast(message){for(const guest of party.guests.values())if(guest.joined)safeSend(guest.connection,message)}
@@ -194,19 +209,19 @@
   }
   async function createRoom(){
    const name=readName();if(!name)return;
-   refreshContext();if(!party.context){setSetupError("Abra primeiro o filme ou a série que deseja assistir.");return}
+   refreshContext();
    setBusy(true,"Criando a sala gratuita…");await cleanupRoom(false);
    try{
     if(!window.RTCPeerConnection)throw new Error("Este navegador não oferece conexão ponto a ponto.");
     const Peer=await ensurePeerLibrary();let peer=null,code="",lastError=null;
     for(let attempt=0;attempt<6;attempt++){
-     code=createRoomCode();peer=new Peer(roomPeerId(code),{debug:1});
+     code=createRoomCode();peer=new Peer(roomPeerId(code),{debug:0});
      try{await waitForPeer(peer);lastError=null;break}catch(error){lastError=error;try{peer.destroy()}catch{};peer=null;if(error?.type!=="unavailable-id")break}
     }
     if(!peer)throw lastError||new Error("Não foi possível reservar um código de sala.");
     party.role="owner";party.code=code;party.name=name;party.peer=peer;party.peerGeneration++;party.participants=[];party.sequence=0;
-    const generation=party.peerGeneration;bindPeerLifecycle(peer,generation);peer.on("connection",acceptGuest);updateRoomUrl(code);enterRoomView();setStatus("Sala pronta para compartilhar","working");startHeartbeat();setBusy(false);
-    try{await adapter()?.startContext?.(party.context);requestSync("room-started",0)}catch(error){console.error(error);setStatus("Sala criada. Escolha uma fonte para começar.","waiting")}
+    const generation=party.peerGeneration;bindPeerLifecycle(peer,generation);peer.on("connection",acceptGuest);updateRoomUrl(code);enterRoomView();setStatus(party.context?"Sala pronta para compartilhar":"Sala pronta. Escolha o que assistir.",party.context?"working":"waiting");startHeartbeat();setBusy(false);
+    if(party.context)try{await adapter()?.startContext?.(party.context);requestSync("room-started",0)}catch(error){console.error(error);setStatus("Sala criada. Escolha uma fonte para começar.","waiting")}
    }catch(error){console.error(error);setBusy(false);showSetup({message:error?.message||"Não foi possível criar a sala agora."})}
   }
   function bindGuestConnection(connection){
@@ -218,8 +233,8 @@
    connection.on("data",message=>{
     if(!validMessage(message,party.code))return;
     if(message.type==="welcome"){
-     window.clearTimeout(party.joinTimer);party.participants=Array.isArray(message.participants)?message.participants.slice(0,MAX_GUESTS+1):[];enterRoomView();setStatus("Sincronizando o vídeo…","waiting");
-     if(message.playback)queueRemotePlayback(message.playback,Number(message.sequence||0));
+     window.clearTimeout(party.joinTimer);party.participants=Array.isArray(message.participants)?message.participants.slice(0,MAX_GUESTS+1):[];enterRoomView();
+     if(message.playback){setStatus("Sincronizando o vídeo…","waiting");queueRemotePlayback(message.playback,Number(message.sequence||0))}else setStatus("Aguardando o dono escolher o filme…","waiting");
     }else if(message.type==="roster"){
      party.participants=Array.isArray(message.participants)?message.participants.slice(0,MAX_GUESTS+1):party.participants;renderParticipants();
     }else if(message.type==="sync"&&message.playback)queueRemotePlayback(message.playback,Number(message.sequence||0));
@@ -235,7 +250,7 @@
    setBusy(true,"Procurando a sala…");await cleanupRoom(false);
    try{
     if(!window.RTCPeerConnection)throw new Error("Este navegador não oferece conexão ponto a ponto.");
-    const Peer=await ensurePeerLibrary(),peer=new Peer(undefined,{debug:1});await waitForPeer(peer);
+    const Peer=await ensurePeerLibrary(),peer=new Peer(undefined,{debug:0});
     party.role="guest";party.code=code;party.name=name;party.peer=peer;party.peerGeneration++;party.participants=[];
     const generation=party.peerGeneration;bindPeerLifecycle(peer,generation);document.body.classList.add("partyGuest");updateRoomUrl(code);
     const connection=peer.connect(roomPeerId(code),{serialization:"json",reliable:true,metadata:{protocol:PROTOCOL_VERSION,code,name}});bindGuestConnection(connection);setBusy(false);
@@ -249,11 +264,14 @@
     const next=party.pendingPlayback;party.pendingPlayback=null;
     try{
      const bridge=adapter();if(!bridge)throw new Error("Player ainda não está pronto");
+     if(!next.media){setStatus("Aguardando o dono escolher o filme…","waiting");continue}
      const current=bridge.getPlaybackState?.(),wanted=mediaKey(next.media),opened=mediaKey(current?.media);
      if(wanted&&wanted!==opened){setStatus("Abrindo o mesmo título do dono…","waiting");await bridge.openMedia(next.media,next)}
-     const latest=party.pendingPlayback||next;party.pendingPlayback=null;
+     if(party.pendingPlayback)continue;
+     const latest=next;
      const targetTime=expectedTime(latest,Date.now());
-     await bridge.applyPlayback({...latest,targetTime});setStatus(`Sincronizado • ${party.participants.length||1} na sala`,"working");
+     const exactSource=latest.media?.stream&&bridge.applySource?await bridge.applySource(latest.media.stream,{...latest,targetTime}):true;
+     await bridge.applyPlayback({...latest,targetTime});setStatus(`Sincronizado${exactSource?" • fonte do dono":" • fonte compatível"} • ${party.participants.length||1} na sala`,"working");
     }catch(error){console.warn("Sincronização da sala",error);setStatus("Aguardando uma fonte de vídeo…","waiting")}
    }
    party.applying=false;
@@ -277,10 +295,10 @@
   }
   function guestControlBlocked(event){
    if(party.role!=="guest")return false;
-   const selector="#playPause,#bigPlay,#centerPlay,#back10,#forward10,#centerBack10,#centerForward10,#seek,#speed,#nextBtn,#primeNextFloat,#skipIntroBtn,#playerEpisodesList .ep";
+   const selector="#playPause,#bigPlay,#centerPlay,#back10,#forward10,#centerBack10,#centerForward10,#seek,#speed,#nextBtn,#primeNextFloat,#skipIntroBtn,#playerEpisodesList .ep,#preferredSourceSelect,#autoFallbackBtn,#sourceTools button,#sources [data-source-key],#sourceSelectedBar button";
    if(!event.target?.closest?.(selector))return false;
    event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();
-   const now=Date.now();if(now-party.lastControlNotice>1600){party.lastControlNotice=now;notify("Somente o dono da sala controla a reprodução.")}
+   const now=Date.now();if(now-party.lastControlNotice>1600){party.lastControlNotice=now;notify("Somente o dono da sala controla a reprodução e a fonte.")}
    return true;
   }
 
@@ -298,6 +316,7 @@
   nodes.code.addEventListener("input",()=>{nodes.code.value=normalizeCode(nodes.code.value);setSetupError("")});nodes.code.addEventListener("keydown",event=>{if(event.key==="Enter")joinRoom()});nodes.name.addEventListener("input",()=>setSetupError(""));
   nodes.copy.addEventListener("click",async()=>notify(await copyText(party.code)?"Código da sala copiado.":"Não foi possível copiar o código."));
   nodes.share.addEventListener("click",async()=>{const data={title:`Sala ${party.code} • ResenhaFlix`,text:`Entre na minha sala do ResenhaFlix com o código ${party.code}.`,url:roomLink()};try{if(window.navigator.share)await window.navigator.share(data);else notify(await copyText(data.url)?"Link da sala copiado.":"Não foi possível compartilhar.")}catch{}});
+  nodes.choose.addEventListener("click",()=>{if(party.role!=="owner")return;closeModal();if(window.matchMedia?.("(max-width:760px)")?.matches)$("#mobileSearchBtn")?.click();else $("#search")?.focus()});
   nodes.leave.addEventListener("click",leaveRoom);
 
   const video=$("#video");if(video){for(const eventName of ["play","pause","seeked","ratechange","ended"])video.addEventListener(eventName,()=>requestSync(eventName,eventName==="seeked"?0:70))}
@@ -306,10 +325,11 @@
   document.addEventListener("visibilitychange",()=>{if(document.hidden)return;if(party.role==="owner")requestSync("visible",0);else if(party.role==="guest")safeSend(party.hostConnection,{type:"request-state"})});
   window.addEventListener("beforeunload",()=>{if(party.role==="owner")broadcast({type:"room-closed"});try{party.peer?.destroy()}catch{}});
 
-  nodes.name.value=storedName();updateEntryButtons();
+  document.querySelectorAll("[data-watch-party-open]").forEach(button=>{for(const eventName of ["pointerenter","focusin","touchstart"])button.addEventListener(eventName,()=>void ensurePeerLibrary().catch(()=>{}),{once:true,passive:eventName==="touchstart"})});
+  nodes.name.value=storedName();updateEntryButtons();schedulePeerWarmup();
   const initialCode=normalizeCode(new URL(window.location.href).searchParams.get("sala"));if(isValidCode(initialCode))openModal({code:initialCode});
   window.ResenhaFlixWatchParty={canControlPlayback:()=>party.role!=="guest",open:()=>openModal({code:party.code}),leave:leaveRoom,getState:()=>({role:party.role,code:party.code,participants:party.participants.slice()})};
  }
 
- return {ROOM_ALPHABET,ROOM_LENGTH,PROTOCOL_VERSION,MAX_GUESTS,normalizeCode,isValidCode,sanitizeName,createRoomCode,roomPeerId,mediaKey,expectedTime,validMessage,boot};
+ return {ROOM_ALPHABET,ROOM_LENGTH,PROTOCOL_VERSION,MAX_GUESTS,normalizeCode,isValidCode,sanitizeName,createRoomCode,roomPeerId,mediaKey,sourceIdentityKey,roomUrl,safeReplaceState,expectedTime,validMessage,boot};
 });
