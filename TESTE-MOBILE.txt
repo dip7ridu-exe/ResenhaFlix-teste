@@ -47,5 +47,14 @@ Checklist V33
 - Confirmar que botões, barra de progresso e seletores do player não fecham os controles durante a interação.
 - Abrir “Mais”, escolher até quatro atalhos, reordená-los e recarregar a página para validar a persistência.
 - Pesquisar um título e alternar “Ver mais” / “Ver menos” em filmes, séries e animes.
-- Abrir Livros, validar a busca em português e confirmar que “Ver no dLivros” abre o próprio dLivros, sem passar pelo Google.
-- Abrir um PDF e um EPUB; confirmar que o EPUB só baixa o leitor depois do toque em “Ler”.
+- Em Mangás, alternar entre Todas as fontes, MangaDex e Fontes PT-BR; abrir capítulos e testar leitor vertical/paginado.
+- No celular, copiar o link do Bridge pela aba Fontes e abri-lo no PC servido por localhost.
+
+Checklist V34
+- Abrir o link comum do GitHub Pages em um navegador limpo e confirmar que a Bridge oficial é configurada automaticamente.
+- Pesquisar “Lookism” e “Aparências”; confirmar os títulos legíveis e o resultado AstraToons em PT-BR.
+- Abrir Aparências na AstraToons e confirmar que a lista ultrapassa 600 capítulos.
+- Escolher individualmente AstraToons, Lycan Toons ou MangaDex no seletor de fontes.
+- No leitor mobile, tocar na página sem rolar para ocultar a interface.
+- Usar o botão “Ocultar” e depois o botão flutuante “Mostrar controles”.
+- Confirmar que virar a página não faz os controles reaparecerem sozinhos.

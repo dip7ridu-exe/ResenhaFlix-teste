@@ -9,7 +9,7 @@ const [app, html, worker, playerCss] = await Promise.all([
   readFile(new URL("player-v55.css", root), "utf8")
 ]);
 
-assert.match(html, /<script src="\.\/app\.js\?v=62">\s*<\/script>/);
+assert.match(html, /<script src="\.\/app\.js\?v=61">\s*<\/script>/);
 assert.match(html, /<script src="\.\/watch-party\.js\?v=61"><\/script>/);
 assert.match(html, /<link rel="stylesheet" href="\.\/watch-party\.css\?v=61">/);
 const markup = html.slice(html.indexOf("</style>") + 8);
@@ -66,15 +66,16 @@ assert.match(app, /MOBILE_NAV_MAX_SHORTCUTS=3/);
 assert.match(app, /function filterMyList/);
 assert.match(app, /id="listSearchInput"/);
 assert.match(app, /data-list-category/);
+assert.doesNotMatch(app, /globalManga/);
 assert.match(playerCss, /content-visibility:auto/);
 assert.match(playerCss, /\.listLibraryTools/);
 assert.match(playerCss, /#top\{display:none!important\}/);
 assert.match(playerCss, /\.mobileSearchPanel\.open/);
 assert.match(playerCss, /#playerModal \.playerSide\.drawerOpen/);
-assert.match(worker, /resenhaflix-shell-v62/);
-assert.match(worker, /\.\/app\.js\?v=62/);
+assert.match(worker, /resenhaflix-shell-v61/);
+assert.match(worker, /\.\/app\.js\?v=61/);
 assert.match(worker, /\.\/watch-party\.js\?v=61/);
 assert.match(worker, /\.\/watch-party\.css\?v=61/);
 assert.match(worker, /\.\/player-v55\.css\?v=58/);
 
-console.log("video v62: resilient sources, direct watch-party invites and authorized downloads OK");
+console.log("video v61: resilient sources, direct watch-party invites and authorized downloads OK");
