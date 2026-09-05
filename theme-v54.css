@@ -164,16 +164,14 @@ a { color: #B5D0EC; }
 .heroDesc { color: rgba(181, 208, 236, .84) !important; }
 
 .btn.primary,
-.netflixPlayBtn,
-.mangaFreeBtn {
+.netflixPlayBtn{
   background: linear-gradient(135deg, #4B75FF 0%, #204995 100%) !important;
   color: #ffffff !important;
   border-color: #4B75FF !important;
   box-shadow: 0 5px 22px rgba(75, 117, 255, .34) !important;
 }
 .btn.primary:hover,
-.netflixPlayBtn:hover,
-.mangaFreeBtn:hover { box-shadow: 0 9px 30px rgba(75, 117, 255, .48) !important; }
+.netflixPlayBtn:hover{ box-shadow: 0 9px 30px rgba(75, 117, 255, .48) !important; }
 .btn.secondary {
   background: rgba(32, 73, 149, .34) !important;
   color: #ffffff !important;
@@ -188,23 +186,17 @@ a { color: #B5D0EC; }
 .searchMeta,
 .sourceMark { color: rgba(181, 208, 236, .72) !important; }
 .card,
-.cardPreview,
-.mangaMediaCard,
-.mangaNativeResultCard {
+.cardPreview{
   background: rgba(32, 73, 149, .18) !important;
   border-color: rgba(181, 208, 236, .14) !important;
 }
-.card:hover,
-.mangaMediaCard:hover,
-.mangaNativeResultCard:hover {
+.card:hover{
   background: rgba(32, 73, 149, .36) !important;
   border-color: rgba(75, 117, 255, .60) !important;
   box-shadow: 0 16px 38px rgba(16, 5, 2, .78), 0 0 21px rgba(75, 117, 255, .19) !important;
 }
 .poster,
-.top10PosterWrap,
-.mangaPickerCover,
-.mangaNativeResultCover { background-color: rgba(32, 73, 149, .32) !important; }
+.top10PosterWrap{ background-color: rgba(32, 73, 149, .32) !important; }
 .rating {
   background: rgba(16, 5, 2, .86) !important;
   border-color: rgba(75, 117, 255, .48) !important;
@@ -221,14 +213,12 @@ a { color: #B5D0EC; }
 .top10Badge { background: #4B75FF !important; color: #ffffff !important; }
 
 .page { background: transparent !important; }
-.searchTools input,
-.mangaExploreHead input {
+.searchTools input{
   background: rgba(32, 73, 149, .18) !important;
   border-color: rgba(181, 208, 236, .18) !important;
   color: #ffffff !important;
 }
-.searchTools input:focus,
-.mangaExploreHead input:focus { border-color: #4B75FF !important; box-shadow: 0 0 0 3px rgba(75, 117, 255, .14); }
+.searchTools input:focus{ border-color: #4B75FF !important; box-shadow: 0 0 0 3px rgba(75, 117, 255, .14); }
 .searchTabs button,
 .animeGenreChip {
   background: rgba(32, 73, 149, .22) !important;
@@ -258,9 +248,7 @@ a { color: #B5D0EC; }
 .dialog,
 .netflixDetailDialog,
 .settings,
-.settingsV16,
-.mangaNativeDetail,
-.mangaMatchModal {
+.settingsV16{
   background: #100502 !important;
   border-color: rgba(75, 117, 255, .34) !important;
   box-shadow: 0 25px 80px rgba(16, 5, 2, .92), 0 0 32px rgba(75, 117, 255, .12) !important;
@@ -408,57 +396,20 @@ a { color: #B5D0EC; }
 .field select:focus,
 .field textarea:focus { border-color: #4B75FF !important; box-shadow: 0 0 0 3px rgba(75, 117, 255, .14); }
 
-/* Mangás e leitor nativo */
-.mangaSourcePicker,
-.mangaMarketPanel,
-.mangaMarketTabs,
-.marketInfo,
-.marketBook,
-.marketProvider,
-.mangaPickerSource,
-.mangaSourceSearchStatus,
-.mangaMatchItem,
-.nativeReaderSettings {
-  background: rgba(32, 73, 149, .15) !important;
-  border-color: rgba(181, 208, 236, .15) !important;
-}
-.mangaMarketHead,
-.mangaMarketTabs,
-.mangaChapterToolbar,
-.mangaChapterList,
-.mangaNativeDetailHero { border-color: rgba(181, 208, 236, .14) !important; }
-.mangaMarketPanel,
-.nativeMangaReader,
-.nativeReaderCanvas { background: #100502 !important; }
-.mangaMarketHead,
-.nativeReaderTop,
-.nativeReaderBottom { background: rgba(16, 5, 2, .96) !important; border-color: rgba(181, 208, 236, .15) !important; }
-.mangaMarketTabs button,
-.marketBookActions button,
-.marketProvider,
-.mangaChapterToolbar button,
-.mangaPickerSource button,
-.mangaMatchItem button,
-.nativeReaderIcon,
-.nativeReaderBottom button,
-.nativeReaderBottom select,
-.nativeReaderSecondary,
-.nativeReaderSettingsHead button,
-.nativeReaderSettings select {
-  background: rgba(32, 73, 149, .28) !important;
-  border-color: rgba(181, 208, 236, .17) !important;
-  color: #B5D0EC !important;
-}
-.mangaMarketTabs button.active,
-.mangaPickerSource button:hover,
-.mangaMatchItem button:hover { background: #4B75FF !important; border-color: #4B75FF !important; color: #ffffff !important; }
-.mangaChapterToolbar input { background: rgba(32, 73, 149, .15) !important; border-color: rgba(181, 208, 236, .17) !important; color: #ffffff !important; }
-.mangaChapterItem { border-color: rgba(181, 208, 236, .12) !important; color: #ffffff !important; }
-.mangaChapterItem:hover { background: rgba(75, 117, 255, .10) !important; }
-.nativeReaderProgress { background: rgba(181, 208, 236, .12) !important; }
-.nativeReaderProgress i { background: linear-gradient(90deg, #4B75FF, #B5D0EC) !important; }
-.nativeReaderHud { background: rgba(16, 5, 2, .88) !important; border-color: rgba(181, 208, 236, .20) !important; }
-.nativeReaderHud button { background: #204995 !important; color: #ffffff !important; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* Livros e seleção de mídia */
 .bookReader,
