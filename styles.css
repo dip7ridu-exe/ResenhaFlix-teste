@@ -1,46 +1,57 @@
-<!doctype html>
-<html lang="pt-BR">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>ResenhaFlix — sua biblioteca</title>
-<meta name="theme-color" content="#6d28d9">
-<meta name="color-scheme" content="dark">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="ResenhaFlix">
-<link rel="manifest" href="./manifest.webmanifest">
-<link rel="icon" href="./icons/resenhaflix-logo.png" type="image/png">
-<link rel="apple-touch-icon" href="./icons/icon-192.png">
-<style>
 :root{
-  --bg:#060606;--bg2:#0c0c0e;--card:#151518;--line:#27272b;
-  --text:#f7f7f7;--muted:#a4a4aa;--accent:#e50914;--accent2:#ff3038;
+  --bg:#050608;--bg2:#090c13;--card:#111a2e;--card-hover:#182748;--line:rgba(255,255,255,0.08);
+  --text:#ffffff;--muted:#94a3b8;--accent:#fca311;--accent2:#ffb732;
+  --rf-gold:#fca311;--rf-gold-bright:#ffb732;--rf-navy:#14213d;--rf-black:#050608;
 }
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(1000px 600px at 15% -5%, rgba(252, 163, 17, 0.10), transparent 65%),radial-gradient(900px 550px at 85% 5%, rgba(20, 33, 61, 0.65), transparent 70%),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;-webkit-font-smoothing:antialiased}
 button,input,select{font:inherit}button{cursor:pointer}.hidden{display:none!important}
 .top{
  position:fixed;z-index:100;top:0;left:0;right:0;height:68px;padding:0 34px;
  display:flex;align-items:center;gap:30px;transition:.25s;
- background:linear-gradient(180deg,rgba(0,0,0,.95),rgba(0,0,0,.2),transparent)
+ background:linear-gradient(180deg,rgba(5,6,8,.96),rgba(5,6,8,.4),transparent);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+ border-bottom:1px solid rgba(255,255,255,0.04);
 }
-.top.solid{background:rgba(7,7,7,.97);backdrop-filter:blur(14px)}
-.logo{font-weight:950;font-size:24px;letter-spacing:-1px;white-space:nowrap}.logo b{color:var(--accent)}
-.nav{display:flex;gap:20px}.nav button{background:none;border:0;color:#bbb;font-weight:600}.nav button:hover,.nav button.active{color:#fff}
-.right{margin-left:auto;display:flex;align-items:center;gap:12px}.search{width:240px;height:38px;background:#18181b;border:1px solid #303034;border-radius:8px;display:flex;align-items:center;padding:0 10px}.search input{width:100%;border:0;outline:0;background:none;color:#fff;padding:8px}.iconbtn{width:38px;height:38px;border:1px solid #303034;border-radius:8px;background:#18181b;color:#fff}
-.hero{height:610px;min-height:610px;position:relative;display:flex;align-items:flex-end;padding:0 5vw 80px;background:#151515 center/cover no-repeat}
+.top.solid{background:rgba(7,9,14,.96);border-bottom:1px solid rgba(252,163,17,.18);box-shadow:0 8px 32px rgba(0,0,0,.8)}
+.logo{font-weight:950;font-size:24px;letter-spacing:-1px;white-space:nowrap;display:flex;align-items:center;gap:10px}.logo b{color:var(--accent);text-shadow:0 0 16px rgba(252,163,17,.5)}
+.nav{display:flex;gap:20px}.nav button{background:none;border:0;color:#a0a8b9;font-weight:600}.nav button:hover,.nav button.active{color:#fff}
+.nav button.active{position:relative}.nav button.active::after{content:"";position:absolute;left:0;right:0;bottom:-4px;height:2.5px;border-radius:99px;background:var(--accent);box-shadow:0 0 8px var(--accent)}
+.right{margin-left:auto;display:flex;align-items:center;gap:12px}.search{width:240px;height:38px;background:rgba(20,33,61,.45);border:1px solid rgba(255,255,255,.1);border-radius:999px;display:flex;align-items:center;padding:0 12px;transition:.25s}.search:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(252,163,17,.2)}.search input{width:100%;border:0;outline:0;background:none;color:#fff;padding:8px}.iconbtn{width:38px;height:38px;border:1px solid rgba(255,255,255,.1);border-radius:50%;background:rgba(20,33,61,.45);color:#fff;transition:.2s}.iconbtn:hover{border-color:var(--accent);color:var(--accent)}
+.hero{height:610px;min-height:610px;position:relative;display:flex;align-items:flex-end;padding:0 5vw 80px;background:#0d111a center/cover no-repeat}
 .hero:after{content:"";position:absolute;inset:0;background:
- linear-gradient(90deg,rgba(0,0,0,.95) 0%,rgba(0,0,0,.72) 38%,rgba(0,0,0,.12) 78%),
- linear-gradient(0deg,var(--bg) 0%,transparent 40%),linear-gradient(180deg,rgba(0,0,0,.25),transparent 35%)}
-.heroContent{position:relative;z-index:1;max-width:650px}.tag{font-size:12px;font-weight:800;letter-spacing:1.5px;color:#ddd;margin-bottom:12px}
-.hero h1{font-size:clamp(42px,5vw,72px);line-height:.94;letter-spacing:-2.8px;margin:0 0 17px}.heroMeta{color:#d0d0d0;font-size:14px;margin-bottom:17px}.heroDesc{color:#ddd;line-height:1.55;max-width:600px;margin:0 0 24px}
-.actions{display:flex;gap:10px;flex-wrap:wrap}.btn{border:0;border-radius:7px;padding:11px 18px;font-weight:850}.primary{background:#fff;color:#080808}.secondary{background:#29292d;color:#fff}.btn:hover{filter:brightness(1.12)}
-main{position:relative;z-index:2;margin-top:-25px;padding:0 3vw 60px}.section{margin-bottom:31px}.sectionHead{display:flex;align-items:end;justify-content:space-between;margin-bottom:11px}.sectionTitle{font-size:20px;font-weight:900}.sectionSub{font-size:12px;color:#888}
-.row{display:flex;gap:12px;overflow-x:auto;scrollbar-width:none;padding:3px 2px 12px}.row::-webkit-scrollbar{display:none}
-.card{flex:0 0 157px;overflow:hidden;border-radius:9px;background:var(--card);position:relative;transition:transform .18s,box-shadow .18s;cursor:pointer}
-.card:hover{transform:scale(1.045);z-index:5;box-shadow:0 15px 35px #000}.poster{aspect-ratio:2/3;background:#222 center/cover no-repeat}.cardInfo{padding:8px 9px 10px}.title{font-size:13px;font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sub{font-size:11px;color:#8f8f95;margin-top:3px}.rating{position:absolute;top:7px;left:7px;padding:3px 6px;border-radius:5px;background:#000c;font-size:10px;font-weight:800}.plus{position:absolute;right:7px;top:7px;width:27px;height:27px;border:0;border-radius:50%;background:#000b;color:#fff;font-size:18px;opacity:0;transition:.15s}.card:hover .plus{opacity:1}.bar{height:3px;margin:0 9px 8px;background:#36363a;border-radius:9px;overflow:hidden}.bar i{display:block;height:100%;background:var(--accent)}
-.skeleton{height:235px;background:linear-gradient(90deg,#151515,#242424,#151515);background-size:200% 100%;animation:sk 1.2s infinite;border-radius:9px}@keyframes sk{to{background-position:-200% 0}}
+ linear-gradient(90deg,rgba(5,6,8,.96) 0%,rgba(5,6,8,.75) 40%,rgba(5,6,8,.1) 75%),
+ linear-gradient(0deg,var(--bg) 0%,rgba(5,6,8,.8) 15%,transparent 50%),linear-gradient(180deg,rgba(5,6,8,.6) 0%,transparent 25%)}
+.heroContent{position:relative;z-index:1;max-width:680px}.tag{font-size:11px;font-weight:900;letter-spacing:2px;color:var(--accent);background:rgba(252,163,17,.12);border:1px solid rgba(252,163,17,.35);padding:4px 10px;border-radius:999px;display:inline-block;margin-bottom:14px}
+.hero h1{font-size:clamp(40px,5.2vw,70px);line-height:.96;letter-spacing:-2.5px;margin:0 0 16px}.heroMeta{color:#e2e8f0;font-size:14px;margin-bottom:16px}.heroDesc{color:#94a3b8;line-height:1.6;max-width:600px;margin:0 0 24px}
+.actions{display:flex;gap:12px;flex-wrap:wrap}.btn{border:0;border-radius:999px;padding:12px 22px;font-weight:850;transition:.22s}.primary{background:linear-gradient(135deg,#fca311,#f77f00);color:#050608;box-shadow:0 4px 20px rgba(252,163,17,.4)}.secondary{background:rgba(20,33,61,.7);color:#fff;border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(8px)}.btn:hover{filter:brightness(1.12);transform:translateY(-2px)}
+main{position:relative;z-index:2;margin-top:-30px;padding:0 4vw 60px}.section{margin-bottom:36px}.sectionHead{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}.sectionTitle{font-size:21px;font-weight:900;display:flex;align-items:center;gap:10px}.sectionTitle:before{content:"";width:4px;height:20px;border-radius:99px;background:var(--accent);box-shadow:0 0 10px var(--accent)}.sectionSub{font-size:12px;color:#64748b}
+.row{display:flex;gap:14px;overflow-x:auto;scrollbar-width:none;padding:4px 2px 14px}.row::-webkit-scrollbar{display:none}
+.card{flex:0 0 162px;overflow:hidden;border-radius:14px;background:var(--card);border:1px solid rgba(255,255,255,.06);position:relative;transition:transform .25s,box-shadow .25s,border-color .25s;cursor:pointer}
+.card:hover{transform:translateY(-6px) scale(1.02);z-index:5;border-color:rgba(252,163,17,.4);box-shadow:0 16px 36px rgba(0,0,0,.85),0 0 20px rgba(252,163,17,.18);background:var(--card-hover)}.poster{aspect-ratio:2/3;background:#101626 center/cover no-repeat}.cardInfo{padding:10px 10px 12px}.title{font-size:13.5px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sub{font-size:11px;color:#94a3b8;margin-top:4px}.rating{position:absolute;top:8px;left:8px;padding:3px 7px;border-radius:8px;background:rgba(5,6,8,.85);border:1px solid rgba(252,163,17,.35);color:var(--accent);font-size:10.5px;font-weight:900}.plus{position:absolute;right:8px;top:8px;width:30px;height:30px;border:1px solid rgba(255,255,255,.15);border-radius:50%;background:rgba(5,6,8,.8);color:#fff;font-size:18px;opacity:0;transition:.18s;display:grid;place-items:center}.card:hover .plus{opacity:1}.plus.saved{opacity:1;background:var(--accent);color:#050608;border-color:var(--accent)}.bar{height:3px;margin:0 10px 10px;background:rgba(255,255,255,.1);border-radius:99px;overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,#fca311,#f77f00);box-shadow:0 0 8px var(--accent)}
+.skeleton{height:235px;background:linear-gradient(90deg,#101726,#182542,#101726);background-size:200% 100%;animation:sk 1.2s infinite;border-radius:14px}@keyframes sk{to{background-position:-200% 0}}
+
+/* Top 10 Carrossel */
+.top10Row{display:flex;gap:18px;overflow-x:auto;scrollbar-width:none;padding:10px 4px 20px;scroll-behavior:smooth}.top10Row::-webkit-scrollbar{display:none}
+.top10Card{flex:0 0 auto;display:flex;align-items:center;position:relative;cursor:pointer;transition:transform .25s}.top10Card:hover{transform:translateY(-6px) scale(1.03)}
+.top10Number{font-size:clamp(90px,9.5vw,145px);font-weight:950;line-height:.8;letter-spacing:-8px;color:#050608;-webkit-text-stroke:3.5px rgba(252,163,17,.9);text-shadow:0 0 25px rgba(252,163,17,.35);user-select:none;margin-right:-24px;z-index:1;font-style:italic}
+.top10PosterWrap{width:145px;aspect-ratio:2/3;border-radius:14px;background:#111a2e;border:1px solid rgba(255,255,255,.08);overflow:hidden;position:relative;z-index:2;box-shadow:0 10px 30px rgba(0,0,0,.7);transition:border-color .25s,box-shadow .25s}
+.top10Card:hover .top10PosterWrap{border-color:var(--accent);box-shadow:0 16px 36px rgba(0,0,0,.85),0 0 20px rgba(252,163,17,.25)}.top10PosterWrap img{width:100%;height:100%;object-fit:cover}
+.top10Badge{position:absolute;top:7px;right:7px;background:var(--accent);color:#050608;font-size:8.5px;font-weight:950;letter-spacing:.5px;padding:2px 6px;border-radius:4px;z-index:3}
+
+/* ResenhaFlix v36 — preview dos cards ao passar o mouse (hover) / segurar (long-press) */
+.cardPreview{position:fixed;z-index:85;width:340px;border-radius:12px;overflow:hidden;background:#15161b;box-shadow:0 22px 60px #000c,0 0 0 1px #2c2f37;opacity:0;transform:translateY(6px) scale(.96);pointer-events:none;transition:opacity .16s ease,transform .16s ease;}
+.cardPreview.show{opacity:1;transform:translateY(0) scale(1)}
+.cardPreviewMedia{position:relative;aspect-ratio:16/9;background:#0b0b0d;overflow:hidden}
+.cardPreviewImg{width:100%;height:100%;object-fit:cover;display:block}
+.cardPreviewVideoWrap{position:absolute;inset:0}
+.cardPreviewVideoWrap iframe{width:100%;height:100%;border:0;pointer-events:none}
+.cardPreviewInfo{padding:12px 14px 14px}
+.cardPreviewTitle{font-size:14px;font-weight:800;color:#f2f2f2;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cardPreviewMeta{font-size:11px;color:#9aa0ac;margin-bottom:6px}
+.cardPreviewDesc{font-size:11.5px;color:#c7c9cf;line-height:1.4;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+@media(hover:none),(pointer:coarse){
+ .cardPreview{width:min(320px,88vw)!important;left:50%!important;right:auto!important;top:auto!important;bottom:16px!important;transform:translate(-50%,6px) scale(.96)!important}
+ .cardPreview.show{transform:translate(-50%,0) scale(1)!important}
+}
 .page{padding:100px 4vw 50px;min-height:100vh}.page h2{font-size:30px;margin:0 0 22px}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:15px}
 .empty{color:#888;padding:40px 0;text-align:center}.loading{text-align:center;color:#888;padding:50px}
 .modal{position:fixed;inset:0;z-index:200;background:#000d;display:none;align-items:center;justify-content:center;padding:22px}.modal.open{display:flex}
@@ -50,11 +61,11 @@ main{position:relative;z-index:2;margin-top:-25px;padding:0 3vw 60px}.section{ma
 .episodes{padding:22px 35px 34px}.seasons{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px}.seasons button{border:1px solid #343439;background:#222326;color:#ddd;padding:8px 11px;border-radius:7px}.seasons button.active{background:#fff;color:#111}
 .ep{display:flex;gap:15px;padding:13px 0;border-top:1px solid #28282c;cursor:pointer}.epThumb{width:160px;aspect-ratio:16/9;flex:none;border-radius:7px;background:#222 center/cover no-repeat}.ep h4{margin:2px 0 5px}.ep p{margin:0;color:#999;font-size:13px;line-height:1.45}
 .playerWrap{width:min(1220px,98vw);max-height:95vh;background:#080809;border-radius:16px;overflow:hidden;position:relative;border:1px solid #29292e;box-shadow:0 30px 100px #000}
-.playerLayout{display:grid;grid-template-columns:minmax(0,1fr) 340px;min-height:620px}
-.playerStage{background:#000;position:relative;display:flex;flex-direction:column;min-width:0}
+.playerLayout{display:grid;grid-template-columns:minmax(0,1fr) 340px;min-height:620px;height:100%}
+.playerStage{background:#000;position:relative;display:flex;flex-direction:column;min-width:0;height:100%}
 .playerTop{position:absolute;z-index:8;left:0;right:0;top:0;padding:16px 18px 34px;display:flex;align-items:center;gap:12px;background:linear-gradient(#000e,transparent);pointer-events:none}
 .playerTop>*{pointer-events:auto}.playerTitle{font-weight:850;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.videoShell{position:relative;flex:1;display:flex;align-items:center;justify-content:center;background:#000;min-height:420px}
+.videoShell{position:relative;flex:1;display:flex;align-items:center;justify-content:center;background:#000;min-height:0}
 .videoShell video{width:100%;height:100%;max-height:82vh;display:block;background:#000;object-fit:contain}
 .bigPlay{position:absolute;z-index:5;width:78px;height:78px;border:0;border-radius:50%;background:#fff;color:#080808;font-size:30px;display:grid;place-items:center;box-shadow:0 10px 40px #0008;transition:.18s}
 .bigPlay:hover{transform:scale(1.05)}.bigPlay.hidden{display:none!important}
@@ -597,7 +608,6 @@ button{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
   border-radius:9px;padding:8px 11px;font-weight:800;font-size:12px
 }
 .playerUtilities button:active{transform:scale(.97)}
-.videoShell{aspect-ratio:16/9!important}
 .videoShell video{object-fit:contain}
 .videoShell[data-aspect="smart"] video{object-fit:contain}
 .videoShell[data-aspect="fit16"] video{object-fit:contain}
@@ -1851,7 +1861,7 @@ body.mangaWebOpen .mobileBottomNav{display:none!important}
  .playerTop{min-height:70px;padding:calc(10px + env(safe-area-inset-top)) 10px 20px!important;justify-content:flex-start!important}
  .primePlayerTitleWrap{position:static;transform:none;width:calc(100% - 150px);text-align:left;margin-top:1px}
  .playerTitle{font-size:13px!important;font-weight:800!important}.primePlayerSubtitle{font-size:10px;margin-top:3px;color:#a8a8ad}
- .primeTopActions{gap:4px}.primeTopBtn{width:36px;height:36px;font-size:13px}.primeClose{width:38px;height:38px;font-size:25px!important}
+ .primeTopActions{gap:4px}.primeTopBtn{width:36px;height:36px;font-size:13px}.primeClose{width:38px;height:38px;font-size:25px!important}.primeSourceOnly{display:none!important}
  .primeCenterControls{gap:27px}.primePlay{width:64px;height:64px;font-size:25px}.primeJump{width:56px;height:56px;font-size:41px}.primeJump b{font-size:14px}
  .playerControls{bottom:54px!important;padding:42px 10px 8px!important;background:linear-gradient(transparent,#000d 62%,#000f 100%)!important}
  .controlRow{gap:2px!important}.controlRow .ctl{height:34px!important;min-width:34px!important;padding:0 6px!important}#muteBtn{display:flex!important}.time{display:inline!important;min-width:78px!important;font-size:9px!important}#downloadCurrent,#pipBtn,.trackStatus,.volume{display:none!important}.speed{height:34px!important;max-width:56px!important;font-size:9px!important}
@@ -1863,8 +1873,23 @@ body.mangaWebOpen .mobileBottomNav{display:none!important}
  body.playerOpen{height:100dvh!important;overflow:hidden!important;touch-action:none}#playerModal .videoShell,#playerModal .playerTop,#playerModal .playerControls,#playerModal .primeCenterControls{touch-action:manipulation}#playerModal .playerSide,#playerModal .sourceList{touch-action:pan-y}
 }
 @media(max-width:900px) and (orientation:landscape){
- #playerModal .playerSide{left:auto!important;top:0!important;right:0!important;bottom:0!important;width:min(390px,48vw)!important;height:100dvh!important;max-height:none!important;border-radius:0!important;border-top:0!important;border-left:1px solid #30333b!important;transform:translateX(calc(100% - 48px))}
- #playerModal .playerSide.drawerOpen{transform:translateX(0)}.sourceDrawerHandle{height:48px!important;min-height:48px!important;border-radius:0!important}.playerControls{bottom:0!important;padding-bottom:8px!important}.primeNextFloat{bottom:12px}
+ .playerControls{bottom:0!important;padding-bottom:8px!important}.primeNextFloat{bottom:12px}
+}
+
+/* ResenhaFlix v36 — abas Fontes/Episódios e botão EP dentro do player */
+.playerSideTabs{display:flex;flex:none;gap:6px;padding:12px 14px 0}
+.playerSideTab{flex:1;min-height:38px;border:1px solid #2c2f37;background:#15161b;color:#aab0bd;border-radius:8px;font-size:12px;font-weight:800;letter-spacing:.2px;cursor:pointer}
+.playerSideTab.active{background:#fff;color:#111;border-color:#fff}
+.playerSidePanel{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+.playerSidePanel[hidden]{display:none!important}
+.playerEpisodesList{flex:1;min-height:0;overflow-y:auto;padding:10px 14px 18px}
+.playerEpisodesList .seasons{margin-bottom:10px}
+.playerEpisodesList .ep{cursor:pointer;border-radius:8px}
+.playerEpisodesList .ep.active{background:#ffffff14}
+#episodesBtn{font-weight:800;font-size:11px}
+@media(max-width:900px){
+ .playerSideTabs{padding:10px 13px 0}
+ .playerEpisodesList{padding:8px 9px 9px}
 }
 
 /* Em alta */
@@ -2656,583 +2681,3 @@ input::placeholder,textarea::placeholder{color:#898294;opacity:1}
  .mobileNavMenu button:focus-visible,.mobileBottomNav button:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
 }
 
-</style>
-<link rel="stylesheet" href="./manga-hakuneko.css?v=34">
-<link rel="stylesheet" href="./ui-polish.css?v=50">
-<link rel="stylesheet" href="./theme-v54.css?v=54">
-<link rel="stylesheet" href="./player-v55.css?v=58">
-<link rel="preconnect" href="https://0.peerjs.com" crossorigin>
-<link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
-<link rel="stylesheet" href="./watch-party.css?v=61">
-</head>
-<body>
-<svg class="rfIconSprite" aria-hidden="true">
- <symbol id="rf-icon-play" viewBox="0 0 24 24"><path fill="currentColor" d="M7.25 4.6a1 1 0 0 1 1.5-.86l10.1 6.55a2 2 0 0 1 0 3.42l-10.1 6.55a1 1 0 0 1-1.5-.86V4.6Z"/></symbol>
- <symbol id="rf-icon-pause" viewBox="0 0 24 24"><path fill="currentColor" d="M6.8 4.5h3.4v15H6.8zm7 0h3.4v15h-3.4z"/></symbol>
- <symbol id="rf-icon-volume" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4Zm12.5-.7a5 5 0 0 1 0 7.4M18.8 5a9 9 0 0 1 0 14"/></symbol>
- <symbol id="rf-icon-muted" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4m7 1 7 7m0-7-7 7"/></symbol>
- <symbol id="rf-icon-source" viewBox="0 0 24 24"><path d="M4 7h10m4 0h2M4 12h3m4 0h9M4 17h8m4 0h4"/><circle cx="16" cy="7" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="14" cy="17" r="2"/></symbol>
- <symbol id="rf-icon-download" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M5 20h14"/></symbol>
- <symbol id="rf-icon-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
- <symbol id="rf-icon-next" viewBox="0 0 24 24"><path fill="currentColor" d="m5 5 10 7L5 19V5Zm11.5 0H19v14h-2.5V5Z"/></symbol>
- <symbol id="rf-icon-audio" viewBox="0 0 24 24"><path d="M4 13v-2a8 8 0 0 1 16 0v2M4 13v5h4v-6H5a1 1 0 0 0-1 1Zm16 0v5h-4v-6h3a1 1 0 0 1 1 1Z"/></symbol>
- <symbol id="rf-icon-cc" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 10a2.5 2.5 0 1 0 0 4m8-4a2.5 2.5 0 1 0 0 4"/></symbol>
- <symbol id="rf-icon-aspect" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="1.5"/><path d="M7 10V8h2m8 6v2h-2"/></symbol>
- <symbol id="rf-icon-pip" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><rect x="12" y="11" width="7" height="5" rx="1"/></symbol>
- <symbol id="rf-icon-fullscreen" viewBox="0 0 24 24"><path d="M8 3H3v5m13-5h5v5M8 21H3v-5m13 5h5v-5"/></symbol>
- <symbol id="rf-icon-intro" viewBox="0 0 24 24"><path fill="currentColor" d="m5 5 9 7-9 7V5Zm10.5 0H18v14h-2.5V5Z"/></symbol>
- <symbol id="rf-icon-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5"/></symbol>
- <symbol id="rf-icon-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.6v-.2h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"/></symbol>
- <symbol id="rf-icon-party" viewBox="0 0 24 24"><circle cx="8.5" cy="8" r="3"/><path d="M3 19v-1a5 5 0 0 1 5-5h1a5 5 0 0 1 5 5v1M16 6a2.7 2.7 0 0 1 0 5.4M16.2 13.5a4.5 4.5 0 0 1 4.3 4.5v1"/><path fill="currentColor" stroke="none" d="m9.5 6.2 4.2 2.55-4.2 2.55V6.2Z"/></symbol>
-</svg>
-<header class="top" id="top">
- <button type="button" class="logo" id="logoHome" aria-label="Ir para o início"><img src="./icons/resenhaflix-logo.png?v=54" alt=""><span>RESENHA<b>FLIX</b></span></button>
- <nav class="nav">
-  <button type="button" class="categoriesNavBtn" id="categoriesNavBtn">Categorias <span>⌄</span></button>
-  <button class="active" data-page="home">Início</button>
-  <button data-page="trending">Em alta</button>
-  <button data-page="movies">Filmes</button>
-  <button data-page="series">Séries</button>
-  <button data-page="anime">Animes</button>
-  <button data-page="manga">Mangás</button>
-  <button data-page="books">Livros</button>
-  <button data-page="list">Minha lista</button>
- </nav>
- <div class="right">
-  <label class="search" id="topSearch">⌕ <input id="search" placeholder="Buscar em todo o ResenhaFlix..." autocomplete="off"></label>
-  <button class="iconbtn mobileSearchBtn" id="mobileSearchBtn" aria-label="Buscar"><svg class="rfIcon"><use href="#rf-icon-search"></use></svg></button>
-  <button type="button" class="iconbtn" id="watchPartyEntry" data-watch-party-open aria-label="Criar ou entrar em uma sala"><svg class="rfIcon"><use href="#rf-icon-party"></use></svg><span class="watchPartyCount" hidden></span></button>
-  <button class="iconbtn" id="settingsBtn" aria-label="Configurações"><svg class="rfIcon"><use href="#rf-icon-settings"></use></svg></button>
- </div>
-</header>
-
-<div class="categoryMega" id="categoryMega" aria-hidden="true">
- <div class="categoryMegaInner">
-  <aside class="categoryMegaExplore">
-   <div class="categoryMegaTitle">Explorar</div>
-   <button type="button" data-category-page="anime">Explorar tudo (A–Z)</button>
-   <button type="button" data-category-page="trending">Em alta agora</button>
-   <button type="button" data-category-page="movies">Filmes</button>
-   <button type="button" data-category-page="series">Séries</button>
-   <button type="button" data-category-page="anime">Animes</button>
-   <button type="button" data-category-page="manga">Mangás</button>
-   <button type="button" data-category-page="books">Livros</button>
-   <button type="button" data-category-page="list">Minha lista</button>
-  </aside>
-  <section class="categoryMegaGenres">
-   <div class="categoryMegaTitle">Gêneros</div>
-   <div class="categoryMegaGrid" id="categoryMegaGrid"></div>
-  </section>
- </div>
-</div>
-
-<div class="categoryMegaBackdrop" id="categoryMegaBackdrop"></div>
-
-<div class="mobileSearchPanel" id="mobileSearchPanel" role="search" aria-hidden="true">
- <div class="mobileSearchInner">
-  <span class="mobileSearchIcon">⌕</span>
-  <input id="mobileSearchInput" type="search" inputmode="search" enterkeyhint="search" placeholder="Filmes, séries, animes e livros..." autocomplete="off" aria-label="Buscar filmes, séries, animes e livros">
-  <button type="button" id="mobileSearchClose" aria-label="Fechar busca">✕</button>
- </div>
-</div>
-
-<section class="hero" id="hero">
- <div class="heroContent">
-  <div class="tag">SUA BIBLIOTECA FAMILIAR</div>
-  <h1 id="heroTitle">ResenhaFlix</h1>
-  <div class="heroMeta" id="heroMeta"></div>
-  <p class="heroDesc" id="heroDesc">Carregando filmes e séries...</p>
-  <div class="actions"><button class="btn primary" id="heroWatch">▶ Assistir</button><button class="btn secondary" id="heroDetails">ⓘ Detalhes</button></div>
- </div>
-</section>
-
-<main id="main"></main>
-<section class="page hidden" id="page"><h2 id="pageTitle"></h2><div id="pageBody"></div></section>
-
-<div class="modal" id="detailModal">
- <div class="dialog netflixDetailDialog">
-  <button class="close netflixDetailClose" id="closeDetail" aria-label="Fechar">×</button>
-  <div class="detailHero netflixDetailHero" id="detailHero">
-   <div class="netflixDetailGradient"></div>
-   <button type="button" class="detailMuteVisual" id="detailMuteVisual" title="Imagem de destaque">⌁</button>
-   <div class="detailContent netflixDetailContent">
-    <div class="netflixBrand" id="detailType">RESENHAFLIX</div>
-    <h2 id="detailTitle"></h2>
-    <div class="netflixHeroMeta" id="detailMeta"></div>
-    <div class="netflixHeroActions">
-     <button class="netflixPlayBtn" id="detailWatch">▶ <span>Assistir</span></button>
-     <button type="button" class="netflixRoundBtn" id="detailParty" data-watch-party-open title="Assistir junto" aria-label="Criar sala para assistir junto"><svg class="rfIcon"><use href="#rf-icon-party"></use></svg><span class="watchPartyCount" hidden></span></button>
-     <button class="netflixRoundBtn" id="detailList" title="Minha lista">＋</button>
-     <button class="netflixRoundBtn" id="detailLike" title="Gostei">♡</button>
-    </div>
-   </div>
-  </div>
-  <div class="netflixDetailBody">
-   <div class="netflixInfoGrid">
-    <div class="netflixInfoMain">
-     <div class="netflixFacts" id="detailFacts"></div>
-     <h3 id="detailTagline"></h3>
-     <p id="detailDesc"></p>
-    </div>
-    <aside class="netflixInfoAside">
-     <div><span>Elenco:</span> <b id="detailCast">Não informado</b></div>
-     <div><span>Gêneros:</span> <b id="detailGenres">—</b></div>
-     <div><span>Este título é:</span> <b id="detailTraits">Filme ou série para assistir</b></div>
-    </aside>
-   </div>
-   <div class="episodes" id="episodes"></div>
-   <section class="detailSimilarSection">
-    <div class="detailSimilarHead"><h3>Títulos semelhantes</h3><small id="detailSimilarMeta"></small></div>
-    <div class="detailSimilarGrid" id="detailSimilar"><div class="loading">Carregando recomendações…</div></div>
-   </section>
-  </div>
- </div>
-</div>
-
-<div class="modal" id="playerModal">
- <div class="playerWrap">
-  <div class="playerLayout">
-   <section class="playerStage">
-    <div class="playerTop">
-     <div class="primePlayerTitleWrap">
-      <div class="playerTitle" id="playerTitle">Reprodução</div>
-      <div class="primePlayerSubtitle" id="playerSubtitle"></div>
-     </div>
-     <div class="primeTopActions">
-     <button type="button" class="primeTopBtn primeSourceOnly" id="primeSourceBtn" title="Trocar fonte" aria-label="Trocar fonte"><svg class="rfIcon"><use href="#rf-icon-source"></use></svg></button>
-      <button type="button" class="primeTopBtn" id="playerParty" data-watch-party-open title="Assistir junto" aria-label="Abrir sala para assistir junto"><svg class="rfIcon"><use href="#rf-icon-party"></use></svg><span class="watchPartyCount" hidden></span></button>
-      <button type="button" class="primeTopBtn" id="downloadCurrent" title="Download indisponível nesta fonte" aria-label="Baixar arquivo autorizado" aria-disabled="true" disabled><svg class="rfIcon"><use href="#rf-icon-download"></use></svg></button>
-      <button class="close primeClose" id="closePlayer" aria-label="Fechar player"><svg class="rfIcon"><use href="#rf-icon-close"></use></svg></button>
-     </div>
-    </div>
-    <div class="videoShell" id="videoShell">
-     <video id="video" playsinline preload="metadata"></video>
-     <div class="buffering" id="buffering"></div>
-     <button class="bigPlay" id="bigPlay" aria-label="Reproduzir">▶</button>
-     <div class="primeCenterControls" id="primeCenterControls">
-      <button type="button" class="primeJump" id="centerBack10" aria-label="Voltar 10 segundos">
-       <svg class="jumpSvg" viewBox="0 0 64 64" aria-hidden="true">
-        <path class="jumpArc" d="M18 13A24 24 0 1 1 9.5 39"/>
-        <path class="jumpArrow" d="M19 4 10 13l9 9"/>
-        <text x="32" y="39">10</text>
-       </svg>
-      </button>
-      <button type="button" class="primePlay" id="centerPlay" aria-label="Reproduzir ou pausar"><svg class="rfIcon rfIconPlay"><use href="#rf-icon-play"></use></svg></button>
-      <button type="button" class="primeJump" id="centerForward10" aria-label="Avançar 10 segundos">
-       <svg class="jumpSvg" viewBox="0 0 64 64" aria-hidden="true">
-        <g transform="translate(64 0) scale(-1 1)">
-         <path class="jumpArc" d="M18 13A24 24 0 1 1 9.5 39"/>
-         <path class="jumpArrow" d="M19 4 10 13l9 9"/>
-        </g>
-        <text x="32" y="39">10</text>
-       </svg>
-      </button>
-     </div>
-     <button type="button" class="skipIntroBtn" id="skipIntroBtn"><span>Pular abertura</span><svg class="rfIcon"><use href="#rf-icon-intro"></use></svg></button>
-     <div class="playerControls" id="playerControls">
-      <input class="seek" id="seek" type="range" min="0" max="1000" value="0" aria-label="Progresso">
-      <div class="controlRow">
-       <button class="ctl" id="playPause" title="Reproduzir/Pausar" aria-label="Reproduzir"><svg class="rfIcon rfIconPlay"><use href="#rf-icon-play"></use></svg></button>
-       <button class="ctl" id="back10" title="Voltar 10 segundos">↶ 10</button>
-       <button class="ctl" id="forward10" title="Avançar 10 segundos">10 ↷</button>
-       <button class="ctl" id="muteBtn" title="Som" aria-label="Ativar ou desativar som"><svg class="rfIcon"><use href="#rf-icon-volume"></use></svg></button>
-       <input class="volume" id="volume" type="range" min="0" max="1" step="0.05" value="1" aria-label="Volume">
-       <span class="time" id="timeText">0:00 / 0:00</span>
-       <span class="spacer"></span>
-       <span class="trackStatus" id="trackStatus">Áudio: auto • Legenda: auto</span>
-       <button class="ctl ctlWide" id="nextBtn" title="Próximo episódio" style="display:none"><span>Próximo</span><svg class="rfIcon"><use href="#rf-icon-next"></use></svg></button>
-       <button class="ctl" id="audioBtn" title="Áudio" aria-label="Áudio"><svg class="rfIcon"><use href="#rf-icon-audio"></use></svg></button>
-       <button class="ctl" id="subsBtn" title="Legendas" aria-label="Legendas"><svg class="rfIcon"><use href="#rf-icon-cc"></use></svg></button>
-       <button class="ctl aspectCtl" id="aspectBtn" title="Proporção da imagem" aria-label="Proporção da imagem"><svg class="rfIcon"><use href="#rf-icon-aspect"></use></svg></button>
-       <select class="speed" id="speed" title="Velocidade">
-        <option value=".75">0.75x</option><option value="1" selected>1x</option><option value="1.25">1.25x</option><option value="1.5">1.5x</option><option value="2">2x</option>
-       </select>
-       <button class="ctl" id="pipBtn" data-hide-mobile="1" title="Picture-in-Picture" aria-label="Picture-in-Picture"><svg class="rfIcon"><use href="#rf-icon-pip"></use></svg></button>
-       <button class="ctl" id="fullBtn" title="Tela cheia" aria-label="Tela cheia"><svg class="rfIcon"><use href="#rf-icon-fullscreen"></use></svg></button>
-      </div>
-     </div>
-     <button type="button" class="primeNextFloat" id="primeNextFloat">Próximo episódio <span>›</span></button>
-     <div class="playerMenuBackdrop" id="playerMenuBackdrop"></div>
-     <div class="playerMenu" id="playerMenu"></div>
-    </div>
-   </section>
-   <button type="button" class="sourcePanelBackdrop" id="sourcePanelBackdrop" aria-label="Fechar fontes"></button>
-   <aside class="playerSide" id="playerSide">
-    <button type="button" class="sourceDrawerHandle" id="sourceDrawerHandle" aria-label="Abrir fontes">
-     <span class="sourceDrawerGrip"></span>
-     <span class="sourceDrawerLabel" id="sourceDrawerLabel">Fontes</span>
-     <span class="sourceDrawerChevron">⌃</span>
-    </button>
-
-    <div class="sourceHead">
-     <div class="sourceHeadTop">
-      <div>
-       <div class="sourceEyebrow">REPRODUÇÃO</div>
-       <h3>Fontes disponíveis</h3>
-      </div>
-      <button type="button" class="sourceToolsToggle" id="sourceToolsToggle" aria-label="Mais opções">⚙</button>
-     </div>
-     <p id="sourceCountText">Procurando a melhor opção…</p>
-     <div class="sourceQuickBar">
-      <label class="preferredSourceField">
-       <span>Fonte principal</span>
-       <select id="preferredSourceSelect"><option value="">Automática</option></select>
-      </label>
-      <button type="button" class="autoFallbackCompact" id="autoFallbackBtn">⚡ Auto ON</button>
-     </div>
-     <div class="playerUtilities sourceTools" id="sourceTools">
-      <button type="button" id="retrySourcesBtn">↻ Tentar fontes</button>
-      <button type="button" id="otherPlayerBtn">↗ Outro player</button>
-      <button type="button" id="introSetupBtn" aria-pressed="true"><svg class="rfIcon"><use href="#rf-icon-intro"></use></svg><span>Pular abertura ON</span></button>
-     </div>
-    </div>
-
-    <div class="sourceFilters">
-     <div class="addonTabs" id="addonTabs"></div>
-     <div class="filterChips" id="qualityFilters"></div>
-    </div>
-    <div class="sourceRecommend" id="sourceRecommend"></div>
-    <div class="sourceList" id="sources"></div>
-    <div class="sourceSelectedBar" id="sourceSelectedBar"></div>
-   </aside>
-  </div>
- </div>
-</div>
-
-<div class="watchPartyModal" id="watchPartyModal" aria-hidden="true">
- <button type="button" class="watchPartyBackdrop" id="watchPartyBackdrop" aria-label="Fechar sala"></button>
- <section class="watchPartyDialog" role="dialog" aria-modal="true" aria-labelledby="partyModalTitle">
-  <header class="watchPartyHead">
-   <span class="watchPartyHeadIcon"><svg class="rfIcon"><use href="#rf-icon-party"></use></svg></span>
-   <div class="watchPartyHeadText"><small>SALA RESENHA</small><h2 id="partyModalTitle">Assistir junto</h2></div>
-   <button type="button" class="watchPartyClose" id="closeWatchParty" aria-label="Fechar">×</button>
-  </header>
-  <div class="watchPartySetup" id="partySetup">
-   <p class="watchPartyInviteText">Você recebeu um convite. Informe seu nome para entrar direto na sala.</p>
-   <div class="watchPartyContext empty" id="partyContext">
-    <span class="watchPartyContextIcon"><svg class="rfIcon"><use href="#rf-icon-play"></use></svg></span>
-    <div><b>Sala livre</b><span>Crie agora e escolha o que assistir depois.</span></div>
-   </div>
-   <label class="watchPartyField"><span>Como podemos chamar você?</span><input id="partyNameInput" maxlength="20" autocomplete="nickname" placeholder="Seu nome"></label>
-   <button type="button" class="watchPartyPrimary" id="partyCreateBtn">Criar sala agora</button>
-   <div class="watchPartyDivider"><span>ou entre com um código</span></div>
-   <label class="watchPartyField partyCodeField"><span>Código da sala</span><input id="partyCodeInput" class="watchPartyCodeInput" maxlength="5" autocomplete="off" autocapitalize="characters" spellcheck="false" inputmode="text" placeholder="A2B3C"></label>
-   <button type="button" class="watchPartySecondary" id="partyJoinBtn">Entrar na sala</button>
-   <p class="watchPartyError" id="partySetupError" role="alert"></p>
-   <p class="watchPartyFinePrint">Sem conta • até 8 pessoas • o dono precisa manter a sala aberta</p>
-  </div>
-  <div class="watchPartyRoom" id="partyRoom" hidden>
-   <span class="watchPartyRole" id="partyRole">Sala conectada</span>
-   <div class="watchPartyCodeCard">
-    <small>CÓDIGO DA SALA</small><strong class="watchPartyCode" id="partyRoomCode">•••••</strong>
-    <div class="watchPartyShareActions"><button type="button" id="partyCopyBtn">Copiar código</button><button type="button" id="partyShareBtn">Compartilhar link</button></div>
-   </div>
-   <h3 class="watchPartySectionTitle">Quem está assistindo</h3>
-   <ul class="watchPartyParticipants" id="partyParticipants"></ul>
-   <div class="watchPartyStatus" id="partyStatus">Preparando a sala…</div>
-   <p class="watchPartyGuestNote">O dono controla reprodução, pausa, avanço, episódios e a fonte do vídeo. Volume, legenda e tela cheia continuam no seu aparelho.</p>
-   <button type="button" class="watchPartySecondary watchPartyChoose" id="partyChooseBtn">Pesquisar filme ou série</button>
-   <button type="button" class="watchPartyLeave" id="partyLeaveBtn">Sair da sala</button>
-  </div>
- </section>
-</div>
-
-<div class="modal" id="mangaReaderModal">
- <div class="nativeMangaReader">
-  <div class="nativeReaderTop" id="nativeReaderTop">
-   <button type="button" class="nativeReaderIcon" id="closeMangaReader" aria-label="Voltar">‹</button>
-   <div class="nativeReaderHeading">
-    <div class="nativeReaderTitle" id="mangaReaderTitle">Mangá</div>
-    <div class="nativeReaderChapter" id="mangaReaderChapterTitle">Capítulo</div>
-   </div>
-   <button type="button" class="nativeReaderIcon" id="mangaReaderSettingsBtn" aria-label="Configurações">⚙</button>
-  </div>
-
-  <div class="nativeReaderProgress"><i id="mangaReaderProgressBar"></i></div>
-
-  <div class="nativeReaderCanvas vertical" id="mangaReaderCanvas">
-   <div class="nativeReaderLoading" id="mangaReaderLoading">Carregando páginas…</div>
-   <div class="nativeReaderPages" id="mangaReaderPages"></div>
-  </div>
-
-  <div class="nativeReaderHud" id="mangaReaderHud">
-   <button type="button" id="mangaPrevPage">‹</button>
-   <span id="mangaPageCounter">0 / 0</span>
-   <button type="button" id="mangaNextPage">›</button>
-  </div>
-
-  <div class="nativeReaderBottom" id="nativeReaderBottom">
-   <button type="button" id="mangaPrevChapter">‹ Capítulo</button>
-   <select id="mangaChapterSelect" title="Capítulo"></select>
-   <button type="button" id="mangaNextChapter">Capítulo ›</button>
-  </div>
-
-  <div class="nativeReaderSettings" id="nativeReaderSettings">
-   <div class="nativeReaderSettingsHead"><b>Leitor</b><button type="button" id="closeMangaReaderSettings">×</button></div>
-   <label>Modo de leitura
-    <select id="mangaReaderMode">
-     <option value="vertical">Vertical / Webtoon</option>
-     <option value="paged-ltr">Página — esquerda → direita</option>
-     <option value="paged-rtl">Página — direita → esquerda</option>
-    </select>
-   </label>
-   <label>Ajuste da imagem
-    <select id="mangaReaderFit">
-     <option value="width">Ajustar à largura</option>
-     <option value="contain">Página inteira</option>
-     <option value="original">Tamanho original</option>
-    </select>
-   </label>
-   <label>Espaço entre páginas
-    <select id="mangaReaderGap">
-     <option value="0">Sem espaço</option>
-     <option value="8">8 px</option>
-     <option value="16">16 px</option>
-    </select>
-   </label>
-   <label>Brilho <span id="mangaBrightnessLabel">100%</span>
-    <input type="range" id="mangaReaderBrightness" min="35" max="120" value="100">
-   </label>
-   <button type="button" class="nativeReaderSecondary" id="mangaReaderRestart">↺ Voltar ao início do capítulo</button>
-  </div>
- </div>
-</div>
-
-<div class="modal" id="mangaMatchModal">
- <div class="mangaMatchModal">
-  <div class="mangaMatchTop">
-   <div>
-    <div class="mangaSourcePickerEyebrow">Buscar nas fontes de mangá</div>
-    <h3 id="mangaMatchTitle">Mangá</h3>
-   </div>
-   <button type="button" class="close" id="closeMangaMatch">×</button>
-  </div>
-  <div class="mangaMatchStatus" id="mangaMatchStatus">Preparando busca…</div>
-  <div class="mangaSourceProgress" id="mangaMatchProgress"></div>
-  <div class="mangaMatchList" id="mangaMatchList"></div>
- </div>
-</div>
-
-<div class="modal" id="mangaDetailModal">
- <div class="mangaNativeDetail">
-  <button type="button" class="close" id="closeMangaDetail">×</button>
-  <div class="mangaNativeDetailHero" id="mangaNativeDetailHero">
-   <div class="mangaNativeDetailCover" id="mangaNativeDetailCover"></div>
-   <div class="mangaNativeDetailInfo">
-    <div class="mangaNativeDetailSource" id="mangaNativeDetailSource">Fonte</div>
-    <h2 id="mangaNativeDetailTitle">Mangá</h2>
-    <div class="mangaDetailBadges" id="mangaDetailBadges"></div>
-    <p id="mangaNativeDetailDesc"></p>
-    <div class="mangaNativeDetailActions">
-     <button type="button" class="btn primary" id="mangaContinueRead">▶ Começar a ler</button>
-     <button type="button" class="btn secondary" id="mangaSaveNative">☆ Seguir</button>
-     <button type="button" class="btn secondary mangaMarketBtn" id="mangaWhereBuy">🛒 Onde comprar</button>
-     <button type="button" class="btn secondary mangaFreeBtn" id="mangaWhereFree">◉ Ler grátis legalmente</button>
-    </div>
-   </div>
-  </div>
-  <div class="mangaChapterTabs">
-   <button type="button" class="active">Capítulos</button>
-   <span id="mangaChapterLanguage">🇧🇷 Português (BR)</span>
-  </div>
-  <div class="mangaChapterToolbar">
-   <input id="mangaChapterFilter" placeholder="Buscar número ou nome do capítulo…" autocomplete="off">
-   <button type="button" id="mangaChapterOrder">↓ Mais novos</button>
-  </div>
-  <div class="mangaChapterList" id="mangaChapterList"></div>
- </div>
-</div>
-
-<div class="modal" id="mangaMarketModal">
- <div class="mangaMarketPanel">
-  <div class="mangaMarketHead">
-   <div><small>ONDE ENCONTRAR</small><h3 id="mangaMarketTitle">Mangá</h3></div>
-   <button type="button" class="close" id="closeMangaMarket">×</button>
-  </div>
-  <div class="mangaMarketTabs">
-   <button type="button" class="active" data-market-tab="buy">Comprar</button>
-   <button type="button" data-market-tab="free">Ler grátis legalmente</button>
-  </div>
-  <div class="mangaMarketBody" id="mangaMarketBody"></div>
- </div>
-</div>
-
-<div class="modal" id="mangaSourceModal">
- <div class="mangaSourcePicker">
-  <div class="mangaSourcePickerTop">
-   <div>
-    <div class="mangaSourcePickerEyebrow">Ler mangá</div>
-    <h3 id="mangaSourcePickerTitle">Escolha uma fonte</h3>
-   </div>
-   <button type="button" class="close" id="closeMangaSourcePicker">×</button>
-  </div>
-  <div class="mangaSourcePickerMedia" id="mangaSourcePickerMedia"></div>
-  <div class="mangaSourcePickerNote">Fontes em Português aparecem primeiro. O ResenhaFlix tenta abrir a busca dessa obra na fonte instalada.</div>
-  <div class="mangaSourcePickerList" id="mangaSourcePickerList"></div>
- </div>
-</div>
-
-<div class="modal" id="mangaWebModal">
- <div class="mangaWebView">
-  <div class="mangaWebTop">
-   <button type="button" class="mangaWebIcon" id="closeMangaWeb" aria-label="Voltar">‹</button>
-   <div class="mangaWebHeading">
-    <div class="mangaWebTitle" id="mangaWebTitle">Fonte de mangá</div>
-    <div class="mangaWebSubtitle" id="mangaWebSubtitle">Modo site</div>
-   </div>
-   <button type="button" class="mangaWebAction" id="mangaWebHome">⌂ Início</button>
-   <button type="button" class="mangaWebAction" id="mangaWebNextSearch">↻ Outra busca</button>
-   <button type="button" class="mangaWebAction" id="mangaWebExternal">↗ Abrir fora</button>
-  </div>
-  <div class="mangaWebNotice" id="mangaWebNotice">A fonte está aberta dentro do ResenhaFlix. Se o site bloquear incorporação, use “Abrir fora”.</div>
-  <iframe id="mangaWebFrame" title="Fonte de mangá" referrerpolicy="no-referrer-when-downgrade"
-   sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe>
- </div>
-</div>
-
-
-<div class="modal" id="mediaSourcesModal">
- <div class="mediaSourcesPanel">
-  <div class="mediaSourcesHead">
-   <div>
-    <small>FONTES GRATUITAS</small>
-    <h3>APIs, URLs e arquivos JSON</h3>
-   </div>
-   <button type="button" class="close" id="closeMediaSources">×</button>
-  </div>
-  <div class="mediaSourcesTabs">
-   <button type="button" class="active" data-media-source-tab="books">Livros</button>
-  </div>
-  <div class="mediaSourcesBody">
-   <section class="mediaSourcePane active" data-media-source-pane="books">
-    <div class="mediaSourceInfo">A busca geral usa Open Library. Livros gratuitos usam Gutendex/Project Gutenberg. Downloads só aparecem para itens marcados como domínio público ou explicitamente liberados.</div>
-    <label class="mediaField"><span>Open Library — busca geral</span><input id="booksOpenLibraryUrl" spellcheck="false"></label>
-    <label class="mediaField"><span>Gutendex — livros gratuitos</span><input id="booksGutendexUrl" spellcheck="false"></label>
-    <label class="mediaField"><span>URLs JSON adicionais — uma por linha</span><textarea id="booksJsonUrls" rows="5" spellcheck="false" placeholder="https://exemplo.com/livros.json&#10;https://api.exemplo.com/search?q={query}"></textarea></label>
-    <label class="jsonFileDrop" for="booksJsonFile"><b>＋ Importar livros.json</b><small>Array JSON ou objeto com results/items. Máx. 1,5 MB.</small><input type="file" id="booksJsonFile" accept=".json,application/json"></label>
-    <div class="mediaImportStatus" id="booksImportStatus"></div>
-   </section>
-  </div>
-  <div class="mediaSourcesFooter">
-   <button type="button" class="btn secondary" id="resetMediaSources">Restaurar padrão</button>
-   <button type="button" class="btn primary" id="saveMediaSources">Salvar fontes</button>
-  </div>
- </div>
-</div>
-
-<div class="modal" id="bookReaderModal">
- <div class="bookReader">
-  <div class="bookReaderTop">
-   <button type="button" class="bookReaderIcon" id="closeBookReader">‹</button>
-   <div class="bookReaderHeading">
-    <div id="bookReaderTitle">Livro</div>
-    <small id="bookReaderMeta">Leitor ResenhaFlix</small>
-   </div>
-   <button type="button" class="bookReaderAction" id="bookReaderExternal">↗ Abrir original</button>
-   <button type="button" class="bookReaderIcon" id="bookReaderCloseX">×</button>
-  </div>
-  <div class="bookReaderViewport" id="bookReaderViewport">
-   <div class="bookReaderLoading" id="bookReaderLoading">Preparando livro…</div>
-   <div class="bookEpubArea" id="bookEpubArea"></div>
-   <iframe id="bookHtmlFrame" title="Leitor de livro"></iframe>
-   <pre id="bookTextReader"></pre>
-  </div>
-  <div class="bookReaderBottom">
-   <button type="button" id="bookPrevPage">‹ Anterior</button>
-   <span id="bookReaderStatus">Leitura</span>
-   <button type="button" id="bookNextPage">Próxima ›</button>
-  </div>
- </div>
-</div>
-
-<div class="modal" id="settingsModal">
- <div class="settings settingsV16">
-  <div class="settingsHeader">
-   <div>
-    <small>ResenhaFlix</small>
-    <h2>Configurações</h2>
-   </div>
-   <button class="close settingsClose" id="closeSettings">×</button>
-  </div>
-
-  <div class="settingsTabs" id="settingsTabs">
-   <button type="button" class="active" data-settings-tab="geral">Geral</button>
-   <button type="button" data-settings-tab="player">Player</button>
-   <button type="button" data-settings-tab="manga">Mangás</button>
-   <button type="button" data-settings-tab="advanced">Avançado</button>
-  </div>
-
-  <div class="settingsBody" id="settingsBody">
-   <section class="settingsPane active" data-settings-pane="geral">
-    <div class="settingsSectionTitle">Aplicativo</div>
-    <div class="field"><label>Idioma da interface / catálogo</label><select id="lang"><option value="pt-BR">Português (Brasil)</option><option value="pt">Português</option><option value="en">Inglês</option></select></div>
-    <div class="settingsInfo">As alterações ficam salvas neste dispositivo. Histórico, Minha Lista e progresso continuam compatíveis com as versões anteriores.</div>
-   </section>
-
-   <section class="settingsPane" data-settings-pane="player">
-    <div class="settingsSectionTitle">Áudio e legendas</div>
-    <div class="field"><label>Addon de legendas</label><input id="subtitleAddon"></div>
-    <div class="field"><label>Áudio preferido no player</label><select id="audioPref"><option value="auto">Automático</option><option value="jpn">Japonês</option><option value="por">Português</option><option value="eng">Inglês</option></select></div>
-    <div class="field"><label>Legenda preferida</label><select id="subtitlePref"><option value="pob">Português (Brasil)</option><option value="por">Português</option><option value="eng">Inglês</option><option value="off">Desativada</option><option value="auto">Automática</option></select></div>
-    <div class="field"><label>Botão “Pular abertura”</label><select id="skipIntroEnabled"><option value="1">Ativado</option><option value="0">Desativado</option></select></div>
-    <div class="settingsInfo">O ResenhaFlix mantém suas preferências de áudio, legenda e fonte entre episódios quando a mídia oferece essas faixas.</div>
-   </section>
-
-   <section class="settingsPane" data-settings-pane="manga">
-    <div class="settingsSectionTitle">Mangás</div>
-    <div class="field"><label>Repositórios de extensões (um por linha)</label><textarea id="mangaRepoUrls" rows="5" spellcheck="false"></textarea></div>
-    <div class="field"><label>Ponte de mangá — URL do servidor</label><input id="mangaBridgeUrl" placeholder="https://seu-manga-bridge.onrender.com"></div>
-    <div class="settingsInfo">
-     <b>Português e inglês:</b> a busca permite PT, EN ou os dois. Fontes PT-BR/PT recebem prioridade.
-     A Ponte incluída no ZIP ajuda com fontes que bloqueiam requisições do navegador.
-    </div>
-   </section>
-
-   <section class="settingsPane" data-settings-pane="advanced">
-    <div class="settingsSectionTitle">Vídeo — avançado</div>
-    <div class="field"><label>Fontes de vídeo (uma por linha — as primeiras têm prioridade)</label><textarea id="frostUrl" rows="6"></textarea></div>
-    <div class="field"><label>Metadados principais</label><input id="metaUrl"></div>
-    <div class="field"><label>Fontes de catálogo e busca (um manifest por linha)</label><textarea id="catalogUrls" rows="5"></textarea></div>
-    <div class="settingsInfo"><b>Prioridade:</b> a ordem das fontes agora importa. A primeira linha recebe mais prioridade, depois a segunda e assim por diante. O Soluserv Catalog Plus participa apenas do catálogo e dos metadados; ele não entrega arquivos de vídeo.</div>
-   </section>
-  </div>
-
-  <div class="settingsFooter">
-   <button class="btn secondary" id="resetSettings">Restaurar padrão</button>
-   <button class="btn secondary" id="installAppBtn" style="display:none">⬇ Instalar</button>
-   <button class="btn primary" id="saveSettings">Salvar</button>
-  </div>
- </div>
-</div>
-
-<nav class="mobileBottomNav" id="mobileBottomNav" aria-label="Navegação principal"></nav>
-
-<div class="mobileNavMenu" id="mobileNavMenu" aria-hidden="true">
- <button type="button" class="mobileNavMenuBackdrop" id="mobileNavMenuBackdrop" aria-label="Fechar menu"></button>
- <section class="mobileNavMenuPanel" id="mobileNavMenuPanel" role="dialog" aria-modal="true" aria-labelledby="mobileNavMenuTitle" tabindex="-1">
-  <header class="mobileNavMenuHead">
-   <div><small>NAVEGAÇÃO</small><h2 id="mobileNavMenuTitle">Mais opções</h2></div>
-   <button type="button" class="mobileNavMenuClose" id="mobileNavMenuClose" aria-label="Fechar">×</button>
-  </header>
-  <div class="mobileNavDestinations" id="mobileNavDestinations"></div>
-  <button type="button" class="watchPartyMobileEntry" id="watchPartyMobileEntry" data-watch-party-open><svg class="rfIcon"><use href="#rf-icon-party"></use></svg><span>Criar ou entrar em uma sala</span><span class="watchPartyCount" hidden></span></button>
-  <button type="button" class="mobileNavEditToggle" id="mobileNavEditToggle" aria-expanded="false" aria-controls="mobileNavEditor">Editar atalhos da barra</button>
-  <div class="mobileNavEditor" id="mobileNavEditor" hidden>
-   <p>Escolha até três destinos. Buscar e Mais ficam sempre disponíveis.</p>
-   <div id="mobileNavEditorList"></div>
-  </div>
- </section>
-</div>
-
-<div class="toast" id="toast"></div>
-
-<script src="./app.js?v=61">
-</script>
-<script src="./watch-party.js?v=61"></script>
-<!-- ResenhaFlix v12 — fontes progressivas/cache + tela Mangás/Keiyoushi -->
-<!-- ResenhaFlix v28 — manga exato/rápido, livros PT-BR e detalhes estilo Netflix -->
-<!-- ResenhaFlix v34 — Manga Bridge automática, conectores HakuNeko e leitor mobile -->
-  <script src="./manga-hakuneko.js?v=34"></script>
-  <script src="./ui-polish.js?v=56"></script>
-</body>
-</html>

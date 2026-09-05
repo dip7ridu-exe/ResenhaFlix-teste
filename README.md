@@ -1,12 +1,5 @@
 # ResenhaFlix
 
-## Catálogo e biblioteca (v62)
-
-- Filmes, séries e animes usam o addon TMDB configurado para Português (Brasil), com IDs IMDb quando disponíveis.
-- As coleções de Netflix, Max, Disney+, Prime Video e Apple TV+ são carregadas sob demanda pelo addon Streaming Catalogs.
-- A biblioteca de livros mantém leitura e downloads autorizados, abre o dLivros diretamente e só carrega o leitor EPUB quando ele for realmente usado.
-- O módulo de mangás e seus arquivos auxiliares foram removidos.
-
 ## Sala Resenha — assistir junto (v61)
 
 A Sala Resenha sincroniza o player entre até 8 pessoas sem exigir conta ou servidor próprio. Título, episódio, tempo, comandos e a fonte escolhida pelo dono são enviados pela conexão ponto a ponto. Cada aparelho abre o vídeo localmente; se a fonte exata não estiver disponível para um convidado, o player mantém uma alternativa compatível sem interromper a sala.
