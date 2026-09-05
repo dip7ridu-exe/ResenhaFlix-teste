@@ -2663,7 +2663,7 @@ input::placeholder,textarea::placeholder{color:#898294;opacity:1}
 <link rel="stylesheet" href="./player-v55.css?v=58">
 <link rel="preconnect" href="https://0.peerjs.com" crossorigin>
 <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
-<link rel="stylesheet" href="./watch-party.css?v=60">
+<link rel="stylesheet" href="./watch-party.css?v=61">
 </head>
 <body>
 <svg class="rfIconSprite" aria-hidden="true">
@@ -2908,6 +2908,7 @@ input::placeholder,textarea::placeholder{color:#898294;opacity:1}
    <button type="button" class="watchPartyClose" id="closeWatchParty" aria-label="Fechar">×</button>
   </header>
   <div class="watchPartySetup" id="partySetup">
+   <p class="watchPartyInviteText">Você recebeu um convite. Informe seu nome para entrar direto na sala.</p>
    <div class="watchPartyContext empty" id="partyContext">
     <span class="watchPartyContextIcon"><svg class="rfIcon"><use href="#rf-icon-play"></use></svg></span>
     <div><b>Sala livre</b><span>Crie agora e escolha o que assistir depois.</span></div>
@@ -2915,7 +2916,7 @@ input::placeholder,textarea::placeholder{color:#898294;opacity:1}
    <label class="watchPartyField"><span>Como podemos chamar você?</span><input id="partyNameInput" maxlength="20" autocomplete="nickname" placeholder="Seu nome"></label>
    <button type="button" class="watchPartyPrimary" id="partyCreateBtn">Criar sala agora</button>
    <div class="watchPartyDivider"><span>ou entre com um código</span></div>
-   <label class="watchPartyField"><span>Código da sala</span><input id="partyCodeInput" class="watchPartyCodeInput" maxlength="5" autocomplete="off" autocapitalize="characters" spellcheck="false" inputmode="text" placeholder="A2B3C"></label>
+   <label class="watchPartyField partyCodeField"><span>Código da sala</span><input id="partyCodeInput" class="watchPartyCodeInput" maxlength="5" autocomplete="off" autocapitalize="characters" spellcheck="false" inputmode="text" placeholder="A2B3C"></label>
    <button type="button" class="watchPartySecondary" id="partyJoinBtn">Entrar na sala</button>
    <p class="watchPartyError" id="partySetupError" role="alert"></p>
    <p class="watchPartyFinePrint">Sem conta • até 8 pessoas • o dono precisa manter a sala aberta</p>
@@ -3225,9 +3226,9 @@ input::placeholder,textarea::placeholder{color:#898294;opacity:1}
 
 <div class="toast" id="toast"></div>
 
-<script src="./app.js?v=60">
+<script src="./app.js?v=61">
 </script>
-<script src="./watch-party.js?v=60"></script>
+<script src="./watch-party.js?v=61"></script>
 <!-- ResenhaFlix v12 — fontes progressivas/cache + tela Mangás/Keiyoushi -->
 <!-- ResenhaFlix v28 — manga exato/rápido, livros PT-BR e detalhes estilo Netflix -->
 <!-- ResenhaFlix v34 — Manga Bridge automática, conectores HakuNeko e leitor mobile -->
