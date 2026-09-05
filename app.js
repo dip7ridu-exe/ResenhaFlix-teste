@@ -4439,7 +4439,7 @@ $("#installAppBtn").onclick=async()=>{
 };
 window.addEventListener("appinstalled",()=>{deferredInstallPrompt=null;$("#installAppBtn").style.display="none";toast("ResenhaFlix instalado como aplicativo.")});
 if("serviceWorker" in navigator){
- window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js?v=60",{updateViaCache:"none"}).catch(e=>console.warn("Service Worker",e)));
+ window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js?v=61",{updateViaCache:"none"}).catch(e=>console.warn("Service Worker",e)));
 }
 window.addEventListener("scroll",()=>hideCardPreview(),{passive:true,capture:true});
 window.addEventListener("resize",()=>hideCardPreview());

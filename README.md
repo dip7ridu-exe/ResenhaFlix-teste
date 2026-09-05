@@ -1,6 +1,6 @@
 # ResenhaFlix
 
-## Sala Resenha — assistir junto (v60)
+## Sala Resenha — assistir junto (v61)
 
 A Sala Resenha sincroniza o player entre até 8 pessoas sem exigir conta ou servidor próprio. Título, episódio, tempo, comandos e a fonte escolhida pelo dono são enviados pela conexão ponto a ponto. Cada aparelho abre o vídeo localmente; se a fonte exata não estiver disponível para um convidado, o player mantém uma alternativa compatível sem interromper a sala.
 
@@ -9,11 +9,12 @@ A Sala Resenha sincroniza o player entre até 8 pessoas sem exigir conta ou serv
 1. Toque no ícone de pessoas da tela inicial, nos detalhes ou dentro do player.
 2. Digite seu nome e escolha **Criar sala agora**. Não é necessário selecionar um título antes.
 3. Envie o link ou o código de 5 caracteres para seus convidados.
-4. O convidado abre o link, informa apenas o nome e entra. Também é possível abrir **Mais > Entrar em uma sala** e digitar o código.
-5. O dono pesquisa e abre o filme ou a série. Todos recebem o mesmo conteúdo e a mesma fonte automaticamente.
-6. O dono controla play, pausa, avanço, velocidade, abertura, episódios e fonte. Cada participante mantém volume, legenda e tela cheia no próprio aparelho.
+4. O link compartilhado é um convite direto. Quem já informou um nome anteriormente entra automaticamente; no primeiro acesso, aparece somente o campo de nome e o botão **Entrar agora**.
+5. Se preferir, ainda é possível abrir **Mais > Criar ou entrar em uma sala** e digitar o código.
+6. O dono pesquisa e abre o filme ou a série. Todos recebem o mesmo conteúdo e a mesma fonte automaticamente.
+7. O dono controla play, pausa, avanço, velocidade, abertura, episódios e fonte. Cada participante mantém volume, legenda e tela cheia no próprio aparelho.
 
-A sala existe enquanto o dono estiver conectado. A comunicação usa [PeerJS](https://peerjs.com/client/getting-started) com sinalização gratuita do PeerServer Cloud e é carregada somente ao criar ou entrar em uma sala.
+A sala existe enquanto o dono estiver conectado. A conexão usa [PeerJS](https://peerjs.com/client/getting-started), confirma o convidado pelos dados do convite e faz até três tentativas automáticas antes de mostrar um erro, evitando carregamento infinito.
 
 ## Testes
 
