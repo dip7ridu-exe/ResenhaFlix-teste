@@ -840,310 +840,188 @@ button{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 }
 
 
-/* ResenhaFlix v12 — Mangás + busca de fontes rápida */
-.mangaShell{max-width:1280px;margin:0 auto}
-.mangaHero{border:1px solid #25252a;border-radius:17px;padding:22px;background:linear-gradient(135deg,#17171b,#0d0d0f);margin-bottom:18px}
-.mangaHero h3{font-size:24px;margin:0 0 7px}.mangaHero p{margin:0;color:#a7a7ae;line-height:1.5;max-width:840px}
-.mangaTabs{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin-bottom:16px}.mangaTabs::-webkit-scrollbar{display:none}
-.mangaTabs button{flex:none;min-height:42px;border:1px solid #34343a;background:#1b1b1f;color:#ccc;border-radius:999px;padding:8px 14px;font-weight:850}
-.mangaTabs button.active{background:#fff;color:#111;border-color:#fff}
-.mangaToolbar{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
-.mangaToolbar input,.mangaToolbar select{min-height:44px;border:1px solid #33333a;background:#141416;color:#fff;border-radius:10px;padding:9px 12px;outline:none}
-.mangaToolbar input{min-width:250px;flex:1}.mangaToolbar button{min-height:44px;border:1px solid #38383f;background:#232328;color:#fff;border-radius:10px;padding:9px 13px;font-weight:800}
-.mangaRepoStatus{margin:0 0 15px;padding:10px 12px;border:1px solid #2d2d33;background:#121215;border-radius:10px;color:#a4a4ac;font-size:12px;line-height:1.5}
-.mangaRepoStatus.ok{border-color:#285033;color:#a9d9b4;background:#111a13}.mangaRepoStatus.warn{border-color:#5d5124;color:#e4cf86;background:#1c190f}
-.mangaExtGrid,.mangaSourceGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
-.mangaExtCard,.mangaSourceCard{min-width:0;border:1px solid #2b2b31;background:#131316;border-radius:14px;padding:14px}
-.mangaExtHead{display:flex;gap:11px;align-items:center}.mangaExtIcon{width:48px;height:48px;flex:none;border-radius:11px;background:#26262a center/cover no-repeat;display:grid;place-items:center;font-weight:950;color:#999}
-.mangaExtInfo{min-width:0;flex:1}.mangaExtName{font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mangaExtMeta{font-size:11px;color:#898991;margin-top:4px}
-.mangaExtSources{font-size:11px;color:#b0b0b8;margin-top:10px;line-height:1.45}.mangaExtActions{display:flex;gap:7px;margin-top:12px}
-.mangaExtActions button,.mangaSourceCard button{min-height:40px;border:1px solid #38383f;background:#232328;color:#fff;border-radius:9px;padding:8px 11px;font-weight:800}
-.mangaExtActions .installed{background:#fff;color:#111}.mangaWarning{display:inline-flex;margin-left:6px;font-size:9px;font-weight:900;padding:3px 6px;border-radius:5px;background:#5f4d1522;color:#e1c86e}
-.mangaSourceCard h4{margin:0 0 5px;font-size:16px}.mangaSourceCard p{margin:0 0 10px;color:#8f8f97;font-size:12px;line-height:1.45}
-.mangaSourceUrl{font-size:10px;color:#777780;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:11px}
-.mangaEmpty{padding:45px 12px;text-align:center;color:#818188}.mangaCount{font-size:12px;color:#8e8e95;margin-bottom:11px}
-.mangaReaderWrap{width:min(1200px,98vw);height:min(92vh,900px);background:#0b0b0d;border:1px solid #2b2b30;border-radius:15px;overflow:hidden;display:flex;flex-direction:column}
-.mangaReaderTop{min-height:58px;display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #27272c;background:#111114}
-.mangaReaderBack,.mangaReaderExternal{min-height:40px;border:1px solid #34343a;background:#202024;color:#fff;border-radius:9px;padding:7px 11px}
-.mangaReaderBack{width:42px;font-size:27px;padding:0}.mangaReaderTitle{font-weight:900;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 .fastSourceBadge{display:inline-flex;align-items:center;gap:5px;margin-left:7px;font-size:10px;color:#88d99f}.fastSourceBadge:before{content:"⚡"}
 @media(max-width:760px){
  .mobileBottomNav{grid-template-columns:repeat(6,1fr)!important}.mobileBottomNav small{font-size:9px!important}.mobileBottomNav span{font-size:19px!important}
- .mangaHero{border-radius:13px;padding:16px}.mangaHero h3{font-size:21px}
- .mangaToolbar{display:grid;grid-template-columns:1fr 110px}.mangaToolbar input{min-width:0;grid-column:1/-1;width:100%;font-size:16px}.mangaToolbar button{grid-column:1/-1}
- .mangaExtGrid,.mangaSourceGrid{grid-template-columns:1fr}.mangaExtActions{display:grid;grid-template-columns:1fr 1fr}
- #mangaReaderModal{padding:0}#mangaReaderModal .mangaReaderWrap{width:100%;height:100%;max-height:none;border:0;border-radius:0;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
- body.mangaReaderOpen{overflow:hidden!important}body.mangaReaderOpen .mobileBottomNav{display:none!important}
+
+
+
+
+
 }
 
 
-/* =========================================================
-   ResenhaFlix v13 — Mangás de verdade na tela Explorar
-   ========================================================= */
-.mangaPriority{
-  display:inline-flex;align-items:center;gap:6px;border:1px solid #26583a;
-  background:#112017;color:#9fe2b4;border-radius:999px;padding:6px 10px;
-  font-size:11px;font-weight:850;margin-top:12px
-}
-.mangaPriority:before{content:"🇧🇷"}
-.mangaExploreHead{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
-.mangaExploreHead input{
-  min-width:250px;flex:1;min-height:46px;border:1px solid #35353b;background:#141416;color:#fff;
-  border-radius:11px;padding:10px 13px;font-size:15px;outline:none
-}
-.mangaExploreHead button{
-  min-height:46px;border:1px solid #38383f;background:#222227;color:#fff;border-radius:11px;
-  padding:9px 13px;font-weight:850
-}
-.mangaExploreInfo{
-  display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:0 0 14px;color:#8f8f97;font-size:12px
-}
-.mangaExploreInfo .ptCount{color:#9de3b1}
-.mangaMediaGrid{
-  display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:13px
-}
-.mangaMediaCard{
-  min-width:0;border:1px solid #2c2c31;background:#121215;border-radius:14px;overflow:hidden;
-  transition:transform .16s,border-color .16s
-}
-.mangaMediaCard:hover{transform:translateY(-2px);border-color:#46464d}
-.mangaMediaCover{aspect-ratio:2/3;background:#222 center/cover no-repeat;position:relative}
-.mangaMediaScore{
-  position:absolute;left:7px;top:7px;background:#000c;color:#fff;border-radius:6px;
-  padding:4px 6px;font-size:10px;font-weight:900
-}
-.mangaMediaBody{padding:10px}
-.mangaMediaTitle{
-  font-size:13px;font-weight:900;line-height:1.25;min-height:32px;
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden
-}
-.mangaMediaMeta{font-size:10px;color:#85858d;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.mangaMediaSourceHint{font-size:10px;color:#8bc99c;margin-top:7px;line-height:1.35}
-.mangaMediaActions{display:grid;grid-template-columns:1fr 42px;gap:7px;margin-top:10px}
-.mangaMediaActions button{
-  min-height:40px;border:1px solid #38383f;background:#242429;color:#fff;border-radius:9px;font-weight:850
-}
-.mangaMediaActions .mangaRead{background:#fff;color:#111}
-.mangaMediaActions .mangaFav.saved{background:#fff;color:#111}
-.mangaSourcePicker{
-  width:min(760px,95vw);max-height:88vh;overflow:auto;background:#101013;border:1px solid #2d2d33;
-  border-radius:16px;padding:16px;box-shadow:0 25px 80px #000
-}
-.mangaSourcePickerTop{display:flex;align-items:center;gap:12px}
-.mangaSourcePickerTop>div{flex:1}.mangaSourcePickerEyebrow{font-size:10px;color:#8e8e96;text-transform:uppercase;letter-spacing:1px}
-.mangaSourcePickerTop h3{margin:3px 0 0;font-size:23px}
-.mangaSourcePickerMedia{
-  display:flex;gap:12px;align-items:center;margin:14px 0;padding:11px;border:1px solid #28282e;
-  background:#151518;border-radius:12px
-}
-.mangaPickerCover{width:58px;aspect-ratio:2/3;border-radius:8px;background:#242428 center/cover no-repeat;flex:none}
-.mangaPickerTitle{font-weight:900}.mangaPickerAlt{font-size:11px;color:#8e8e95;margin-top:4px}
-.mangaSourcePickerNote{font-size:11px;color:#94949c;line-height:1.45;margin-bottom:11px}
-.mangaSourcePickerList{display:flex;flex-direction:column;gap:8px}
-.mangaPickerSource{
-  display:flex;gap:10px;align-items:center;border:1px solid #2c2c32;background:#151518;border-radius:12px;padding:11px
-}
-.mangaPickerSource.pt{border-color:#295038;background:#111a14}
-.mangaPickerSourceInfo{min-width:0;flex:1}
-.mangaPickerSourceName{font-weight:900}
-.mangaPickerSourceMeta{font-size:10px;color:#8e8e95;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.mangaPickerSource button{
-  flex:none;min-height:40px;border:1px solid #3a3a40;background:#25252a;color:#fff;border-radius:9px;padding:8px 11px;font-weight:850
-}
-.mangaPickerSource.pt button{background:#fff;color:#111}
-.mangaPtBadge{
-  display:inline-flex;padding:3px 6px;border-radius:5px;background:#1d4029;color:#a7e7b8;
-  font-size:9px;font-weight:900;margin-left:6px
-}
-.mangaLibraryEmpty{padding:45px 15px;text-align:center;color:#898991}
-.mangaExtCard.ptFirst{border-color:#2a5238;background:#111815}
-.mangaExtCard.ptFirst:before{
-  content:"PT-BR PRIORIDADE";display:inline-flex;margin-bottom:9px;padding:3px 6px;border-radius:5px;
-  background:#1b3e28;color:#a3e6b6;font-size:9px;font-weight:900
-}
-.mangaExtActions{grid-template-columns:1fr!important}
-.mangaExtActions [data-manga-open]{display:none!important}
-
-@media(max-width:760px){
- .mangaMediaGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
- .mangaMediaBody{padding:8px}.mangaMediaTitle{font-size:12px}
- .mangaExploreHead{display:block}.mangaExploreHead input{width:100%;min-width:0;font-size:16px}
- .mangaExploreHead button{width:100%;margin-top:8px}
- #mangaSourceModal{padding:0;align-items:flex-end}
- #mangaSourceModal .mangaSourcePicker{
-   width:100%;max-height:86vh;border-radius:22px 22px 0 0;border-left:0;border-right:0;border-bottom:0;
-   padding:17px 13px calc(16px + env(safe-area-inset-bottom))
- }
- .mangaPickerSource{align-items:flex-start;flex-wrap:wrap}
- .mangaPickerSource button{width:100%}
- body.mangaSourceOpen{overflow:hidden!important}
- body.mangaSourceOpen .mobileBottomNav{display:none!important}
-}
 
 
-/* =========================================================
-   ResenhaFlix v14 — leitor nativo de mangá
-   ========================================================= */
-.mangaNativeResultGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:13px}
-.mangaNativeResultCard{border:1px solid #2b2b31;background:#121215;border-radius:14px;overflow:hidden;min-width:0}
-.mangaNativeResultCover{aspect-ratio:2/3;background:#222 center/cover no-repeat;position:relative}
-.mangaNativeResultSource{position:absolute;left:7px;right:7px;bottom:7px;background:#000d;color:#b6efc4;border:1px solid #315d3c;border-radius:6px;padding:4px 6px;font-size:9px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.mangaNativeResultBody{padding:9px}.mangaNativeResultTitle{font-size:12px;font-weight:900;line-height:1.3;min-height:31px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.mangaNativeResultMeta{font-size:9px;color:#8b8b93;margin-top:5px}.mangaNativeResultCard button{width:100%;min-height:39px;margin-top:9px;border:0;border-radius:8px;background:#fff;color:#111;font-weight:900}
-.mangaSourceSearchStatus{padding:10px 12px;border:1px solid #2c2c32;background:#121215;border-radius:10px;color:#9b9ba3;font-size:11px;margin-bottom:13px}
-.mangaSourceSearchStatus.ok{border-color:#285036;color:#9fe1b2}.mangaSourceSearchStatus.warn{border-color:#594d24;color:#e1ca7a}
-.mangaNativeDetail{width:min(980px,96vw);max-height:92vh;overflow:auto;background:#101013;border:1px solid #2e2e34;border-radius:17px;position:relative}
-.mangaNativeDetail>.close{position:sticky;top:10px;float:right;margin:10px 10px -52px 0;z-index:5}
-.mangaNativeDetailHero{display:flex;gap:20px;padding:24px;border-bottom:1px solid #28282e;background:linear-gradient(135deg,#18181c,#101013)}
-.mangaNativeDetailCover{width:170px;aspect-ratio:2/3;flex:none;border-radius:12px;background:#242429 center/cover no-repeat;box-shadow:0 15px 40px #000}
-.mangaNativeDetailInfo{min-width:0;padding-top:8px}.mangaNativeDetailSource{font-size:10px;color:#95d5a7;text-transform:uppercase;letter-spacing:.8px;font-weight:900}
-.mangaNativeDetailInfo h2{font-size:30px;line-height:1.05;margin:7px 0 10px}.mangaNativeDetailInfo p{font-size:12px;color:#9f9fa7;line-height:1.55;max-width:650px}
-.mangaNativeDetailActions{display:flex;gap:8px;margin-top:15px}
-.mangaChapterToolbar{display:flex;gap:8px;padding:14px 16px;border-bottom:1px solid #25252b}
-.mangaChapterToolbar input{min-width:0;flex:1;min-height:42px;border:1px solid #33333a;background:#151518;color:#fff;border-radius:10px;padding:9px 12px;outline:none}
-.mangaChapterToolbar button{min-height:42px;border:1px solid #36363c;background:#222226;color:#fff;border-radius:10px;padding:8px 11px}
-.mangaChapterList{padding:0 16px 22px}.mangaChapterItem{display:flex;align-items:center;gap:10px;width:100%;border:0;border-bottom:1px solid #242429;background:transparent;color:#fff;text-align:left;padding:13px 4px}
-.mangaChapterItem:hover{background:#ffffff07}.mangaChapterText{min-width:0;flex:1}.mangaChapterName{font-weight:850;font-size:13px}.mangaChapterMeta{font-size:10px;color:#7f7f87;margin-top:4px}
-.mangaChapterProgress{width:72px;text-align:right;font-size:10px;color:#98d7a9}.mangaChapterItem.read .mangaChapterName{color:#8b8b92}
-.mangaBridgePill{display:inline-flex;align-items:center;gap:6px;padding:5px 8px;border-radius:999px;border:1px solid #285037;background:#102016;color:#9fe2b4;font-size:10px;font-weight:900}
-.mangaBridgePill.off{border-color:#5b4d26;background:#201b10;color:#dcc779}
-
-.nativeMangaReader{position:fixed;inset:0;background:#080809;display:flex;flex-direction:column;z-index:300;overflow:hidden}
-.nativeReaderTop{height:58px;flex:none;display:flex;align-items:center;gap:10px;padding:7px 10px;border-bottom:1px solid #26262b;background:#0d0d10e8;backdrop-filter:blur(12px);z-index:8;transition:transform .22s}
-.nativeReaderTop.hidden{transform:translateY(-105%)}
-.nativeReaderIcon{width:42px;height:42px;border:1px solid #33333a;background:#1d1d21;color:#fff;border-radius:11px;font-size:22px}
-.nativeReaderHeading{min-width:0;flex:1}.nativeReaderTitle{font-size:13px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.nativeReaderChapter{font-size:10px;color:#85858d;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.nativeReaderProgress{height:3px;flex:none;background:#19191c;z-index:9}.nativeReaderProgress i{display:block;height:100%;width:0;background:#fff;transition:width .12s}
-.nativeReaderCanvas{position:relative;flex:1;min-height:0;overflow:auto;background:#050506;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
-.nativeReaderPages{min-height:100%;display:flex;align-items:center}
-.nativeReaderCanvas.vertical .nativeReaderPages{display:flex;flex-direction:column;justify-content:flex-start}
-.nativeReaderCanvas.vertical .mangaPageImg{display:block;max-width:100%;height:auto;margin:0 auto}
-.nativeReaderCanvas.paged-ltr,.nativeReaderCanvas.paged-rtl{overflow:hidden}
-.nativeReaderCanvas.paged-ltr .nativeReaderPages,.nativeReaderCanvas.paged-rtl .nativeReaderPages{width:100%;height:100%;justify-content:center}
-.nativeReaderCanvas.paged-ltr .mangaPageImg,.nativeReaderCanvas.paged-rtl .mangaPageImg{display:none;max-width:100%;max-height:100%;object-fit:contain}
-.nativeReaderCanvas.paged-ltr .mangaPageImg.active,.nativeReaderCanvas.paged-rtl .mangaPageImg.active{display:block}
-.nativeReaderLoading{position:absolute;z-index:5;inset:0;display:grid;place-items:center;color:#aaa;background:#080809}.nativeReaderLoading.hidden{display:none}
-.nativeReaderHud{position:absolute;z-index:9;left:50%;bottom:68px;transform:translateX(-50%);display:none;align-items:center;gap:8px;background:#111d;border:1px solid #33333a;border-radius:999px;padding:5px 7px;backdrop-filter:blur(10px)}
-.nativeReaderHud.show{display:flex}.nativeReaderHud button{width:38px;height:38px;border:0;border-radius:50%;background:#27272c;color:#fff;font-size:20px}.nativeReaderHud span{font-size:11px;min-width:66px;text-align:center}
-.nativeReaderBottom{height:58px;flex:none;display:grid;grid-template-columns:120px 1fr 120px;gap:7px;padding:7px 9px;border-top:1px solid #26262b;background:#0d0d10;z-index:8;transition:transform .22s}
-.nativeReaderBottom.hidden{transform:translateY(105%)}
-.nativeReaderBottom button,.nativeReaderBottom select{min-width:0;border:1px solid #34343a;background:#1e1e22;color:#fff;border-radius:10px;padding:7px 9px;font-weight:800;font-size:11px}
-.nativeReaderSettings{position:absolute;z-index:20;right:10px;top:66px;width:min(340px,calc(100% - 20px));background:#151518;border:1px solid #37373e;border-radius:14px;padding:12px;box-shadow:0 20px 70px #000;display:none}
-.nativeReaderSettings.open{display:block}.nativeReaderSettingsHead{display:flex;align-items:center;margin-bottom:10px}.nativeReaderSettingsHead b{flex:1}.nativeReaderSettingsHead button{width:36px;height:36px;border:0;border-radius:9px;background:#29292e;color:#fff}
-.nativeReaderSettings label{display:block;font-size:11px;color:#9d9da5;margin:11px 0}.nativeReaderSettings select,.nativeReaderSettings input[type=range]{display:block;width:100%;margin-top:6px}
-.nativeReaderSettings select{min-height:40px;background:#222226;color:#fff;border:1px solid #38383e;border-radius:9px;padding:7px}
-.nativeReaderSecondary{width:100%;min-height:42px;border:1px solid #39393f;background:#222226;color:#fff;border-radius:9px;font-weight:800}
-.mangaPageError{min-height:180px;width:min(100%,780px);display:grid;place-items:center;text-align:center;color:#a5a5ad;background:#151518;border:1px solid #303037;padding:20px}
-.mangaPageImg.fit-width{width:min(100%,980px)!important}.mangaPageImg.fit-contain{max-width:100%!important;max-height:100%!important}.mangaPageImg.fit-original{width:auto!important;max-width:none!important}
-.nativeReaderTapZone{position:absolute;z-index:6;top:0;bottom:0;width:34%;display:none}.nativeReaderCanvas.paged-ltr .nativeReaderTapZone,.nativeReaderCanvas.paged-rtl .nativeReaderTapZone{display:block}
-#readerTapLeft{left:0}#readerTapRight{right:0}
-
-@media(max-width:760px){
- #mangaDetailModal{padding:0;align-items:stretch}.mangaNativeDetail{width:100%;height:100%;max-height:none;border:0;border-radius:0;padding-bottom:env(safe-area-inset-bottom)}
- .mangaNativeDetailHero{padding:calc(env(safe-area-inset-top) + 58px) 14px 17px;gap:13px}.mangaNativeDetailCover{width:115px}.mangaNativeDetailInfo h2{font-size:23px}.mangaNativeDetailInfo p{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
- .mangaNativeDetailActions{display:grid;grid-template-columns:1fr 1fr}.mangaChapterToolbar{position:sticky;top:0;z-index:4;background:#101013;padding:10px 12px}.mangaChapterList{padding:0 12px calc(28px + env(safe-area-inset-bottom))}
- body.mangaDetailOpen{overflow:hidden!important}body.mangaDetailOpen .mobileBottomNav{display:none!important}
- .nativeReaderTop{padding-top:calc(7px + env(safe-area-inset-top));height:calc(58px + env(safe-area-inset-top))}
- .nativeReaderBottom{padding-bottom:calc(7px + env(safe-area-inset-bottom));height:calc(58px + env(safe-area-inset-bottom));grid-template-columns:84px 1fr 84px}
- .nativeReaderBottom button{font-size:10px;padding:5px}.nativeReaderBottom select{font-size:10px}
- .nativeReaderHud{bottom:calc(68px + env(safe-area-inset-bottom))}
- .nativeReaderSettings{top:calc(66px + env(safe-area-inset-top))}
- .mangaNativeResultGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-}
 
 
-/* =========================================================
-   ResenhaFlix v15 — Manga Explore estável e rápido
-   ========================================================= */
-.mangaExploreHeroRow{
-  display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin:0 0 12px
-}
-.mangaExploreHeroRow .mangaBridgePill{margin:0}
-.mangaFastNote{
-  padding:9px 11px;border-radius:10px;border:1px solid #2b2b31;background:#121215;
-  color:#92929a;font-size:11px;line-height:1.45;margin-bottom:12px
-}
-.mangaFastNote strong{color:#c9c9ce}
-.mangaSourceProgress{
-  display:flex;gap:7px;flex-wrap:wrap;margin:9px 0 13px
-}
-.mangaSourceProgress span{
-  display:inline-flex;align-items:center;gap:5px;padding:5px 8px;border-radius:999px;
-  border:1px solid #303037;background:#17171a;color:#92929a;font-size:10px
-}
-.mangaSourceProgress span.ok{border-color:#285239;background:#112016;color:#9fe3b5}
-.mangaSourceProgress span.fail{border-color:#543038;background:#211216;color:#e396a1}
-.mangaSourceProgress span.loading:before{content:"";width:8px;height:8px;border-radius:50%;border:1px solid #777;border-top-color:#fff;animation:spin .7s linear infinite}
-.mangaSectionTitle{font-size:17px;margin:20px 0 10px}
-.mangaNativeResultActions{
-  display:grid;grid-template-columns:1fr 42px;gap:7px;margin-top:9px
-}
-.mangaNativeResultActions button{
-  margin:0!important;min-height:40px!important
-}
-.mangaNativeResultActions .nativeLibraryBtn{
-  background:#222227;color:#fff;border:1px solid #39393f
-}
-.mangaNativeResultActions .nativeLibraryBtn.saved{background:#fff;color:#111}
-.mangaCatalogOnlyBadge{
-  position:absolute;right:7px;top:7px;padding:4px 6px;border-radius:6px;
-  background:#000c;color:#ddd;font-size:9px;font-weight:900
-}
-.mangaMatchModal{
-  width:min(820px,95vw);max-height:88vh;overflow:auto;background:#101013;
-  border:1px solid #2e2e34;border-radius:17px;padding:15px
-}
-.mangaMatchTop{display:flex;align-items:center;gap:10px;margin-bottom:12px}
-.mangaMatchTop>div{flex:1;min-width:0}
-.mangaMatchTop h3{margin:3px 0 0;font-size:22px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.mangaMatchStatus{
-  padding:10px 11px;border-radius:10px;background:#151518;border:1px solid #2d2d33;
-  color:#999;font-size:11px;line-height:1.45;margin-bottom:10px
-}
-.mangaMatchList{display:flex;flex-direction:column;gap:8px}
-.mangaMatchItem{
-  display:flex;gap:10px;align-items:center;border:1px solid #2d2d33;background:#151518;
-  border-radius:12px;padding:10px
-}
-.mangaMatchThumb{width:48px;aspect-ratio:2/3;border-radius:7px;background:#27272b center/cover no-repeat;flex:none}
-.mangaMatchInfo{flex:1;min-width:0}
-.mangaMatchTitle{font-weight:900;font-size:12px}
-.mangaMatchSource{font-size:10px;color:#8d8d95;margin-top:4px}
-.mangaMatchItem.pt{border-color:#295039;background:#111a14}
-.mangaMatchItem button{
-  min-height:40px;flex:none;border:1px solid #3a3a40;background:#fff;color:#111;
-  border-radius:9px;padding:8px 11px;font-weight:900
-}
-.mangaRepoStats{display:flex;flex-direction:column;gap:6px;margin-top:8px}
-.mangaRepoStat{
-  display:flex;gap:8px;align-items:center;font-size:10px;color:#8d8d95
-}
-.mangaRepoStat b{color:#c7c7cd}.mangaRepoStat .repoOk{color:#9fdfb0}.mangaRepoStat .repoSkip{color:#ddc77d}
-.mangaQuickSources{
-  display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;padding:1px 0 8px;margin-bottom:7px
-}
-.mangaQuickSources::-webkit-scrollbar{display:none}
-.mangaQuickSources button{
-  flex:none;min-height:36px;border:1px solid #34343a;background:#19191d;color:#c6c6cc;
-  border-radius:999px;padding:7px 10px;font-size:10px;font-weight:800
-}
-.mangaQuickSources button.pt{border-color:#2d5a3e;background:#112018;color:#a7e8b9}
-@media(max-width:760px){
- .mangaMatchModal{width:100%;max-height:87vh;border-radius:22px 22px 0 0;border-left:0;border-right:0;border-bottom:0;padding:14px 12px calc(14px + env(safe-area-inset-bottom))}
- #mangaMatchModal{padding:0;align-items:flex-end}
- .mangaMatchItem{align-items:flex-start;flex-wrap:wrap}
- .mangaMatchItem button{width:100%}
- .mangaNativeResultActions{grid-template-columns:1fr 42px}
- .mangaSourceProgress{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
- .mangaSourceProgress::-webkit-scrollbar{display:none}
- body.mangaMatchOpen{overflow:hidden!important}
- body.mangaMatchOpen .mobileBottomNav{display:none!important}
-}
 
 
-/* =========================================================
-   ResenhaFlix v16 — marca, configurações e mangás
-   ========================================================= */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 .logo{
  display:flex!important;align-items:center;gap:9px;
  font-size:20px!important;font-weight:900;letter-spacing:-.6px;
@@ -1207,16 +1085,10 @@ button{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 }
 .settingsFooter .btn{min-height:43px}
 
-.mangaSearchLang{
- min-height:46px;border:1px solid #35353b;background:#141416;color:#fff;
- border-radius:11px;padding:9px 11px;font-weight:800
-}
-.mangaLanguageHint{
- display:inline-flex;gap:5px;align-items:center;padding:5px 8px;border-radius:999px;
- background:#151518;border:1px solid #303036;color:#aaa;font-size:10px
-}
-.mangaLanguageHint.pt{border-color:#285138;color:#9de4b2;background:#111b14}
-.mangaLanguageHint.en{border-color:#314666;color:#a9c8f5;background:#111722}
+
+
+
+
 
 @media(max-width:760px){
  .logo{gap:7px}.logo img{width:38px;height:38px;border-radius:11px}.logo span{font-size:16px}
@@ -1244,10 +1116,10 @@ button{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
  body.settingsOpen{overflow:hidden!important;touch-action:none}
  body.settingsOpen #settingsModal{touch-action:none}
  body.settingsOpen #settingsBody{touch-action:pan-y!important}
- .mangaExploreHead{display:grid!important;grid-template-columns:1fr 118px!important;gap:8px}
- .mangaExploreHead input{grid-column:1/-1!important}
- .mangaExploreHead .mangaSearchLang{grid-column:1/2}
- .mangaExploreHead #mangaSearchBtn{grid-column:2/3!important;margin:0!important;width:auto!important}
+
+
+
+
 }
 @media(max-width:380px){
  .logo span{display:none}
@@ -1454,9 +1326,7 @@ main{margin-top:-40px;padding:0 3vw 70px}.section{margin-bottom:38px}.sectionHea
 }
 
 
-/* =========================================================
-   ResenhaFlix v19 — menu de categorias + Mangás moderno
-   ========================================================= */
+
 
 /* ---------- Menu Categorias estilo mega-menu ---------- */
 .categoriesNavBtn{display:flex!important;align-items:center;gap:6px}
@@ -1524,157 +1394,87 @@ main{margin-top:-40px;padding:0 3vw 70px}.section{margin-bottom:38px}.sectionHea
 .categoryMediaRow::-webkit-scrollbar{display:none}
 .categoryMediaRow .card{scroll-snap-align:start;width:auto!important}
 
-/* ---------- Mangás: shell ---------- */
-.mangaShell,.mangaModernShell{max-width:1280px;margin:0 auto}
-.mangaHero{display:none!important}
-.mangaRepoStatus{display:none!important}
-.mangaModernHeader{
- display:flex;align-items:center;gap:14px;margin:0 0 17px
-}
-.mangaModernTitle{min-width:0;flex:1}
-.mangaModernTitle h2{font-size:28px;margin:0;color:#e7e9ee;letter-spacing:-.7px}
-.mangaModernTitle p{font-size:11px;color:#777d88;margin:5px 0 0}
-.mangaTabs{
- margin:0!important;display:flex!important;gap:5px!important;overflow-x:auto;
- background:#11151d;border:1px solid #202631;border-radius:9px;padding:4px!important;
- width:max-content;max-width:100%
-}
-.mangaTabs button{
- min-height:35px!important;border:0!important;border-radius:6px!important;
- background:transparent!important;color:#838995!important;padding:7px 11px!important
-}
-.mangaTabs button.active{background:#202735!important;color:#fff!important}
-.mangaModernSearch{
- display:grid;grid-template-columns:minmax(220px,1fr) 170px 110px;gap:8px;margin-bottom:18px
-}
-.mangaModernSearch input,.mangaModernSearch select{
- min-height:44px;border:1px solid #252c38;background:#111720;color:#e8ebf0;border-radius:7px;
- padding:9px 11px;outline:none
-}
-.mangaModernSearch input:focus,.mangaModernSearch select:focus{border-color:#1da9e9}
-.mangaModernSearch button{
- min-height:44px;border:0;background:#14aef1;color:#041019;border-radius:7px;
- padding:9px 13px;font-weight:950
-}
-.mangaModernStats{display:flex;gap:7px;flex-wrap:wrap;margin:-8px 0 16px}
-.mangaModernStats span{
- display:inline-flex;padding:5px 8px;border-radius:999px;border:1px solid #252c36;
- background:#111720;color:#818997;font-size:10px
-}
-.mangaModernStats .pt{color:#92ddb0;border-color:#264a36}
 
-/* ---------- Mangá cards ---------- */
-.mangaShelfTitle{
- display:flex;align-items:end;gap:10px;margin:22px 0 10px
-}
-.mangaShelfTitle h3{margin:0;font-size:20px;color:#dce0e8}
-.mangaShelfTitle small{color:#6f7783;font-size:9px;letter-spacing:1.4px;text-transform:uppercase}
-.mangaTrendRow{
- display:grid;grid-auto-flow:column;grid-auto-columns:minmax(145px,1fr);
- grid-template-rows:1fr;gap:13px;overflow-x:auto;scroll-snap-type:x proximity;
- scrollbar-width:none;padding:1px 0 10px
-}
-.mangaTrendRow::-webkit-scrollbar{display:none}
-.mangaTrendRow .mangaNativeResultCard{
- width:155px;max-width:155px;scroll-snap-align:start;background:transparent;border:0!important
-}
-.mangaTrendRow .mangaNativeResultCover{border-radius:11px;border:1px solid #252b35}
-.mangaTrendRow .mangaNativeResultBody{padding:7px 1px!important}
-.mangaTrendRow .mangaNativeResultActions{display:none!important}
-.mangaTrendRow .mangaNativeResultTitle{color:#dfe3eb!important;min-height:30px}
-.mangaLatestGrid{
- display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px
-}
-.mangaLatestGrid .mangaNativeResultCard{
- display:grid;grid-template-columns:74px 1fr;border:1px solid #232a35!important;
- background:#121823!important;border-radius:9px!important;min-height:112px
-}
-.mangaLatestGrid .mangaNativeResultCover{
- aspect-ratio:auto!important;height:100%!important;border-radius:8px 0 0 8px!important
-}
-.mangaLatestGrid .mangaNativeResultBody{padding:11px!important;display:flex;flex-direction:column}
-.mangaLatestGrid .mangaNativeResultTitle{font-size:12px!important;min-height:auto!important}
-.mangaLatestGrid .mangaNativeResultActions{margin-top:auto!important}
-.mangaLatestGrid .mangaNativeResultActions button{min-height:31px!important;font-size:10px!important}
-.mangaLatestGrid .nativeLibraryBtn{display:none}
-.mangaCatalogOnlyBadge{background:#0e1721!important;color:#8f9aaa!important}
-.mangaNativeResultSource{background:#0d1219e8!important;color:#92d8ac!important;border-color:#2c4b38!important}
 
-/* ---------- Busca de mangás ---------- */
-.mangaSourceSearchStatus,.mangaFastNote{
- border:1px solid #242b35!important;background:#111720!important;color:#7f8792!important
-}
-.mangaSourceProgress span{background:#111720!important;border-color:#252c36!important}
-.mangaSectionTitle{color:#dfe3ea!important}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* ---------- Extensões mais limpas ---------- */
-.mangaToolbar{margin-top:4px!important}
-.mangaExtGrid{grid-template-columns:repeat(auto-fill,minmax(260px,1fr))!important}
-.mangaExtCard{
- background:#111720!important;border-color:#242c37!important;border-radius:9px!important
-}
-.mangaExtCard.ptFirst{background:#101a16!important;border-color:#284a36!important}
-.mangaExtActions button{background:#1c2531!important;border-color:#303b49!important}
-.mangaExtActions button.installed{background:#14aef1!important;color:#061019!important;border-color:#14aef1!important}
 
-/* ---------- Detalhe do mangá inspirado no MangaFire ---------- */
-.mangaNativeDetail{
- width:min(1080px,96vw)!important;background:#0d121b!important;border-color:#202735!important;
- border-radius:12px!important;color:#dce1e9
-}
-.mangaNativeDetailHero{
- gap:27px!important;padding:27px!important;background:
- radial-gradient(circle at 25% 0,#2b2430 0,transparent 43%),
- linear-gradient(180deg,#15131a,#0d121b)!important;border-bottom-color:#202735!important
-}
-.mangaNativeDetailCover{
- width:205px!important;border-radius:9px!important;border:1px solid #323947;
- box-shadow:0 18px 50px #0009!important
-}
-.mangaNativeDetailInfo{padding-top:4px!important}
-.mangaNativeDetailSource{
- color:#8590a1!important;font-size:10px!important;text-transform:uppercase
-}
-.mangaNativeDetailInfo h2{
- font-size:31px!important;color:#dce1e9!important;margin:6px 0 8px!important
-}
-.mangaDetailBadges{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 12px}
-.mangaDetailBadge{
- display:inline-flex;padding:4px 7px;border-radius:4px;background:#141c27;border:1px solid #283443;
- color:#aeb8c8;font-size:9px;font-weight:850
-}
-.mangaDetailBadge.good{background:#10251b;border-color:#234b34;color:#76d19b}
-.mangaNativeDetailInfo p{color:#959eac!important;font-size:12px!important;line-height:1.65!important}
-.mangaNativeDetailActions .primary{background:#16aef0!important;color:#061019!important;border:0!important}
-.mangaNativeDetailActions .secondary{background:#192230!important;color:#d8dee7!important;border-color:#293646!important}
-.mangaChapterTabs{
- display:flex;align-items:center;gap:9px;padding:14px 17px 0
-}
-.mangaChapterTabs button{
- min-height:36px;border:0;border-radius:5px;background:#17324a;color:#89d5f8;font-weight:900;padding:7px 12px
-}
-.mangaChapterTabs span{
- margin-left:auto;display:inline-flex;padding:6px 9px;border-radius:6px;background:#131b25;
- border:1px solid #283342;color:#9ba6b7;font-size:10px
-}
-.mangaChapterToolbar{
- background:#0e141d!important;border:0!important;padding:12px 17px!important;
- position:sticky;top:0;z-index:4
-}
-.mangaChapterToolbar input,.mangaChapterToolbar button{
- background:#121a25!important;border-color:#252f3d!important;color:#dce1e8!important
-}
-.mangaChapterList{padding:0 17px 22px!important}
-.mangaChapterItem{
- min-height:51px!important;border-bottom-color:#202733!important;padding:11px 9px!important
-}
-.mangaChapterItem:hover{background:#121923!important}
-.mangaChapterName{font-size:12px!important;color:#d4d9e2}
-.mangaChapterMeta{color:#697384!important}
-.mangaChapterProgress{color:#7fcf9d!important}
 
-/* ---------- Todo texto visível da área Manga em PT ---------- */
-.mangaSearchLang option{color:#fff}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* Mobile */
 @media(max-width:760px){
@@ -1691,125 +1491,73 @@ main{margin-top:-40px;padding:0 3vw 70px}.section{margin-bottom:38px}.sectionHea
  .categoryLanding h3{font-size:24px}
  .categoryMediaRow{grid-auto-columns:132px;gap:11px;margin-right:-14px;padding-right:14px}
 
- #page.mangaPageModern{padding-top:72px!important}
- #page.mangaPageModern>h2{display:none}
- .mangaModernHeader{display:block;margin-bottom:12px}
- .mangaModernTitle h2{font-size:25px}.mangaModernTitle p{font-size:10px}
- .mangaTabs{margin-top:10px!important;width:100%;justify-content:space-between}
- .mangaTabs button{flex:1}
- .mangaModernSearch{grid-template-columns:1fr 105px;gap:7px}
- .mangaModernSearch input{grid-column:1/-1;font-size:16px}
- .mangaModernSearch button{grid-column:2/3}
- .mangaTrendRow{grid-auto-columns:122px;gap:10px;margin-right:-14px;padding-right:14px}
- .mangaTrendRow .mangaNativeResultCard{width:122px;max-width:122px}
- .mangaLatestGrid{grid-template-columns:1fr}
- .mangaLatestGrid .mangaNativeResultCard{grid-template-columns:70px 1fr;min-height:104px}
- .mangaShelfTitle h3{font-size:18px}
- .mangaModernStats{margin-top:-7px}
 
- .mangaNativeDetailHero{
-   padding:calc(env(safe-area-inset-top) + 56px) 13px 17px!important;
-   gap:13px!important
- }
- .mangaNativeDetailCover{width:116px!important}
- .mangaNativeDetailInfo h2{font-size:22px!important}
- .mangaDetailBadges{margin-bottom:7px}
- .mangaNativeDetailInfo p{-webkit-line-clamp:3!important}
- .mangaChapterTabs{padding:11px 12px 0}
- .mangaChapterToolbar{padding:9px 12px!important}
- .mangaChapterList{padding:0 12px calc(24px + env(safe-area-inset-bottom))!important}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
 
-/* =========================================================
-   ResenhaFlix v20 — caminho simples para ler mangás
-   ========================================================= */
-.mangaWebFallback{
- margin:18px 0 6px;padding:14px;border:1px solid #242c37;background:#0f151e;
- border-radius:10px
-}
-.mangaWebFallbackHead{display:flex;gap:10px;align-items:flex-start;margin-bottom:11px}
-.mangaWebFallbackHead>div{flex:1;min-width:0}
-.mangaWebFallbackHead h3{margin:0;color:#e4e8ef;font-size:16px}
-.mangaWebFallbackHead p{margin:5px 0 0;color:#828b99;font-size:10.5px;line-height:1.45}
-.mangaWebFallbackBadge{
- flex:none;display:inline-flex;padding:5px 8px;border-radius:999px;background:#112118;
- border:1px solid #285139;color:#9fe1b3;font-size:9px;font-weight:900
-}
-.mangaWebSourceRow{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:1px 0 3px}
-.mangaWebSourceRow::-webkit-scrollbar{display:none}
-.mangaWebSourceBtn{
- flex:none;min-width:145px;max-width:190px;border:1px solid #28313e;background:#151c27;color:#fff;
- border-radius:8px;padding:10px;text-align:left;cursor:pointer
-}
-.mangaWebSourceBtn.pt{border-color:#2b533a;background:#111d16}
-.mangaWebSourceBtn:hover{border-color:#14aef1}
-.mangaWebSourceName{font-size:11px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.mangaWebSourceMeta{font-size:9px;color:#808a98;margin-top:4px}
-.mangaWebSourceOpen{font-size:9px;color:#91cdec;margin-top:8px;font-weight:900}
 
-#mangaWebModal{padding:10px}
-.mangaWebView{
- width:min(1320px,99vw);height:min(94dvh,980px);display:flex;flex-direction:column;
- overflow:hidden;background:#090b0f;border:1px solid #29313d;border-radius:12px
-}
-.mangaWebTop{
- min-height:58px;flex:none;display:flex;align-items:center;gap:8px;padding:8px 10px;
- background:#111720;border-bottom:1px solid #252d38
-}
-.mangaWebIcon,.mangaWebAction{
- min-height:40px;border:1px solid #303a47;background:#19212c;color:#e7eaf0;border-radius:7px;
- padding:7px 10px;font-size:10px;font-weight:850
-}
-.mangaWebIcon{width:42px;font-size:24px;padding:0}
-.mangaWebHeading{flex:1;min-width:0}
-.mangaWebTitle{font-weight:900;color:#e8ebf1;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.mangaWebSubtitle{font-size:9px;color:#7c8796;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.mangaWebNotice{
- flex:none;padding:7px 11px;background:#0f151d;color:#7f8998;border-bottom:1px solid #202832;
- font-size:9.5px;line-height:1.4
-}
-#mangaWebFrame{width:100%;height:100%;flex:1;border:0;background:#fff}
-body.mangaWebOpen{overflow:hidden!important}
-body.mangaWebOpen .mobileBottomNav{display:none!important}
 
-.mangaExtActions{display:grid!important;grid-template-columns:1fr 1fr!important}
-.mangaExtActions [data-manga-web]{
- display:block!important;background:#19232f!important;color:#dce4ed!important;border-color:#2d3a49!important
-}
-.mangaExtActions [data-manga-web]:hover{border-color:#14aef1!important}
 
-.mangaReadFallback{
- margin:10px 0 0;padding:10px 11px;border:1px solid #493b23;background:#1d180f;color:#d6c38d;
- border-radius:8px;font-size:10px;line-height:1.45
-}
-.mangaReadFallback button{
- display:block;margin-top:8px;min-height:39px;border:0;border-radius:6px;background:#14aef1;
- color:#061019;padding:7px 11px;font-weight:900
-}
 
-@media(max-width:760px){
- #mangaWebModal{padding:0;align-items:stretch}
- #mangaWebModal .mangaWebView{
-   width:100%;height:100dvh;max-height:none;border:0;border-radius:0;
-   padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)
- }
- .mangaWebTop{min-height:55px;padding:6px 8px}
- .mangaWebAction{padding:6px 8px}
- #mangaWebHome{display:none}
- .mangaWebTitle{font-size:11px}
- .mangaWebNotice{font-size:9px}
- .mangaWebFallback{margin:14px 0 2px;padding:11px}
- .mangaWebSourceBtn{min-width:135px}
- .mangaExtActions{grid-template-columns:1fr 1fr!important}
-}
-@media(max-width:410px){
- #mangaWebNextSearch{display:none}
- .mangaWebAction{font-size:0;width:38px;padding:0}
- #mangaWebExternal:after{content:"↗";font-size:17px}
-}
 
-/* ResenhaFlix v21 — Player cinematográfico, Em alta e Manga Market */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #playerModal{padding:0!important;background:#000!important}
 #playerModal .playerWrap{width:100vw!important;height:100dvh!important;max-height:none!important;border:0!important;border-radius:0!important;background:#000!important;overflow:hidden!important}
 #playerModal .playerLayout{display:block!important;width:100%;height:100%;min-height:0!important}
@@ -1871,13 +1619,13 @@ body.mangaWebOpen .mobileBottomNav{display:none!important}
 .trendingShell{max-width:1320px;margin:0 auto}.trendingHero{padding:23px 0 8px;display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap}.trendingHeroText{flex:1;min-width:240px}.trendingEyebrow{font-size:10px;letter-spacing:1.5px;color:var(--accent);font-weight:950}.trendingHero h2{font-size:34px;margin:5px 0 6px;color:#fff;letter-spacing:-.9px}.trendingHero p{margin:0;color:#93949c;font-size:12px;line-height:1.5;max-width:720px}.trendingUpdated{flex:none;padding:7px 10px;border:1px solid #32333a;background:#15161a;border-radius:999px;color:#aaa;font-size:10px}.trendingSection{margin:20px 0 31px}.trendingSectionHead{display:flex;align-items:end;gap:10px;margin-bottom:10px}.trendingSectionHead h3{margin:0;font-size:20px;color:#fff}.trendingSectionHead p{margin:0 0 2px;color:#74757d;font-size:10px;flex:1}.trendingRow{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(145px,170px);gap:13px;overflow-x:auto;scroll-snap-type:x proximity;scrollbar-width:none;padding:2px 0 8px}.trendingRow::-webkit-scrollbar{display:none}.trendingRow .card{width:auto!important;scroll-snap-align:start}
 .socialRadar{border:1px solid #292b32;background:linear-gradient(135deg,#16171c,#0c0d10);border-radius:10px;padding:15px;margin:10px 0 30px}.socialRadarHead{display:flex;gap:10px;align-items:flex-start;margin-bottom:11px}.socialRadarHead>div{flex:1}.socialRadarHead h3{font-size:16px;margin:0 0 4px;color:#fff}.socialRadarHead p{font-size:10px;color:#85868e;margin:0;line-height:1.45}.socialRadarBadge{font-size:9px;color:#f3ad7b;border:1px solid #5a3924;background:#22150e;border-radius:999px;padding:5px 8px}.socialBuzzList{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}.socialBuzzList::-webkit-scrollbar{display:none}.socialBuzz{flex:none;width:210px;border:1px solid #2a2b31;background:#111217;border-radius:8px;padding:10px}.socialBuzz b{display:block;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.socialBuzz small{display:block;color:#777982;font-size:9px;margin-top:4px}.socialLinks{display:flex;gap:5px;margin-top:9px}.socialLinks button{min-height:30px;border:1px solid #33353d;background:#1b1c22;color:#ddd;border-radius:5px;padding:5px 7px;font-size:9px;font-weight:850}.socialLinks button:hover{border-color:var(--accent);color:#fff}
 
-/* Manga onde encontrar */
-.mangaNativeDetailActions{flex-wrap:wrap!important}.mangaMarketBtn,.mangaFreeBtn{font-size:10px!important}.mangaFreeBtn{border-color:#28513a!important;color:#9fe0b2!important}
-#mangaMarketModal{padding:12px}.mangaMarketPanel{width:min(840px,96vw);max-height:90dvh;overflow:hidden;display:flex;flex-direction:column;background:#0e141d;border:1px solid #283140;border-radius:12px}.mangaMarketHead{display:flex;gap:10px;align-items:center;padding:16px;border-bottom:1px solid #242d39}.mangaMarketHead>div{flex:1;min-width:0}.mangaMarketHead small{font-size:9px;letter-spacing:1.2px;color:#737e8e;font-weight:900}.mangaMarketHead h3{margin:3px 0 0;font-size:22px;color:#e6eaf0}.mangaMarketTabs{display:flex;gap:5px;padding:9px 13px;background:#101721;border-bottom:1px solid #242d39}.mangaMarketTabs button{min-height:36px;border:1px solid #283342;background:#151d28;color:#aab3c0;border-radius:6px;padding:7px 10px;font-size:10px;font-weight:900}.mangaMarketTabs button.active{background:#14aef1;color:#061019;border-color:#14aef1}.mangaMarketBody{padding:14px;overflow-y:auto;min-height:220px;overscroll-behavior:contain}.marketInfo{padding:10px;border:1px solid #252f3d;background:#111821;border-radius:8px;color:#8993a2;font-size:10px;line-height:1.5;margin-bottom:11px}.marketGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(245px,1fr));gap:8px}.marketBook{display:flex;gap:10px;border:1px solid #252f3b;background:#111821;border-radius:8px;padding:9px}.marketBookCover{width:62px;height:88px;flex:none;background:#202631 center/cover no-repeat;border-radius:5px}.marketBookInfo{min-width:0;flex:1}.marketBookTitle{font-size:11px;color:#e0e4eb;font-weight:900;line-height:1.3}.marketBookMeta{font-size:9px;color:#7f8998;margin-top:4px}.marketBookActions{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}.marketBookActions button,.marketProvider{min-height:31px;border:1px solid #303b49;background:#1a2330;color:#d8e0e9;border-radius:5px;padding:5px 8px;font-size:9px;font-weight:850}.marketProviderGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:7px}.marketProvider{text-align:left}.marketProvider b{display:block;color:#e0e5ec;font-size:10px}.marketProvider small{display:block;color:#778291;font-size:8.5px;margin-top:3px}.marketProvider.free{border-color:#28513a;background:#111e17;color:#9be0af}
+
+
+
 @media(max-width:760px){
  .mobileBottomNav{display:flex!important;overflow-x:auto!important;grid-template-columns:none!important;justify-content:flex-start!important;scrollbar-width:none}.mobileBottomNav::-webkit-scrollbar{display:none}.mobileBottomNav button{flex:0 0 68px!important;min-width:68px!important}
  .trendingHero{padding:8px 0 4px}.trendingHero h2{font-size:28px}.trendingRow{grid-auto-columns:126px;gap:10px;margin-right:-14px;padding-right:14px}.socialBuzz{width:185px}
- #mangaMarketModal{padding:0;align-items:flex-end}.mangaMarketPanel{width:100%;max-height:88dvh;border-radius:18px 18px 0 0;border-left:0;border-right:0;border-bottom:0;padding-bottom:env(safe-area-inset-bottom)}.mangaMarketBody{padding:11px}.marketGrid{grid-template-columns:1fr}.mangaNativeDetailActions{display:grid!important;grid-template-columns:1fr 1fr!important}
+
 }
 
 
@@ -1923,11 +1671,11 @@ body.mangaWebOpen .mobileBottomNav{display:none!important}
 }
 
 /* Browser pode pular layout/pintura de áreas bem fora da viewport */
-.section,.trendingSection,.socialRadar,.mangaShelfTitle,.mangaLatestGrid,.mangaExtGrid{
+.section,.trendingSection,.socialRadar{
  content-visibility:auto;
  contain-intrinsic-size:auto 310px
 }
-.card,.mangaNativeResultCard,.sourceCard.compact{
+.card,.sourceCard.compact{
  contain:layout paint style
 }
 
@@ -1948,7 +1696,7 @@ body.fastScrolling .sourceCard{
 body.fastScrolling .card:hover .poster{transform:none!important;filter:none!important}
 
 /* Scroll mais previsível em telas touch */
-.row,.trendingRow,.categoryMediaRow,.mangaTrendRow,.socialBuzzList{
+.row,.trendingRow,.categoryMediaRow,.socialBuzzList{
  overscroll-behavior-inline:contain
 }
 
@@ -1995,39 +1743,37 @@ body.fastScrolling .card:hover .poster{transform:none!important;filter:none!impo
 }
 
 
-/* =========================================================
-   ResenhaFlix v24 — Manga Sources + Música + Livros
-   ========================================================= */
-.m24Shell{max-width:1280px;margin:0 auto}
-.m24Header{display:flex;gap:14px;align-items:flex-end;margin:0 0 18px}
-.m24HeaderText{flex:1;min-width:0}.m24Eyebrow{font-size:10px;color:var(--accent);font-weight:950;letter-spacing:1.3px}
-.m24Header h2{margin:4px 0 4px;font-size:30px;color:#fff;letter-spacing:-.8px}.m24Header p{margin:0;color:#858790;font-size:11px;line-height:1.5}
-.m24Tabs{display:flex;gap:5px;background:#15161a;border:1px solid #292b31;border-radius:8px;padding:4px}
-.m24Tabs button{min-height:36px;border:0;border-radius:5px;background:transparent;color:#91929a;padding:7px 12px;font-size:10px;font-weight:900}
-.m24Tabs button.active{background:#282a31;color:#fff}
-.m24Search{display:grid;grid-template-columns:minmax(220px,1fr) 145px 110px;gap:8px;margin-bottom:11px}
-.m24Search input,.m24Search select{min-height:44px;border:1px solid #303139;background:#15161b;color:#fff;border-radius:7px;padding:9px 11px;outline:0}
-.m24Search input:focus,.m24Search select:focus{border-color:var(--accent)}.m24Search button{min-height:44px;border:0;border-radius:7px;background:var(--accent);color:#1d120b;font-weight:950}
-.m24Hint{font-size:10px;color:#777982;line-height:1.5;margin:0 0 17px}
-.m24ShelfHead{display:flex;align-items:end;gap:10px;margin:19px 0 10px}.m24ShelfHead h3{margin:0;font-size:19px;color:#fff}.m24ShelfHead small{font-size:9px;color:#777983;letter-spacing:1px;text-transform:uppercase}
-.m24Grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:17px 13px}
-.m24Card{min-width:0}.m24Cover{position:relative;aspect-ratio:2/3;background:#202126 center/cover no-repeat;border-radius:7px;overflow:hidden;border:1px solid #2d2e34}
-.m24Cover:after{content:"";position:absolute;inset:auto 0 0;height:36%;background:linear-gradient(transparent,#0009);pointer-events:none}
-.m24CardTitle{margin-top:8px;font-size:12px;color:#f0f0f2;font-weight:900;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:31px}
-.m24CardMeta{font-size:9px;color:#7d7f87;margin-top:3px}.m24Actions{display:grid;grid-template-columns:1fr 38px;gap:6px;margin-top:8px}
-.m24Actions button{min-height:36px;border-radius:6px;border:1px solid #34363d;background:#1c1e24;color:#ddd;font-size:9px;font-weight:900;padding:6px 8px}
-.m24Actions .find{background:var(--accent);border-color:var(--accent);color:#20130a}.m24Actions .saved{background:#fff;color:#111;border-color:#fff}
-.m24LibraryEmpty{padding:50px 12px;text-align:center;color:#83858d}.m24LibraryEmpty b{display:block;color:#ddd;font-size:17px;margin-bottom:5px}
-.m24SourceStatus{padding:10px;border:1px solid #2d3038;background:#14161b;border-radius:8px;color:#9698a0;font-size:10px;line-height:1.45}
-.m24SourceGrid{display:flex;flex-direction:column;gap:8px;margin-top:9px}
-.m24SourceCard{display:grid;grid-template-columns:42px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px;border:1px solid #2b2e36;background:#15171c;border-radius:9px}
-.m24SourceCard.confirmed{border-color:#28513a;background:#111a15}.m24SourceIcon{width:42px;height:42px;border-radius:8px;background:#24262c center/cover no-repeat;display:grid;place-items:center;font-size:11px;font-weight:950}
-.m24SourceName{font-size:11px;font-weight:900;color:#eee}.m24SourceMeta{font-size:9px;color:#81848d;margin-top:3px}.m24SourceResult{font-size:9px;color:#a2d9b1;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.m24SourceCard button{min-height:36px;border:1px solid #38404a;background:#1c222b;color:#fff;border-radius:6px;padding:7px 10px;font-size:9px;font-weight:900}
-.m24SourceCard.confirmed button{background:#fff;color:#111;border-color:#fff}
-.m24SourceProgress{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:9px 0 2px}.m24SourceProgress::-webkit-scrollbar{display:none}
-.m24SourceProgress span{flex:none;padding:5px 7px;border-radius:999px;border:1px solid #343740;background:#1a1c22;color:#8e9199;font-size:8.5px}
-.m24SourceProgress span.ok{border-color:#2b583e;color:#9adeae;background:#112018}.m24SourceProgress span.fail{color:#b47c83;border-color:#4c3036}.m24SourceProgress span.loading:before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;border:1px solid #777;border-top-color:#fff;margin-right:5px;animation:spin .65s linear infinite}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* Hub genérico */
 .mediaHub{max-width:1280px;margin:0 auto}.mediaHubHero{display:flex;align-items:flex-end;gap:14px;margin-bottom:16px}
@@ -2059,11 +1805,11 @@ body.fastScrolling .card:hover .poster{transform:none!important;filter:none!impo
 .mediaSourcesBody{flex:1;min-height:0;overflow-y:auto;padding:12px}.mediaSourcePane{display:none}.mediaSourcePane.active{display:block}.mediaSourceInfo{padding:9px 10px;border:1px solid #29313d;background:#151b24;border-radius:7px;color:#8c95a2;font-size:9.5px;line-height:1.5;margin-bottom:10px}.mediaField{display:block;margin:11px 0}.mediaField span{display:block;color:#a7adb7;font-size:9px;font-weight:900;margin-bottom:5px}.mediaField input,.mediaField textarea{width:100%;box-sizing:border-box;border:1px solid #323844;background:#0d1117;color:#fff;border-radius:7px;padding:9px;outline:0}.mediaField input:focus,.mediaField textarea:focus{border-color:var(--accent)}.jsonFileDrop{display:block;border:1px dashed #39414e;background:#121821;border-radius:8px;padding:13px;cursor:pointer;text-align:center}.jsonFileDrop b{display:block;color:#dbe1e9;font-size:10px}.jsonFileDrop small{display:block;color:#788291;font-size:8.5px;margin-top:4px}.jsonFileDrop input{display:none}.mediaImportStatus{font-size:9px;color:#84d39e;margin-top:6px}.mediaSourcesFooter{flex:none;display:flex;gap:8px;justify-content:flex-end;padding:10px 12px;border-top:1px solid #292e38;background:#141820}
 
 @media(max-width:760px){
- #page.musicPageModern,#page.booksPageModern,#page.mangaPageV24{padding-top:72px!important}
- #page.musicPageModern>h2,#page.booksPageModern>h2,#page.mangaPageV24>h2{display:none}
- .m24Header{display:block}.m24Header h2,.mediaHubTitle h2{font-size:26px}.m24Tabs{margin-top:10px;width:100%}.m24Tabs button{flex:1}
- .m24Search{grid-template-columns:1fr 108px}.m24Search input{grid-column:1/-1;font-size:16px}.m24Search button{grid-column:2/3}
- .m24Grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:15px 10px}.m24SourceCard{grid-template-columns:38px minmax(0,1fr);gap:8px}.m24SourceIcon{width:38px;height:38px}.m24SourceCard button{grid-column:1/-1;width:100%}
+ #page.musicPageModern,#page.booksPageModern{padding-top:72px!important}
+ #page.musicPageModern>h2,#page.booksPageModern>h2{display:none}
+ .mediaHubTitle h2{font-size:26px}
+
+
  .mediaHubHero{align-items:flex-start}.mediaHubHero .mediaSourcesBtn{flex:none}.mediaSearchBar{grid-template-columns:1fr 88px}.mediaSearchBar input{font-size:16px}.mediaSearchBar button{padding:7px}
  .musicTrack{grid-template-columns:52px minmax(0,1fr)}.musicTrackCover{width:52px;height:52px}.musicTrackActions{grid-column:1/-1}.musicTrackActions button{flex:1}
  .musicAlbumGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 9px}.musicArtistGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -2076,21 +1822,19 @@ body.fastScrolling .card:hover .poster{transform:none!important;filter:none!impo
 }
 
 
-/* =========================================================
-   ResenhaFlix v25 — Manga direto + Music Player + Livros
-   ========================================================= */
 
-/* ---------- Manga: fontes melhores / diretas ---------- */
-.m25BestBlock{margin:12px 0 4px}
-.m25BestHead{display:flex;align-items:end;gap:10px;margin:0 0 8px}
-.m25BestHead h3{margin:0;font-size:15px;color:#fff}
-.m25BestHead small{font-size:9px;color:#7f828a}
-.m25BestHead .count{margin-left:auto;color:#9edeb0;border:1px solid #2a5539;background:#101c15;border-radius:999px;padding:4px 7px;font-size:8px;font-weight:900}
-.m25SourceRank{width:27px;height:27px;border-radius:50%;display:grid;place-items:center;background:#24272d;color:#9da0a8;font-size:9px;font-weight:950}
-.m24SourceCard.confirmed .m25SourceRank{background:#fff;color:#111}
-.m25DirectLabel{color:#a8e0b7!important}
-.m25FallbackHead{margin-top:17px;border-top:1px solid #292c33;padding-top:12px}
-.m25SourceScore{display:inline-flex;margin-left:5px;padding:2px 5px;border-radius:4px;background:#20242a;color:#80858f;font-size:7.5px}
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* ---------- Spotify-like music bar ---------- */
 .spotifyBar{
@@ -2163,8 +1907,8 @@ body.fastScrolling .card:hover .poster{transform:none!important;filter:none!impo
  .spotifyButtons{gap:19px}.spotifyTimeline{grid-template-columns:31px minmax(0,1fr) 31px}
  .spotifyRight{grid-column:3/4;grid-row:1;align-self:start}
  .spotifyRight>*:not(#musicMiniClose){display:none!important}
- .m25BestHead{align-items:center}
- .m25BestHead h3{font-size:14px}
+
+
 }
 
 
@@ -2265,7 +2009,7 @@ body.fastScrolling .card:hover .poster{transform:none!important;filter:none!impo
 /* ResenhaFlix V27 */
 .dlivrosBtn{border-color:#41506a!important;color:#bfcde6!important;background:#151c28!important}
 .dlivrosBtn:hover{border-color:#6b7fa2!important;color:#fff!important}
-.m24SourceResult.m25DirectLabel{white-space:normal!important}
+
 
 /* =========================================================
    ResenhaFlix V28 — detalhes estilo Netflix
@@ -2469,7 +2213,7 @@ input::placeholder,textarea::placeholder{color:#898294;opacity:1}
 .poster{border-radius:10px!important;box-shadow:0 9px 28px rgba(0,0,0,.42)!important}
 .card:hover .poster{box-shadow:0 14px 34px rgba(59,26,97,.34)!important}
 .plus.saved,.searchResultPlus.saved{background:var(--accent)!important;border-color:var(--accent)!important;color:#fff!important}
-.bar i,.nativeReaderProgress i{background:linear-gradient(90deg,var(--accent),var(--accent2))!important}
+.bar i{background:linear-gradient(90deg,var(--accent),var(--accent2))!important}
 .searchTabs button.active,.mediaTabs button.active,.bookCategoryStrip button.active{
  background:var(--accent)!important;border-color:var(--accent)!important;color:#fff!important
 }
@@ -2508,7 +2252,7 @@ input::placeholder,textarea::placeholder{color:#898294;opacity:1}
  .search{width:190px}
 }
 @media(max-width:960px) and (min-width:761px){
- .nav button[data-page="anime"],.nav button[data-page="manga"]{display:none}
+ .nav button[data-page="anime"]{display:none}
  .search{width:170px}
 }
 @media(max-width:760px){
@@ -2558,7 +2302,7 @@ input::placeholder,textarea::placeholder{color:#898294;opacity:1}
  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
 }
 
-/* ResenhaFlix v34 — carrosséis touch, navegação móvel e Manga Engine atualizados */
+
 .sectionHeadText{min-width:0;flex:1}
 .carouselControls,.globalSearchActions{display:flex;align-items:center;justify-content:flex-end;gap:6px;margin-left:auto}
 .carouselArrow{
@@ -2574,7 +2318,7 @@ input::placeholder,textarea::placeholder{color:#898294;opacity:1}
 }
 [data-carousel]::-webkit-scrollbar{display:none}
 [data-carousel]>*{scroll-snap-align:start;touch-action:pan-x pan-y!important}
-[data-carousel] .card *,[data-carousel] .m24Card *{touch-action:pan-x pan-y!important}
+[data-carousel] .card *{touch-action:pan-x pan-y!important}
 [data-carousel]:focus-visible{outline:2px solid var(--accent2);outline-offset:4px;border-radius:8px}
 .globalSearchHead{align-items:center}
 .globalSearchHead>small{flex:1}
@@ -2584,7 +2328,7 @@ input::placeholder,textarea::placeholder{color:#898294;opacity:1}
  grid-auto-flow:row;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));grid-auto-columns:auto;
  overflow:visible;scroll-snap-type:none;gap:16px 12px
 }
-.globalSearchRow.is-expanded .card,.globalSearchRow.is-expanded .m24Card{width:100%;min-width:0}
+.globalSearchRow.is-expanded .card{width:100%;min-width:0}
 
 .mobileNavMenu{display:none}
 
@@ -2615,9 +2359,7 @@ input::placeholder,textarea::placeholder{color:#898294;opacity:1}
   width:auto!important;min-width:0!important;flex:initial!important;flex-basis:auto!important;
   scroll-snap-align:none!important;padding-left:2px!important;padding-right:2px!important
  }
- body.playerOpen .mobileBottomNav,body.detailOpen .mobileBottomNav,body.settingsOpen .mobileBottomNav,
- body.mangaReaderOpen .mobileBottomNav,body.mangaSourceOpen .mobileBottomNav,body.mangaDetailOpen .mobileBottomNav,
- body.mangaMatchOpen .mobileBottomNav,body.mangaWebOpen .mobileBottomNav,body.mediaSourcesOpen .mobileBottomNav,
+ body.playerOpen .mobileBottomNav,body.detailOpen .mobileBottomNav,body.settingsOpen .mobileBottomNav,body.mediaSourcesOpen .mobileBottomNav,
  body.bookReaderOpen .mobileBottomNav{display:none!important}
 
  .mobileNavMenu{
@@ -2657,10 +2399,10 @@ input::placeholder,textarea::placeholder{color:#898294;opacity:1}
 }
 
 </style>
-<link rel="stylesheet" href="./manga-hakuneko.css?v=34">
 <link rel="stylesheet" href="./ui-polish.css?v=50">
 <link rel="stylesheet" href="./theme-v54.css?v=54">
 <link rel="stylesheet" href="./player-v55.css?v=58">
+<link rel="stylesheet" href="./books-v62.css?v=62">
 <link rel="preconnect" href="https://0.peerjs.com" crossorigin>
 <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
 <link rel="stylesheet" href="./watch-party.css?v=61">
@@ -2694,7 +2436,6 @@ input::placeholder,textarea::placeholder{color:#898294;opacity:1}
   <button data-page="movies">Filmes</button>
   <button data-page="series">Séries</button>
   <button data-page="anime">Animes</button>
-  <button data-page="manga">Mangás</button>
   <button data-page="books">Livros</button>
   <button data-page="list">Minha lista</button>
  </nav>
@@ -2715,7 +2456,6 @@ input::placeholder,textarea::placeholder{color:#898294;opacity:1}
    <button type="button" data-category-page="movies">Filmes</button>
    <button type="button" data-category-page="series">Séries</button>
    <button type="button" data-category-page="anime">Animes</button>
-   <button type="button" data-category-page="manga">Mangás</button>
    <button type="button" data-category-page="books">Livros</button>
    <button type="button" data-category-page="list">Minha lista</button>
   </aside>
@@ -2937,160 +2677,6 @@ input::placeholder,textarea::placeholder{color:#898294;opacity:1}
  </section>
 </div>
 
-<div class="modal" id="mangaReaderModal">
- <div class="nativeMangaReader">
-  <div class="nativeReaderTop" id="nativeReaderTop">
-   <button type="button" class="nativeReaderIcon" id="closeMangaReader" aria-label="Voltar">‹</button>
-   <div class="nativeReaderHeading">
-    <div class="nativeReaderTitle" id="mangaReaderTitle">Mangá</div>
-    <div class="nativeReaderChapter" id="mangaReaderChapterTitle">Capítulo</div>
-   </div>
-   <button type="button" class="nativeReaderIcon" id="mangaReaderSettingsBtn" aria-label="Configurações">⚙</button>
-  </div>
-
-  <div class="nativeReaderProgress"><i id="mangaReaderProgressBar"></i></div>
-
-  <div class="nativeReaderCanvas vertical" id="mangaReaderCanvas">
-   <div class="nativeReaderLoading" id="mangaReaderLoading">Carregando páginas…</div>
-   <div class="nativeReaderPages" id="mangaReaderPages"></div>
-  </div>
-
-  <div class="nativeReaderHud" id="mangaReaderHud">
-   <button type="button" id="mangaPrevPage">‹</button>
-   <span id="mangaPageCounter">0 / 0</span>
-   <button type="button" id="mangaNextPage">›</button>
-  </div>
-
-  <div class="nativeReaderBottom" id="nativeReaderBottom">
-   <button type="button" id="mangaPrevChapter">‹ Capítulo</button>
-   <select id="mangaChapterSelect" title="Capítulo"></select>
-   <button type="button" id="mangaNextChapter">Capítulo ›</button>
-  </div>
-
-  <div class="nativeReaderSettings" id="nativeReaderSettings">
-   <div class="nativeReaderSettingsHead"><b>Leitor</b><button type="button" id="closeMangaReaderSettings">×</button></div>
-   <label>Modo de leitura
-    <select id="mangaReaderMode">
-     <option value="vertical">Vertical / Webtoon</option>
-     <option value="paged-ltr">Página — esquerda → direita</option>
-     <option value="paged-rtl">Página — direita → esquerda</option>
-    </select>
-   </label>
-   <label>Ajuste da imagem
-    <select id="mangaReaderFit">
-     <option value="width">Ajustar à largura</option>
-     <option value="contain">Página inteira</option>
-     <option value="original">Tamanho original</option>
-    </select>
-   </label>
-   <label>Espaço entre páginas
-    <select id="mangaReaderGap">
-     <option value="0">Sem espaço</option>
-     <option value="8">8 px</option>
-     <option value="16">16 px</option>
-    </select>
-   </label>
-   <label>Brilho <span id="mangaBrightnessLabel">100%</span>
-    <input type="range" id="mangaReaderBrightness" min="35" max="120" value="100">
-   </label>
-   <button type="button" class="nativeReaderSecondary" id="mangaReaderRestart">↺ Voltar ao início do capítulo</button>
-  </div>
- </div>
-</div>
-
-<div class="modal" id="mangaMatchModal">
- <div class="mangaMatchModal">
-  <div class="mangaMatchTop">
-   <div>
-    <div class="mangaSourcePickerEyebrow">Buscar nas fontes de mangá</div>
-    <h3 id="mangaMatchTitle">Mangá</h3>
-   </div>
-   <button type="button" class="close" id="closeMangaMatch">×</button>
-  </div>
-  <div class="mangaMatchStatus" id="mangaMatchStatus">Preparando busca…</div>
-  <div class="mangaSourceProgress" id="mangaMatchProgress"></div>
-  <div class="mangaMatchList" id="mangaMatchList"></div>
- </div>
-</div>
-
-<div class="modal" id="mangaDetailModal">
- <div class="mangaNativeDetail">
-  <button type="button" class="close" id="closeMangaDetail">×</button>
-  <div class="mangaNativeDetailHero" id="mangaNativeDetailHero">
-   <div class="mangaNativeDetailCover" id="mangaNativeDetailCover"></div>
-   <div class="mangaNativeDetailInfo">
-    <div class="mangaNativeDetailSource" id="mangaNativeDetailSource">Fonte</div>
-    <h2 id="mangaNativeDetailTitle">Mangá</h2>
-    <div class="mangaDetailBadges" id="mangaDetailBadges"></div>
-    <p id="mangaNativeDetailDesc"></p>
-    <div class="mangaNativeDetailActions">
-     <button type="button" class="btn primary" id="mangaContinueRead">▶ Começar a ler</button>
-     <button type="button" class="btn secondary" id="mangaSaveNative">☆ Seguir</button>
-     <button type="button" class="btn secondary mangaMarketBtn" id="mangaWhereBuy">🛒 Onde comprar</button>
-     <button type="button" class="btn secondary mangaFreeBtn" id="mangaWhereFree">◉ Ler grátis legalmente</button>
-    </div>
-   </div>
-  </div>
-  <div class="mangaChapterTabs">
-   <button type="button" class="active">Capítulos</button>
-   <span id="mangaChapterLanguage">🇧🇷 Português (BR)</span>
-  </div>
-  <div class="mangaChapterToolbar">
-   <input id="mangaChapterFilter" placeholder="Buscar número ou nome do capítulo…" autocomplete="off">
-   <button type="button" id="mangaChapterOrder">↓ Mais novos</button>
-  </div>
-  <div class="mangaChapterList" id="mangaChapterList"></div>
- </div>
-</div>
-
-<div class="modal" id="mangaMarketModal">
- <div class="mangaMarketPanel">
-  <div class="mangaMarketHead">
-   <div><small>ONDE ENCONTRAR</small><h3 id="mangaMarketTitle">Mangá</h3></div>
-   <button type="button" class="close" id="closeMangaMarket">×</button>
-  </div>
-  <div class="mangaMarketTabs">
-   <button type="button" class="active" data-market-tab="buy">Comprar</button>
-   <button type="button" data-market-tab="free">Ler grátis legalmente</button>
-  </div>
-  <div class="mangaMarketBody" id="mangaMarketBody"></div>
- </div>
-</div>
-
-<div class="modal" id="mangaSourceModal">
- <div class="mangaSourcePicker">
-  <div class="mangaSourcePickerTop">
-   <div>
-    <div class="mangaSourcePickerEyebrow">Ler mangá</div>
-    <h3 id="mangaSourcePickerTitle">Escolha uma fonte</h3>
-   </div>
-   <button type="button" class="close" id="closeMangaSourcePicker">×</button>
-  </div>
-  <div class="mangaSourcePickerMedia" id="mangaSourcePickerMedia"></div>
-  <div class="mangaSourcePickerNote">Fontes em Português aparecem primeiro. O ResenhaFlix tenta abrir a busca dessa obra na fonte instalada.</div>
-  <div class="mangaSourcePickerList" id="mangaSourcePickerList"></div>
- </div>
-</div>
-
-<div class="modal" id="mangaWebModal">
- <div class="mangaWebView">
-  <div class="mangaWebTop">
-   <button type="button" class="mangaWebIcon" id="closeMangaWeb" aria-label="Voltar">‹</button>
-   <div class="mangaWebHeading">
-    <div class="mangaWebTitle" id="mangaWebTitle">Fonte de mangá</div>
-    <div class="mangaWebSubtitle" id="mangaWebSubtitle">Modo site</div>
-   </div>
-   <button type="button" class="mangaWebAction" id="mangaWebHome">⌂ Início</button>
-   <button type="button" class="mangaWebAction" id="mangaWebNextSearch">↻ Outra busca</button>
-   <button type="button" class="mangaWebAction" id="mangaWebExternal">↗ Abrir fora</button>
-  </div>
-  <div class="mangaWebNotice" id="mangaWebNotice">A fonte está aberta dentro do ResenhaFlix. Se o site bloquear incorporação, use “Abrir fora”.</div>
-  <iframe id="mangaWebFrame" title="Fonte de mangá" referrerpolicy="no-referrer-when-downgrade"
-   sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe>
- </div>
-</div>
-
-
 <div class="modal" id="mediaSourcesModal">
  <div class="mediaSourcesPanel">
   <div class="mediaSourcesHead">
@@ -3158,14 +2744,13 @@ input::placeholder,textarea::placeholder{color:#898294;opacity:1}
   <div class="settingsTabs" id="settingsTabs">
    <button type="button" class="active" data-settings-tab="geral">Geral</button>
    <button type="button" data-settings-tab="player">Player</button>
-   <button type="button" data-settings-tab="manga">Mangás</button>
    <button type="button" data-settings-tab="advanced">Avançado</button>
   </div>
 
   <div class="settingsBody" id="settingsBody">
    <section class="settingsPane active" data-settings-pane="geral">
     <div class="settingsSectionTitle">Aplicativo</div>
-    <div class="field"><label>Idioma da interface / catálogo</label><select id="lang"><option value="pt-BR">Português (Brasil)</option><option value="pt">Português</option><option value="en">Inglês</option></select></div>
+    <div class="field"><label>Idioma da interface / catálogo</label><select id="lang"><option value="pt-BR">Português (Brasil)</option></select></div>
     <div class="settingsInfo">As alterações ficam salvas neste dispositivo. Histórico, Minha Lista e progresso continuam compatíveis com as versões anteriores.</div>
    </section>
 
@@ -3177,18 +2762,7 @@ input::placeholder,textarea::placeholder{color:#898294;opacity:1}
     <div class="field"><label>Botão “Pular abertura”</label><select id="skipIntroEnabled"><option value="1">Ativado</option><option value="0">Desativado</option></select></div>
     <div class="settingsInfo">O ResenhaFlix mantém suas preferências de áudio, legenda e fonte entre episódios quando a mídia oferece essas faixas.</div>
    </section>
-
-   <section class="settingsPane" data-settings-pane="manga">
-    <div class="settingsSectionTitle">Mangás</div>
-    <div class="field"><label>Repositórios de extensões (um por linha)</label><textarea id="mangaRepoUrls" rows="5" spellcheck="false"></textarea></div>
-    <div class="field"><label>Ponte de mangá — URL do servidor</label><input id="mangaBridgeUrl" placeholder="https://seu-manga-bridge.onrender.com"></div>
-    <div class="settingsInfo">
-     <b>Português e inglês:</b> a busca permite PT, EN ou os dois. Fontes PT-BR/PT recebem prioridade.
-     A Ponte incluída no ZIP ajuda com fontes que bloqueiam requisições do navegador.
-    </div>
-   </section>
-
-   <section class="settingsPane" data-settings-pane="advanced">
+<section class="settingsPane" data-settings-pane="advanced">
     <div class="settingsSectionTitle">Vídeo — avançado</div>
     <div class="field"><label>Fontes de vídeo (uma por linha — as primeiras têm prioridade)</label><textarea id="frostUrl" rows="6"></textarea></div>
     <div class="field"><label>Metadados principais</label><input id="metaUrl"></div>
@@ -3226,13 +2800,9 @@ input::placeholder,textarea::placeholder{color:#898294;opacity:1}
 
 <div class="toast" id="toast"></div>
 
-<script src="./app.js?v=61">
+<script src="./app.js?v=62">
 </script>
 <script src="./watch-party.js?v=61"></script>
-<!-- ResenhaFlix v12 — fontes progressivas/cache + tela Mangás/Keiyoushi -->
-<!-- ResenhaFlix v28 — manga exato/rápido, livros PT-BR e detalhes estilo Netflix -->
-<!-- ResenhaFlix v34 — Manga Bridge automática, conectores HakuNeko e leitor mobile -->
-  <script src="./manga-hakuneko.js?v=34"></script>
   <script src="./ui-polish.js?v=56"></script>
 </body>
 </html>

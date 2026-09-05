@@ -31,7 +31,7 @@ assert.equal(parsedManifest.background_color, "#100502");
 assert.equal(parsedManifest.theme_color, "#4B75FF");
 assert.ok(parsedManifest.icons.every(icon => icon.src.endsWith("?v=54")), "PWA icons must bypass older caches");
 assert.match(html, /\.\/icons\/resenhaflix-logo\.png\?v=54/);
-assert.match(worker, /resenhaflix-shell-v61/);
+assert.match(worker, /resenhaflix-shell-v62/);
 assert.match(worker, /\.\/theme-v54\.css\?v=54/);
 assert.match(worker, /\.\/player-v55\.css\?v=58/);
 
@@ -49,4 +49,4 @@ for (const [path, [expectedWidth, expectedHeight]] of iconSizes) {
   assert.equal(png.readUInt32BE(20), expectedHeight, `${path} height`);
 }
 
-console.log("visual v61: original palette, local SVG controls and full-screen player OK");
+console.log("visual v62: original palette, local SVG controls and full-screen player OK");
